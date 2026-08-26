@@ -1,0 +1,74 @@
+# 人工维护的“何时用 / 一句话示例”。
+# 生成脚本 scripts/emit_tool_inventory.mjs 会读取这里，与 codex_app_tools.json 合并，
+# 输出 docs/03-tool-reference.md。工具新增时：更新 json + 这里，再重跑脚本即可，不要手改 03。
+# 结构：<工具名>:  下面跟 when: 与 example:（example 可选）。
+
+create_thread:
+  when: 需要把一件事开成一条独立会话去干（主导者派发）。
+  example: "create_thread({prompt:'...', target:{type:'projectless'}})"
+send_message_to_thread:
+  when: 给某条会话补派活、补充要求或纠偏。
+  example: "send_message_to_thread({threadId:'...', prompt:'...'})"
+wait_threads:
+  when: 并行派了多条会话后，等它们跑完/拿最新状态。
+  example: "wait_threads({targets:[{threadId:'...'}], timeoutMs:120000})"
+read_thread:
+  when: 回头查看/验收某条会话的内容与历史。
+  example: "read_thread({threadId:'...', turnLimit:3})"
+list_threads:
+  when: 找回某条会话、看目前有哪些。
+  example: "list_threads({limit:20})"
+list_archived_threads:
+  when: 找回已归档的会话。
+  example: "list_archived_threads({limit:10})"
+fork_thread:
+  when: 基于某条会话再开一个分支，保留上下文/git 状态。
+  example: "fork_thread({threadId:'...', environment:{type:'same-directory'}})"
+handoff_thread:
+  when: 把会话（含 git 状态）移交到本机/远程或 worktree 继续。
+  example: "handoff_thread({threadId:'...', destinationHostId:'local'})"
+get_handoff_status:
+  when: 交接后确认是否完成。
+  example: "get_handoff_status({operationId:'...', waitMs:30000})"
+set_thread_title:
+  when: 让侧边栏更好认。
+  example: "set_thread_title({threadId:'...', title:'新标题'})"
+set_thread_pinned:
+  when: 固定常用会话。
+  example: "set_thread_pinned({threadId:'...', pinned:true})"
+set_thread_archived:
+  when: 收尾后归档。
+  example: "set_thread_archived({threadId:'...', archived:true})"
+navigate_to_codex_page:
+  when: 让我把某个任务切到前台给你看。
+  example: "navigate_to_codex_page({threadId:'...'})"
+open_in_codex:
+  when: 在面板展示文件/浏览器/终端/评审。
+  example: "open_in_codex({target:{type:'file', path:'...'}})"
+share_thread:
+  when: 把某个任务分享给别人。
+  example: "share_thread({threadId:'...'})"
+automation_update:
+  when: 需要定时/提醒/监控/反复跟进时。
+  example: "automation_update({mode:'create', name:'...', prompt:'...', rrule:'...'})"
+load_workspace_dependencies:
+  when: 做表格/PPT/文档时定位本机运行时与库。
+  example: "load_workspace_dependencies()"
+read_thread_terminal:
+  when: 看当前会话的命令运行输出。
+  example: "read_thread_terminal()"
+list_projects:
+  when: create_thread 指定归属项目时先查项目 id。
+  example: "list_projects()"
+capture_screen_context:
+  when: 仅语音对话时读取当前页面状态；普通文字会话不要用。
+  example: "capture_screen_context()"
+consume_usage_reset:
+  when: 仅当用户明确要使用一次额度重置。
+  example: "consume_usage_reset({idempotencyKey:'...'})"
+end_realtime_voice_call:
+  when: 用户让我挂断语音对话时。
+  example: "end_realtime_voice_call()"
+uninstall_plugin:
+  when: 用户明确要卸载某个插件。
+  example: "uninstall_plugin({plugin:'example'})"

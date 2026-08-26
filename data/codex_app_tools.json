@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "namespace": "codex_app",
+    "capturedAt": "2026-08-26",
+    "capturedFrom": "fully-enabled Codex Desktop session dynamic_tools snapshot",
+    "note": "工具会随版本变动；更新本文件后重跑 scripts/emit_tool_inventory.mjs 即可刷新 docs/03-tool-reference.md。"
+  },
+  "categories": {
+    "orchestration": "会话/任务编排（主导者派发核心）",
+    "organization": "会话组织与展示",
+    "automation": "定时/自动化/托管",
+    "misc": "应用/运行时/杂项"
+  },
+  "tools": [
+    {"name": "create_thread", "category": "orchestration", "description": "新建一条独立 Codex 会话/任务。"},
+    {"name": "send_message_to_thread", "category": "orchestration", "description": "向已有会话发送一条后续消息（派活/补充/纠偏）。"},
+    {"name": "wait_threads", "category": "orchestration", "description": "等待一条或多条会话跑到完成或需关注，返回最新状态。"},
+    {"name": "read_thread", "category": "orchestration", "description": "读取某条会话的内容与历史。"},
+    {"name": "list_threads", "category": "orchestration", "description": "列出最近会话（含置顶）。"},
+    {"name": "list_archived_threads", "category": "orchestration", "description": "列出已归档会话。"},
+    {"name": "fork_thread", "category": "orchestration", "description": "复制出一条新会话（含上下文/git 状态）。"},
+    {"name": "handoff_thread", "category": "orchestration", "description": "将会话（含 git 状态）移交到本机/远程 host 或 worktree。"},
+    {"name": "get_handoff_status", "category": "orchestration", "description": "查询交接进度/结果。"},
+    {"name": "set_thread_title", "category": "organization", "description": "重命名会话。"},
+    {"name": "set_thread_pinned", "category": "organization", "description": "置顶/取消置顶会话。"},
+    {"name": "set_thread_archived", "category": "organization", "description": "归档/取消归档会话。"},
+    {"name": "navigate_to_codex_page", "category": "organization", "description": "把某会话切到主应用前台。"},
+    {"name": "open_in_codex", "category": "organization", "description": "在 Codex 面板展示文件/浏览器标签/终端/评审。"},
+    {"name": "share_thread", "category": "organization", "description": "生成该会话的不可变分享链接。"},
+    {"name": "automation_update", "category": "automation", "description": "创建/更新/查看/删除定时任务、提醒、监控、跟进。"},
+    {"name": "load_workspace_dependencies", "category": "misc", "description": "定位本机 Node/Python 与常用库路径（表格/PPT/文档）。"},
+    {"name": "read_thread_terminal", "category": "misc", "description": "读取当前会话的终端输出。"},
+    {"name": "list_projects", "category": "misc", "description": "列出可用项目（create_thread 指定归属时用）。"},
+    {"name": "capture_screen_context", "category": "misc", "description": "语音对话时读取当前 Codex 页面/侧栏状态。"},
+    {"name": "consume_usage_reset", "category": "misc", "description": "兑换一次用量额度重置。"},
+    {"name": "end_realtime_voice_call", "category": "misc", "description": "结束语音对话。"},
+    {"name": "uninstall_plugin", "category": "misc", "description": "卸载某个已安装的 Codex 插件。"}
+  ]
+}

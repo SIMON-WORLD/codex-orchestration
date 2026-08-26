@@ -1,0 +1,20 @@
+# Dependencies / build
+node_modules/
+.pnpm-store/
+
+# Local / generated
+.codex/
+.env
+*.local
+gh-cache/
+04_tmp/
+05_tmp/
+
+# Secrets (never commit)
+*.token
+github_token.txt
+pypi_token.txt
+
+# OS / editor
+.DS_Store
+Thumbs.db
