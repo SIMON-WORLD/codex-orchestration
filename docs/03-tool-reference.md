@@ -1,6 +1,7 @@
 # codex_app 工具参考
 
 > 本文由 `scripts/emit_tool_inventory.mjs` 自动生成（快照时间 2026-08-26）。工具变化时更新 `data/codex_app_tools.json` 与 `data/tool_notes.yaml` 后重跑脚本，勿手改本文。
+> 注：实际可用的 `codex_app` 工具随应用版本、账号与套餐而异；下表为完整命名空间参考。
 
 ## 分类
 

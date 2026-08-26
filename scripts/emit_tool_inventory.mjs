@@ -60,6 +60,7 @@ let out = [];
 out.push("# codex_app 工具参考");
 out.push("");
 out.push(`> 本文由 \`scripts/emit_tool_inventory.mjs\` 自动生成（快照时间 ${meta._meta?.capturedAt ?? "未知"}）。工具变化时更新 \`data/codex_app_tools.json\` 与 \`data/tool_notes.yaml\` 后重跑脚本，勿手改本文。`);
+out.push("> 注：实际可用的 `codex_app` 工具随应用版本、账号与套餐而异；下表为完整命名空间参考。");
 out.push("");
 out.push("## 分类");
 out.push("");
