@@ -24,7 +24,7 @@ jobs:
           }
       - name: Validate SKILL.md frontmatter
         run: |
-          node -e "const s=require('fs').readFileSync('skills/codex-orchestration/SKILL.md','utf8'); if(!s.startsWith('---')){throw new Error('SKILL.md 缺少 frontmatter');} if(!/^name:\s*\S/m.test(s)){throw new Error('SKILL.md 缺 name');} if(!/^description:\s*\S/m.test(s)){throw new Error('SKILL.md 缺 description');}"
+          node -e "const fs=require('fs'); for(const f of ['skills/codex-orchestration/SKILL.md','skills/codex-role-team/SKILL.md']){ const s=fs.readFileSync(f,'utf8'); if(!s.startsWith('---')){throw new Error(f+' 缺少 frontmatter');} if(!/^name:\s*\S/m.test(s)){throw new Error(f+' 缺 name');} if(!/^description:\s*\S/m.test(s)){throw new Error(f+' 缺 description');} console.log('OK '+f); }"
       - name: No secrets in tracked files
         run: |
           if git ls-files | grep -iE 'token|secret|\.codex/' ; then

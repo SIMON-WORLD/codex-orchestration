@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "title": "通用报告团队示例",
+    "description": "演示通用角色团队：调研与设计可并行，最后统一撰写。任何领域都能照此改造。"
+  },
+  "roles": [
+    {
+      "id": "research",
+      "name": "调研专员",
+      "description": "围绕任务主题做资料调研并输出核心要点",
+      "prompt": "你是「调研专员」。围绕任务主题，检索并整理相关资料，输出结构化的核心要点与来源清单。只做调研，不要撰写成稿。",
+      "inputs": ["topic"],
+      "outputs": ["research_notes"],
+      "depends_on": [],
+      "target": "projectless"
+    },
+    {
+      "id": "design",
+      "name": "设计专员",
+      "description": "为报告设计可视化与版式建议",
+      "prompt": "你是「设计专员」。为报告设计一套可视化与版式建议（结构、图表类型、配色、版式），输出设计说明。只做设计，不要撰写内容。",
+      "inputs": ["topic"],
+      "outputs": ["design_notes"],
+      "depends_on": [],
+      "target": "projectless"
+    },
+    {
+      "id": "writer",
+      "name": "报告撰写",
+      "description": "综合上游调研与设计产出，撰写完整报告",
+      "prompt": "你是「报告撰写专员」。综合上游的调研要点与设计说明，撰写一份结构完整、事实可溯源的报告。事实来自调研，结构遵循设计建议。只负责成文，不新增观点。",
+      "inputs": ["topic", "research_notes", "design_notes"],
+      "outputs": ["report"],
+      "depends_on": ["research", "design"],
+      "target": "projectless"
+    }
+  ]
+}

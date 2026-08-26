@@ -9,6 +9,7 @@ node_modules/
 gh-cache/
 04_tmp/
 05_tmp/
+role-team-out/
 
 # Secrets (never commit)
 *.token

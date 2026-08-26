@@ -1,6 +1,6 @@
 # codex-orchestration
 
-> 一份**持续更新**的 Codex 使用手册——讲清楚如何用 Codex 做 **agent 式协作**：一条会话当主导者，把任务拆成多条独立会话并行去做，等结果、验收、合并。附带一份**可自动刷新**的 `codex_app` 工具参考。
+> 一份**持续更新**的 Codex 使用手册——讲清楚如何用 Codex 做 **agent 式协作**：一条会话当主导者，把任务拆成多条独立会话并行去做，等结果、验收、合并。附带一份**可自动刷新**的 `codex_app` 工具参考；在此之上还提供**角色团队层**（一条主线 + 若干员工会话）。
 
 ## 这是什么
 
@@ -8,6 +8,7 @@
 - 核心主线：**`create_thread`（建会话）→ `send_message_to_thread`（派活）→ `wait_threads`（等结果）→ `read_thread`（验收）→ 合并**。
 - 覆盖 `fork` / `handoff` / 分享 / 定时自动化（`automation_update`）等进阶能力。
 - 工具参考由脚本 `scripts/emit_tool_inventory.mjs` 自动生成，能随新工具出现而更新，避免手册过期。
+- **角色团队层（`codex-role-team`）**：把多条 worker 会话组织成「有依赖的角色团队」，科研/写作等都能套用。
 
 ## 为什么做
 
@@ -16,6 +17,7 @@
 - 一条会话当**主导者**，同时派多条**独立会话**干不同任务，最后统一验收合并。
 - 长任务可以开成独立会话慢慢跑，随时回来查看，不阻塞手头别的事。
 - 需要定时的活交给 `automation_update`，设一次就持续跟进。
+- 复杂多步任务可抽象成**角色团队**，每个员工只做一个角色，按依赖顺序推进。
 
 本仓库把「怎么正确使用 Codex 做 agent 式协作」沉淀成可共享、可持续维护的手册。
 
@@ -24,6 +26,7 @@
 1. **读文档**：`docs/`（从 `01` 开始）。
 2. **装 skill（可选）**：把 `skills/codex-orchestration` 复制到你的 `.agents/skills/`（或按版本用 `codex skill install`）。装好后，Codex 会自动知道怎么用这类编排工具。
 3. **看工具参考**：`docs/03-tool-reference.md`。
+4. **组一个角色团队**：见 `docs/06-role-team.md`（科研预设 `templates/role-team/roles.research.json`）。
 
 ## 目录
 
@@ -34,12 +37,25 @@
 | `docs/03-tool-reference.md` | `codex_app` 工具参考（**脚本生成**，勿手改） |
 | `docs/04-faq-troubleshooting.md` | 常见问题与故障排查 |
 | `docs/05-testing-guide.md` | 面向独立测试 Agent / VM 的系统性测试清单 |
+| `docs/06-role-team.md` | 角色团队模型、roles 文件 schema 与科研预设 |
 | `skills/codex-orchestration/SKILL.md` | 可安装的 Codex skill |
+| `skills/codex-role-team/SKILL.md` | 可安装的角色团队 skill |
 | `scripts/emit_tool_inventory.mjs` | 生成工具参考表的脚本 |
 | `scripts/capture_codex_tools.mjs` | 从本机会话自动捕获工具清单的脚本 |
+| `scripts/scaffold_role_team.mjs` | 生成角色团队派发计划/自包含 prompt 的脚本 |
+| `templates/role-team/` | 角色团队模板（schema 指南 + 科研预设） |
 | `CONTRIBUTING.md` | 贡献与 PR 规范 |
 | `data/` | 工具定义快照 + 人工用法说明（脚本输入） |
-| `data/` | 工具快照（capture 生成）+ 人工说明 / 中文角色 / override |
+
+## 组角色团队
+
+想把写作/科研等做成「一条主线 + 若干员工会话」？角色团队层把它抽象成可配置模板：
+
+- 读 `docs/06-role-team.md` 了解模型与 schema。
+- 直接用科研预设生成派发计划：`node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --question "<你的研究问题>"`。
+- 定义自己的团队：模仿 `templates/role-team/roles.json`。
+
+角色 prompt 是**自包含**的，不依赖本仓库或本机 skill，拿到任何环境都能独立运行。
 
 ## 保持工具参考最新
 
@@ -57,5 +73,3 @@
 ## 许可证
 
 [MIT](LICENSE)
-
-
