@@ -1,0 +1,32 @@
+name: validate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Generate tool reference
+        run: node scripts/emit_tool_inventory.mjs
+      - name: Fail if generated doc is stale
+        run: |
+          git diff --exit-code -- docs/03-tool-reference.md || {
+            echo "::error::docs/03-tool-reference.md 已过期，请重跑 node scripts/emit_tool_inventory.mjs 并提交生成结果。"
+            exit 1
+          }
+      - name: Validate SKILL.md frontmatter
+        run: |
+          node -e "const s=require('fs').readFileSync('skills/codex-orchestration/SKILL.md','utf8'); if(!s.startsWith('---')){throw new Error('SKILL.md 缺少 frontmatter');} if(!/^name:\s*\S/m.test(s)){throw new Error('SKILL.md 缺 name');} if(!/^description:\s*\S/m.test(s)){throw new Error('SKILL.md 缺 description');}"
+      - name: No secrets in tracked files
+        run: |
+          if git ls-files | grep -iE 'token|secret|\.codex/' ; then
+            echo "::error::发现疑似敏感文件入库。"
+            exit 1
+          fi

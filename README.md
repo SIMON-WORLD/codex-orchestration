@@ -33,8 +33,10 @@
 | `docs/02-orchestration-patterns.md` | 编排模式与调用示例 |
 | `docs/03-tool-reference.md` | `codex_app` 工具参考（**脚本生成**，勿手改） |
 | `docs/04-faq-troubleshooting.md` | 常见问题与故障排查 |
+| `docs/05-testing-guide.md` | 面向独立测试 Agent / VM 的系统性测试清单 |
 | `skills/codex-orchestration/SKILL.md` | 可安装的 Codex skill |
 | `scripts/emit_tool_inventory.mjs` | 生成工具参考表的脚本 |
+| `CONTRIBUTING.md` | 贡献与 PR 规范 |
 | `data/` | 工具定义快照 + 人工用法说明（脚本输入） |
 
 ## 保持工具参考最新
@@ -45,7 +47,11 @@
 2. 更新 `data/tool_notes.yaml`（人工维护“何时用 / 示例”）。
 3. 运行 `node scripts/emit_tool_inventory.mjs` 重新生成 `docs/03-tool-reference.md`。
 
-> 人工说明单独放在 `data/tool_notes.yaml`，因此重新生成时不会覆盖你的注释。
+> 人工说明单独放在 `data/tool_notes.yaml`，因此重新生成时不会覆盖你的注释。CI 会校验生成文件是否过期。
+
+## 协作 / 测试
+
+- 想让**另一台机器 / 虚拟机里的 Codex** 帮你测试找 bug？按 [`docs/05-testing-guide.md`](docs/05-testing-guide.md) 执行，发现问题走 PR（见 [`CONTRIBUTING.md`](CONTRIBUTING.md)）。
 
 ## 许可证
 
