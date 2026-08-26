@@ -61,6 +61,8 @@ handoff_thread({ threadId: "会话", destinationHostId: "local" });
 get_handoff_status({ operationId: "opId", waitMs: 30000 });
 ```
 
+> 注意：仅 **project 类型的 git 仓库会话**支持交接；projectless 会话调用 `handoff_thread` 会直接报错。
+
 ## 模式 5：定时自动化（automation）
 
 需要“每…做… / 提醒 / 持续监测”，用 `automation_update`。

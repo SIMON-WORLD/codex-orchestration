@@ -28,7 +28,7 @@ Codex 是 **agent 式**的：你给目标，它自主拆解、用工具执行。
 
 ## 一条会话能用到什么工具？
 
-Codex 应用会给会话注入一组 `codex_app` 工具。**不同会话拿到的工具集可能不同**（见 `04-faq` 的“精简工具清单”一节）。理想情况下，一条 fully-enabled 的会话拥有完整 `codex_app` 工具集（见 `03-tool-reference.md`）。
+Codex 应用会给会话注入一组 `codex_app` 工具。**不同会话拿到的工具集可能不同**（见 `04-faq-troubleshooting.md` 的 Q1）。理想情况下，一条 fully-enabled 的会话拥有完整 `codex_app` 工具集（见 `03-tool-reference.md`）。
 
 完整工具集会随版本变化，因此本仓库把工具参考做成**由脚本生成**，便于随时刷新。
 
