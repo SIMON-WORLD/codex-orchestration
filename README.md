@@ -36,19 +36,20 @@
 | `docs/05-testing-guide.md` | 面向独立测试 Agent / VM 的系统性测试清单 |
 | `skills/codex-orchestration/SKILL.md` | 可安装的 Codex skill |
 | `scripts/emit_tool_inventory.mjs` | 生成工具参考表的脚本 |
+| `scripts/capture_codex_tools.mjs` | 从本机会话自动捕获工具清单的脚本 |
 | `CONTRIBUTING.md` | 贡献与 PR 规范 |
 | `data/` | 工具定义快照 + 人工用法说明（脚本输入） |
+| `data/` | 工具快照（capture 生成）+ 人工说明 / 中文角色 / override |
 
 ## 保持工具参考最新
 
-工具随 Codex 版本变化。更新步骤：
+工具随 Codex 版本变化。**自动刷新**：
 
-1. 在某条 fully-enabled 的 Codex 会话捕获当前 `codex_app` 工具定义，更新 `data/codex_app_tools.json`。
-2. 更新 `data/tool_notes.yaml`（人工维护“何时用 / 示例”）。
-3. 运行 `node scripts/emit_tool_inventory.mjs` 重新生成 `docs/03-tool-reference.md`。
+1. 运行 `node scripts/capture_codex_tools.mjs` —— 从本机 Codex 会话的 `dynamic_tools` 自动捕获真实 `codex_app` 工具清单，写入 `data/codex_app_tools.json`（跨会话取并集，再合并一个很小的 `data/codex_app_tools.override.json`）。
+2. 运行 `node scripts/emit_tool_inventory.mjs` —— 重新生成 `docs/03-tool-reference.md`（“作用”列优先用 `data/tool_roles_zh.json` 的中文角色，无则回退英文描述）。
+3. 人工维护 `data/tool_notes.yaml`（“何时用 / 示例”）与 `data/tool_roles_zh.json`（中文角色标签）——这两层稳定、可选。
 
-> 人工说明单独放在 `data/tool_notes.yaml`，因此重新生成时不会覆盖你的注释。CI 会校验生成文件是否过期。
-
+> 单条会话的 `dynamic_tools` 可能不全，所以 capture 会跨多个会话取并集。CI 会校验“数据 → 文档”一致性。
 ## 协作 / 测试
 
 - 想让**另一台机器 / 虚拟机里的 Codex** 帮你测试找 bug？按 [`docs/05-testing-guide.md`](docs/05-testing-guide.md) 执行，发现问题走 PR（见 [`CONTRIBUTING.md`](CONTRIBUTING.md)）。
@@ -56,3 +57,5 @@
 ## 许可证
 
 [MIT](LICENSE)
+
+

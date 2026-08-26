@@ -29,6 +29,8 @@
 ## C 组 · 生成脚本正确性与健壮性
 
 - [ ] `node scripts/emit_tool_inventory.mjs` 能否无报错运行。
+- [ ] `node scripts/capture_codex_tools.mjs --dry-run` 能否从本机会话捕获到 `codex_app` 工具清单（无本机会话时跳过）。
+- [ ] capture 后重跑 `emit_tool_inventory.mjs` 是否幂等（`git diff` 为空）。
 - [ ] **幂等性**：连续跑两次，`docs/03-tool-reference.md` 是否一致（`git diff` 应为空）。
 - [ ] 故意给 `data/codex_app_tools.json` 塞坏数据（缺字段、空数组、非法 JSON）脚本是否**报错而不是静默产出错表**。
 - [ ] `tool_notes.yaml` 里出现「json 里没有的工具」或「某工具没有 notes」，脚本是否优雅处理。
@@ -63,3 +65,4 @@
 - **发现问题但先不改** → 开一个 **Issue**，写清：复现步骤、预期、实际、相关文件行号。
 - **能修复** → 建分支（建议 `fix/<简述>` 或 `test/<简述>`），做**最小**改动，**先跑 C 组（生成脚本）+ B 组（一致性）**，提交后开 **PR** 到 `SIMON-WORLD/codex-orchestration`。PR 里写：改了什么、如何验证、是否影响生成文件。若修改了 `data/` 或工具清单，**必须重跑 `node scripts/emit_tool_inventory.mjs` 并提交生成的 `docs/03-tool-reference.md`**，否则 CI 会拒绝。
 - 遵循 `CONTRIBUTING.md` 的规范。
+

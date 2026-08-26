@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 // 生成 docs/03-tool-reference.md
-// 输入: data/codex_app_tools.json (工具定义快照) + data/tool_notes.yaml (人工用法说明)
+// 输入: data/codex_app_tools.json (工具定义快照，可由 capture_codex_tools.mjs 生成) + data/tool_notes.yaml (人工用法说明)
 // 输出: docs/03-tool-reference.md
 // 用法: node scripts/emit_tool_inventory.mjs
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function readJson(rel) {
-  const p = join(root, rel);
-  return JSON.parse(readFileSync(p, "utf8"));
+  return JSON.parse(readFileSync(join(root, rel), "utf8"));
 }
 
 // 解析 tool_notes.yaml 的受限子集：
@@ -35,9 +34,19 @@ function parseNotes(yaml) {
   return notes;
 }
 
+// 截断：取首句，限制长度，保证表格“作用”列可读
+function shorten(s) {
+  if (!s) return "";
+  const first = s.split(/[.!?。！？]/)[0].trim();
+  const text = first.length >= 8 ? first : s.trim();
+  return text.length > 90 ? text.slice(0, 90).trimEnd() + "…" : text;
+}
+
 const meta = readJson("data/codex_app_tools.json");
 const categoryLabels = meta.categories || {};
 const notes = parseNotes(readFileSync(join(root, "data/tool_notes.yaml"), "utf8"));
+let rolesZh = {};
+try { rolesZh = JSON.parse(readFileSync(join(root, "data/tool_roles_zh.json"), "utf8")); } catch {}
 const tools = meta.tools || [];
 
 // 校验每个工具条目结构：缺少 name / category 会静默产出错表，直接报错。
@@ -81,7 +90,7 @@ for (const cat of catOrder) {
   for (const t of items) {
     const n = notes[t.name] || {};
     const esc = (s) => (s || "").replace(/\|/g, "\\|");
-    out.push(`| \`${t.name}\` | ${esc(t.description)} | ${esc(n.when || "")} | ${n.example ? "`" + esc(n.example) + "`" : ""} |`);
+    out.push(`| \`${t.name}\` | ${esc(rolesZh[t.name] || shorten(t.description))} | ${esc(n.when || "")} | ${n.example ? "`" + esc(n.example) + "`" : ""} |`);
   }
   out.push("");
 }
@@ -89,3 +98,4 @@ for (const cat of catOrder) {
 // 写回生成文件（换行统一为 LF，配合 .gitattributes 保证 Windows 下重新生成后工作区干净）
 writeFileSync(join(root, "docs/03-tool-reference.md"), out.join("\n") + "\n", "utf8");
 console.log(`生成 docs/03-tool-reference.md：${out.length} 行，${tools.length} 个工具`);
+

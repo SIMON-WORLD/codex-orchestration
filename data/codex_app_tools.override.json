@@ -1,0 +1,7 @@
+[
+  {
+    "name": "consume_usage_reset",
+    "category": "misc",
+    "description": "兑换一次 Codex 用量额度重置(仅当用户明确要使用重置时)。"
+  }
+]
