@@ -5,7 +5,7 @@
     "capturedFrom": "C:\\Users\\Administrator\\.codex\\sessions\\2026\\08\\24\\rollout-2026-08-24T12-27-37-01a03499-4e0c-7a32-930b-359d1e333511.jsonl",
     "sourceCount": 78,
     "overridesAdded": 1,
-    "note": "本文件由 scripts/capture_codex_tools.mjs 自动生成（跨会话并集 + override）；工具变化时重跑 capture 并提交结果。"
+    "note": "本文件由 scripts/capture_codex_tools.mjs 自动生成（跨会话并集 + override）；工具变化时重跑 capture 并提交结果。若捕获数少于现有快照，默认拒绝覆盖。"
   },
   "categories": {
     "orchestration": "会话/任务编排（主导者派发核心）",

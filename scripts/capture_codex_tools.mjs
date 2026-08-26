@@ -2,10 +2,11 @@
 // 自动捕获本机 Codex 会话中记录的真实 codex_app / plugin_management 工具清单。
 // 输入: ~/.codex/sessions/**/*.jsonl、~/.codex/archived_sessions/**/*.jsonl（新->旧，最多近30天）
 //       data/category_map.json (可选，工具->分类覆盖)
-//       data/codex_app_tools.override.json (可选，额外补充，如 dynamic_tools 未记录但模型可见的工具)
+//       data/codex_app_tools.override.json (可选，额外补充)
 // 输出: data/codex_app_tools.json (保持 emit_tool_inventory.mjs 读取的 schema)
-// 说明: 单条会话 dynamic_tools 可能不全，因此跨多个会话取“并集”；再合并 override 得到完整集。
-// 用法: node scripts/capture_codex_tools.mjs [--dry-run]
+// 说明: 单条会话 dynamic_tools 可能不全 -> 跨会话取并集；再合并 override 得到完整集。
+//       若捕获结果明显少于当前快照，说明本机会话不足，会拒绝覆盖（需 --force）。
+// 用法: node scripts/capture_codex_tools.mjs [--dry-run] [--force]
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
@@ -14,6 +15,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const argSet = new Set(process.argv.slice(2));
 const DRY_RUN = argSet.has("--dry-run");
+const FORCE = argSet.has("--force");
 const MAX_FILES = 200;
 const WINDOW_DAYS = 30;
 
@@ -88,7 +90,6 @@ candidates = candidates.filter((f) => mtime(f) >= cutoff).sort((a, b) => mtime(b
 let categoryMap = {};
 try { categoryMap = JSON.parse(readFileSync(join(root, "data", "category_map.json"), "utf8")); } catch { categoryMap = {}; }
 
-// override：额外工具（dynamic_tools 未记录但模型可见），并携带分类
 let overrides = [];
 try {
   const o = JSON.parse(readFileSync(join(root, "data", "codex_app_tools.override.json"), "utf8"));
@@ -126,6 +127,20 @@ const tools = [...byName.values()]
   .map(({ name, description }) => ({ name, category: classify(name, categoryMap, overrideCategory), description }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
+const existingPath = join(root, "data", "codex_app_tools.json");
+let existingCount = 0;
+try {
+  const ex = JSON.parse(readFileSync(existingPath, "utf8"));
+  existingCount = (ex.tools || []).length;
+} catch { existingCount = 0; }
+
+// 防误覆盖：捕获数明显少于现有快照 -> 本机会话不足，拒绝覆盖（除非 --force）
+if (!DRY_RUN && existingCount > 0 && tools.length < existingCount && !FORCE) {
+  console.error(`警告：捕获到 ${tools.length} 个工具，但现有快照有 ${existingCount} 个。本机会话数据可能不足，工具集可能不全。`);
+  console.error("为避免用不全的数据覆盖可靠快照，已取消写入。若确认要覆盖，请加 --force：node scripts/capture_codex_tools.mjs --force");
+  process.exit(1);
+}
+
 const output = {
   _meta: {
     namespace: "codex_app",
@@ -133,7 +148,7 @@ const output = {
     capturedFrom: sourceFiles[0] ?? null,
     sourceCount: sourceFiles.length,
     overridesAdded: overrides.length,
-    note: "本文件由 scripts/capture_codex_tools.mjs 自动生成（跨会话并集 + override）；工具变化时重跑 capture 并提交结果。",
+    note: "本文件由 scripts/capture_codex_tools.mjs 自动生成（跨会话并集 + override）；工具变化时重跑 capture 并提交结果。若捕获数少于现有快照，默认拒绝覆盖。",
   },
   categories: CATEGORY_LABELS,
   tools,
@@ -143,6 +158,9 @@ if (DRY_RUN) {
   console.log(`[dry-run] 来源会话数: ${sourceFiles.length}，override: ${overrides.length}，工具数: ${tools.length}`);
   for (const t of tools) console.log(`  ${t.category.padEnd(14)} ${t.name}`);
 } else {
+  if (sourceFiles.length < 10) {
+    console.warn(`提示：来源会话仅 ${sourceFiles.length} 个，工具集可能不全；建议在会话更全的机器（如主机）上运行。`);
+  }
   const outPath = join(root, "data", "codex_app_tools.json");
   writeFileSync(outPath, JSON.stringify(output, null, 2) + "\n", "utf8");
   console.log(`已写入 ${outPath}：${tools.length} 个工具（来自 ${sourceFiles.length} 个会话 + ${overrides.length} 个 override）`);
