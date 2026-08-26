@@ -40,6 +40,19 @@ const categoryLabels = meta.categories || {};
 const notes = parseNotes(readFileSync(join(root, "data/tool_notes.yaml"), "utf8"));
 const tools = meta.tools || [];
 
+// 校验每个工具条目结构：缺少 name / category 会静默产出错表，直接报错。
+for (const t of tools) {
+  if (typeof t?.name !== "string" || !t.name.trim()) {
+    throw new Error(`工具条目缺少有效的 name：${JSON.stringify(t)}`);
+  }
+  if (typeof t?.category !== "string" || !t.category.trim()) {
+    throw new Error(`工具 "${t.name}" 缺少有效的 category：${JSON.stringify(t)}`);
+  }
+}
+if (tools.length === 0) {
+  console.warn("警告：tools 为空数组，将生成空的工具参考。");
+}
+
 const byCat = {};
 for (const t of tools) (byCat[t.category] ??= []).push(t);
 
@@ -72,6 +85,6 @@ for (const cat of catOrder) {
   out.push("");
 }
 
-// 注：占位，避免空文件
+// 写回生成文件（换行统一为 LF，配合 .gitattributes 保证 Windows 下重新生成后工作区干净）
 writeFileSync(join(root, "docs/03-tool-reference.md"), out.join("\n") + "\n", "utf8");
 console.log(`生成 docs/03-tool-reference.md：${out.length} 行，${tools.length} 个工具`);
