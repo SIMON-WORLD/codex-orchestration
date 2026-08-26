@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -30,3 +31,4 @@ jobs:
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
