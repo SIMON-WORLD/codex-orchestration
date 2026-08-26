@@ -41,7 +41,7 @@
       "prompt": "你是科研团队里的「写作专员」。你的任务：综合上游的文献综述、数据说明与实证结果，撰写一份结构完整的论文/研究报告（摘要、引言、文献、数据、方法、结果、讨论、结论、参考文献），确保事实来自上游、结论与实证一致，引用格式统一。只负责成文，不新增实证。",
       "inputs": ["research_question", "literature_review", "data_summary", "empirical_results"],
       "outputs": ["manuscript"],
-      "depends_on": ["literature", "empirical"],
+      "depends_on": ["literature", "empirical", "data"],
       "target": "projectless"
     },
     {

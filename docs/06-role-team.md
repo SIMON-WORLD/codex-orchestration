@@ -41,10 +41,10 @@
 | `data` 数据处理 | 整理/清洗/构造数据 | — | `data_summary` |
 | `empirical` 实证/显著性 | 实证、稳健性、显著性 | `data` | `empirical_results` |
 | `visualize` 可视化 | 论文级图表 | `data` | `figures` |
-| `writing` 写作 | 结构化论文/报告 | `literature`,`empirical` | `manuscript` |
+| `writing` 写作 | 结构化论文/报告 | `literature`,`data`,`empirical` | `manuscript` |
 | `review` 审查/审稿 | 审稿意见 | `writing` | `review_report` |
 
-依赖图：`literature`、`data` 并行；`data` 之后 `empirical` 与 `visualize` 并行；`literature`+`empirical` 汇入 `writing`；`writing` 汇入 `review`。
+依赖图：`literature`、`data` 并行；`data` 之后 `empirical` 与 `visualize` 并行；`literature`、`data`、`empirical` 汇入 `writing`；`writing` 汇入 `review`。
 
 ## 怎么跑
 
