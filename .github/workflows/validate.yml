@@ -34,6 +34,10 @@ jobs:
         run: node core/validate_capability_schema.mjs
       - name: Run capability schema rejection spec
         run: node tests/schema.spec.mjs
+      - name: Validate role pack schema
+        run: node core/validate_role_scope.mjs
+      - name: Run role scope / dispatch spec
+        run: node tests/role_scope.spec.mjs
       - name: Run Capability Resolver fixture spec
         run: node tests/resolver.spec.mjs
       - name: Guard against fabricated verified in real registry
@@ -47,6 +51,7 @@ jobs:
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
 
 
 

@@ -1,0 +1,134 @@
+{
+  "meta": { "domain": "economics", "kind": "role_pack_v1_3", "note": "v1.3 Economics role pack：role = responsibility + authority + inputs/outputs + capability_scope + escalation；科研方法由 study.selected_capabilities → registry → resolver 决定。" },
+  "roles": [
+    {
+      "id": "literature_search",
+      "domain": "economics",
+      "name": "文献检索",
+      "description": "Multi-source retrieval, dedupe, screening, source verification",
+      "responsibility": [
+        "run systematic literature search across specified sources",
+        "dedupe and screen by title/abstract",
+        "verify citation metadata (DOI/author/journal/year)",
+        "produce a structured search log and record sources"
+      ],
+      "authority": { "may_decide": ["search_scope", "keyword_strings"], "must_escalate": [] },
+      "inputs": ["research_question"],
+      "outputs": ["literature_search_log"],
+      "capability_scope": ["economics.literature.*"],
+      "depends_on": [],
+      "target": "projectless",
+      "escalation_rules": ["If a source cannot be legally retrieved, record it and continue; never fabricate citations."]
+    },
+    {
+      "id": "literature_review",
+      "domain": "economics",
+      "name": "文献综述",
+      "description": "Synthesize a structured, cited literature review from the search log",
+      "responsibility": [
+        "synthesize the search log into a structured review (state, debates, gaps)",
+        "ground claims in real, verified citations",
+        "tag evidence grading for causal/mechanism claims"
+      ],
+      "authority": { "may_decide": ["organizing_framework"], "must_escalate": [] },
+      "inputs": ["research_question", "literature_search_log"],
+      "outputs": ["literature_review"],
+      "capability_scope": [],
+      "depends_on": ["literature_search"],
+      "target": "projectless",
+      "escalation_rules": ["Never invent a citation; a claim without a verifiable source must be flagged."]
+    },
+    {
+      "id": "data",
+      "domain": "economics",
+      "name": "数据处理",
+      "description": "Acquire, clean, validate and document the analysis dataset",
+      "responsibility": [
+        "build the analysis dataset from the agreed sources",
+        "clean, validate, and construct variables per the approved data design",
+        "emit a data manifest, variable dictionary, sample-flow and decision log"
+      ],
+      "authority": { "may_decide": ["validation_rules"], "must_escalate": ["unit_of_analysis", "treatment_definition", "sample_exclusion", "material_variable_definition_changes"] },
+      "inputs": ["research_question"],
+      "outputs": ["data_summary", "decision_log"],
+      "capability_scope": ["economics.data.*"],
+      "depends_on": [],
+      "target": "project",
+      "escalation_rules": ["Unit of analysis, treatment definition and sample exclusion must be escalated before construction."]
+    },
+    {
+      "id": "empirical",
+      "domain": "economics",
+      "name": "实证/显著性",
+      "description": "Execute the approved empirical design and produce structured outputs",
+      "responsibility": [
+        "execute the approved empirical design",
+        "run diagnostics required by the selected capabilities",
+        "produce structured empirical outputs (estimates, diagnostics, stamp)",
+        "report deviations from the design",
+        "maintain decision and provenance records"
+      ],
+      "authority": { "may_decide": [], "must_escalate": ["identification_strategy", "treatment_definition", "clustering_level", "sample_exclusion", "material_specification_changes"] },
+      "inputs": ["research_question", "data_summary", "decision_log"],
+      "outputs": ["empirical_results", "decision_log", "replication_stamp"],
+      "capability_scope": ["economics.regression.*", "economics.causal.*", "economics.stat.*"],
+      "depends_on": ["data"],
+      "target": "project",
+      "escalation_rules": ["Identification/treatment/clustering/sample decisions must be escalated; estimator changes are material and must be escalated."]
+    },
+    {
+      "id": "visualize",
+      "domain": "economics",
+      "name": "可视化",
+      "description": "Produce publication-grade figures from data and empirical outputs",
+      "responsibility": [
+        "produce figures consistent with the analysis outputs",
+        "label every figure (variable, unit, source, meaning)",
+        "flag noisy / small-cell figures"
+      ],
+      "authority": { "may_decide": ["visual_defaults"], "must_escalate": [] },
+      "inputs": ["data_summary", "empirical_results"],
+      "outputs": ["figures"],
+      "capability_scope": [],
+      "depends_on": ["data", "empirical"],
+      "target": "project",
+      "escalation_rules": ["Do not infer causation from a figure; visual claims must match the analysis outputs."]
+    },
+    {
+      "id": "writing",
+      "domain": "economics",
+      "name": "写作",
+      "description": "Assemble a structured manuscript from upstream outputs",
+      "responsibility": [
+        "assemble the manuscript per the chosen output profile",
+        "keep every claim traceable to upstream outputs (evidence ledger)",
+        "do not invent results or citations"
+      ],
+      "authority": { "may_decide": ["section_order"], "must_escalate": [] },
+      "inputs": ["research_question", "literature_review", "data_summary", "empirical_results"],
+      "outputs": ["manuscript"],
+      "capability_scope": [],
+      "depends_on": ["literature_search", "literature_review", "data", "empirical"],
+      "target": "projectless",
+      "escalation_rules": ["Facts must come from upstream outputs; unsupported claims must be flagged, never invented."]
+    },
+    {
+      "id": "review",
+      "domain": "economics",
+      "name": "审查/审稿",
+      "description": "Adversarial review + replicability / format checks",
+      "responsibility": [
+        "review the manuscript with an adversarial reviewer lens",
+        "run the reproducibility / format check against the upstream artifacts",
+        "output a structured review report and replicability check"
+      ],
+      "authority": { "may_decide": ["review_priority"], "must_escalate": [] },
+      "inputs": ["manuscript"],
+      "outputs": ["review_report", "replicability_check"],
+      "capability_scope": ["economics.stat.*"],
+      "depends_on": ["writing"],
+      "target": "projectless",
+      "escalation_rules": ["Flag any mismatch between a claim and the underlying evidence; do not rubber-stamp."]
+    }
+  ]
+}

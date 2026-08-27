@@ -15,6 +15,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveAll, loadRegistry } from "./resolve_capabilities.mjs";
+import { validateSelectedCapabilities } from "./validate_role_scope.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -66,7 +67,10 @@ function loadRoles(file) {
   for (const r of roles) {
     if (typeof r?.id !== "string" || !r.id.trim()) throw new Error(`角色缺少有效的 id：${JSON.stringify(r)}`);
     if (typeof r?.name !== "string" || !r.name.trim()) throw new Error(`角色 "${r?.id}" 缺少有效的 name：${JSON.stringify(r)}`);
-    if (typeof r?.prompt !== "string" || !r.prompt.trim()) throw new Error(`角色 "${r?.id}" 缺少有效的 prompt（自包含任务说明）：${JSON.stringify(r)}`);
+    if (typeof r?.prompt !== "string" || !r.prompt.trim()) {
+      if (r?.capability_scope === undefined) throw new Error(`角色 "${r?.id}" 缺少有效的 prompt（自包含任务说明）：${JSON.stringify(r)}`);
+      // v1.3 role：无 prompt，由 scaffold 根据 responsibility/authority + selected capabilities 生成
+    }
     if (r.methodology !== undefined && (typeof r.methodology !== "object" || r.methodology === null)) throw new Error(`角色 "${r?.id}" 的 methodology 必须是对象：${JSON.stringify(r.methodology)}`);
     if (r.policy !== undefined) {
       if (typeof r.policy !== "object" || r.policy === null) throw new Error(`角色 "${r?.id}" 的 policy 必须是对象：${JSON.stringify(r.policy)}`);
@@ -191,111 +195,152 @@ function buildUpstreamSpec(role, inject, byId) {
 }
 
 // ---- main ----
+// ---- v1.3 role：由 responsibility/authority + selected capabilities 渲染 prompt ----
+function buildV13Prompt(role, selectedCaps, capRegistry, resolverResults, ctx, question) {
+  const parts = [];
+  parts.push(`# 任务：${role.name}`);
+  parts.push("");
+  if (role.description) parts.push(role.description);
+  parts.push("");
+  if (question) { parts.push("## 研究问题 / 任务主题"); parts.push(question); parts.push(""); }
+  parts.push("## 职责");
+  for (const r of role.responsibility || []) parts.push(`- ${r}`);
+  parts.push("");
+  parts.push("## 权限");
+  if ((role.authority?.may_decide || []).length) parts.push(`可自行决定：${role.authority.may_decide.join("、")}`);
+  if ((role.authority?.must_escalate || []).length) parts.push(`必须上报（不得自行决定）：${role.authority.must_escalate.join("、")}`);
+  parts.push("");
+  if (Array.isArray(role.inputs) && role.inputs.length) { parts.push("## 上游输入"); for (const i of role.inputs) parts.push(`- ${i}`); parts.push(""); }
+  if (ctx.outputProfile && ctx.profileApplies(role)) {
+    const p = ctx.outputProfile;
+    parts.push(`## ${p.section || "输出规范"}`);
+    parts.push(`本角色产出面向：${p.name}`);
+    p.rules.forEach((x) => parts.push(`- ${x}`));
+    parts.push("");
+  }
+  if (selectedCaps && selectedCaps.length) {
+    parts.push("## 本任务选用的能力");
+    for (const cap of selectedCaps) {
+      parts.push(`- ${cap}`);
+      const capObj = capRegistry[cap];
+      if (capObj?.methodology) {
+        if (capObj.methodology.note) parts.push(`  - 方法参考：${capObj.methodology.note}`);
+        for (const ref of (capObj.methodology.references || [])) parts.push(`  - 来源：${ref.name || ref.url || ref}`);
+      }
+      const res = resolverResults?.[cap];
+      if (res) {
+        let line = `  - 状态：${res.resolution}`;
+        if (res.runtime) line += `；runtime=${res.runtime}${res.runtime_instance ? ` (${res.runtime_instance})` : ""}`;
+        if (res.reason) line += `；${res.reason}`;
+        parts.push(line);
+      }
+    }
+    parts.push("");
+  }
+  if ((role.authority?.must_escalate || []).length) {
+    parts.push("## 决策门控");
+    parts.push(`以下属【必须上报】决定，无用户确认时停止并输出 intermediate + decision_gate.md：${role.authority.must_escalate.join("、")}`);
+    parts.push("");
+  }
+  parts.push("## 交付要求");
+  parts.push(`请产出：${(role.outputs || []).join("、") || "任务结果"}`);
+  return parts.join("\n").trim();
+}
+
+// ---- DAG 传播：上游 blocked/needs_decision 会影响下游 ----
+function computeDispatch(roles, ownStatus, byId) {
+  const order = planStages(roles).flat();
+  const eff = {};
+  for (const id of order) {
+    const deps = byId.get(id).depends_on || [];
+    const depEff = deps.map((d) => eff[d]);
+    let st = ownStatus[id] || "ready";
+    if (st === "blocked") eff[id] = "blocked";
+    else if (depEff.some((x) => x === "blocked")) eff[id] = "blocked";
+    else if (depEff.some((x) => x === "needs_decision")) eff[id] = "needs_decision";
+    else eff[id] = st;
+  }
+  return eff;
+}
 const rolesFile = arg("roles");
 if (!rolesFile) {
-  console.error("用法：node core/scaffold_role_team.mjs --roles <roles.json> [--domain <name>] [--output-profile <id>] [--question \"...\"] [--inject <json>] [--out <path>] [--dry-run]");
+  console.error("用法：node core/scaffold_role_team.mjs --roles <roles.json> [--domain <name>] [--output-profile <id>] [--question \"...\"] [--inject <json>] [--study <study.json>] [--env <env.json>] [--out <path>] [--dry-run]");
   process.exit(2);
 }
-
 const question = arg("question") || "";
 let inject = {};
-if (arg("inject")) {
-  try { inject = JSON.parse(readFileSync(arg("inject"), "utf8")); }
-  catch (e) { throw new Error(`无法解析 --inject 文件 ${arg("inject")}：${e.message}`); }
-}
-
+if (arg("inject")) { try { inject = JSON.parse(readFileSync(arg("inject"), "utf8")); } catch (e) { throw new Error(`无法解析 --inject 文件 ${arg("inject")}：${e.message}`); } }
 const domain = arg("domain") || null;
 const manifest = loadDomain(domain);
-
-// 选择 output profile id：优先 --output-profile，其次 meta.output_profile（v1.2 的领域选择字段由 compat 层翻译成 --output-profile）
-const profileId = arg("output-profile") || loadRoles(rolesFile).meta.output_profile || null;
-let outputProfile = null;
-if (manifest && profileId) {
-  outputProfile = loadOutputProfile(domain, profileId, manifest);
-}
-const profileApplies = manifest?.output_apply_to_role_outputs
-  ? (role) => (role.outputs || []).some((o) => manifest.output_apply_to_role_outputs.some((k) => String(o).toLowerCase().includes(k)))
-  : () => false;
-const toolchains = manifest?.toolchains || null;
-
 const { meta, roles } = loadRoles(rolesFile);
-if (toolchains) {
-  for (const r of roles) {
-    if (r.toolchain !== undefined && !toolchains[r.toolchain]) {
-      throw new Error(`角色 "${r.id}" 的 toolchain 无效（应为 ${Object.keys(toolchains).join("/")}）：${r.toolchain}`);
-    }
-  }
-}
+const isV13Pack = roles.some((r) => r.capability_scope !== undefined && r.prompt === undefined);
+const study = arg("study") ? JSON.parse(readFileSync(arg("study"), "utf8")) : null;
+
+// output profile：--output-profile / meta.output_profile / study.execution_context.output_profile
+const profileId = arg("output-profile") || (meta.output_profile ?? null) || (study?.execution_context?.output_profile ?? null) || null;
+let outputProfile = null;
+if (manifest && profileId) outputProfile = loadOutputProfile(domain, profileId, manifest);
+const profileApplies = manifest?.output_apply_to_role_outputs ? (role) => (role.outputs || []).some((o) => manifest.output_apply_to_role_outputs.some((k) => String(o).toLowerCase().includes(k))) : () => false;
+const toolchains = manifest?.toolchains || null;
+if (toolchains) { for (const r of roles) { if (r.toolchain !== undefined && !toolchains[r.toolchain]) throw new Error(`角色 "${r.id}" 的 toolchain 无效（应为 ${Object.keys(toolchains).join("/")}）：${r.toolchain}`); } }
 
 const byId = new Map(roles.map((r) => [r.id, r]));
 const stages = planStages(roles);
-
 const ctx = { outputProfile, profileApplies, toolchains, evidenceGradingLines: manifest?.research_integrity?.evidence_grading_lines || null };
-const rolePlan = {};
-for (const r of roles) {
-  const upstreamSpec = buildUpstreamSpec(r, inject, byId);
-  rolePlan[r.id] = {
-    id: r.id,
-    name: r.name,
-    target: r.target || "projectless",
-    toolchain: r.toolchain || null,
-    policy_pending: (r.policy?.blocked_on?.length || 0) > 0,
-    prompt: buildPrompt(r, meta, question, upstreamSpec, inject, ctx),
-    expected_outputs: r.outputs || [],
-    upstream_spec: upstreamSpec,
-  };
-}
 
 let preflight = null;
-if (arg("study")) {
-  try {
-    const study = JSON.parse(readFileSync(arg("study"), "utf8"));
-    const regDir = `domains/${study.domain || domain}/capabilities`;
-    const env = arg("env") ? JSON.parse(readFileSync(arg("env"), "utf8")) : {};
-    const pctx = { mode: study.execution_context?.mode || "production", allow_experimental: !!study.execution_context?.allow_experimental, preferred_runtimes: study.execution_context?.preferred_runtimes || [], approved_overrides: study.execution_context?.approved_overrides || [] };
-    preflight = resolveAll(study, loadRegistry(regDir), env, pctx);
-  } catch (e) { throw new Error(`preflight 失败：${e.message}`); }
+let rolePlan = {};
+let eff = null;
+let scopeErrors = [];
+if (study) {
+  const regDir = `domains/${study.domain || domain}/capabilities`;
+  const registry = loadRegistry(regDir);
+  const env = arg("env") ? JSON.parse(readFileSync(arg("env"), "utf8")) : {};
+  const pctx = { mode: study.execution_context?.mode || "production", allow_experimental: !!study.execution_context?.allow_experimental, preferred_runtimes: study.execution_context?.preferred_runtimes || [], approved_overrides: study.execution_context?.approved_overrides || [] };
+  scopeErrors = isV13Pack ? validateSelectedCapabilities(study, roles, registry) : [];
+  preflight = resolveAll(study, registry, env, pctx);
 }
+if (isV13Pack) {
+  if (!study) throw new Error("v1.3 role pack 需要 --study（含 selected_capabilities）");
+  const ownStatus = {};
+  for (const r of roles) {
+    const sel = study.selected_capabilities?.[r.id] || [];
+    ownStatus[r.id] = sel.length ? (preflight.roles[r.id]?.status || "ready") : "ready";
+  }
+  eff = computeDispatch(roles, ownStatus, byId);
+  const registry = preflight ? loadRegistry(`domains/${study.domain || domain}/capabilities`) : {};
+  for (const r of roles) {
+    const sel = study.selected_capabilities?.[r.id] || [];
+    const upstreamSpec = buildUpstreamSpec(r, inject, byId);
+    rolePlan[r.id] = { id: r.id, name: r.name, target: r.target || "projectless", resolution: eff[r.id] || "ready", dispatch: (eff[r.id] || "ready") === "ready", selected_capabilities: sel, prompt: buildV13Prompt(r, sel, registry, preflight?.capabilities, ctx, question), expected_outputs: r.outputs || [], upstream_spec: upstreamSpec };
+  }
+} else {
+  for (const r of roles) {
+    const upstreamSpec = buildUpstreamSpec(r, inject, byId);
+    rolePlan[r.id] = { id: r.id, name: r.name, target: r.target || "projectless", toolchain: r.toolchain || null, policy_pending: (r.policy?.blocked_on?.length || 0) > 0, prompt: buildPrompt(r, meta, question, upstreamSpec, inject, ctx), expected_outputs: r.outputs || [], upstream_spec: upstreamSpec };
+  }
+}
+if (scopeErrors.length) throw new Error("Role↔Capability scope 校验失败：\n  - " + scopeErrors.join("\n  - "));
 
 const out = {
-  meta: {
-    source: rolesFile,
-    domain: domain || null,
-    output_profile: outputProfile?.id || null,
-    question: question || null,
-    stage_count: stages.length,
-    ...meta,
-    ...(hasFlag("compat-mode") ? {
-      compatibility_mode: "legacy_v1_2",
-      legacy_warning: arg("legacy-warning") || "v1.2 compatibility mode: not production-verified",
-    } : {}),
-  },
+  meta: { source: rolesFile, domain: domain || null, output_profile: outputProfile?.id || null, question: question || null, stage_count: stages.length, ...meta, ...(hasFlag("compat-mode") ? { compatibility_mode: "legacy_v1_2", legacy_warning: arg("legacy-warning") || "v1.2 compatibility mode: not production-verified" } : {}) },
   stages: stages.map((ids, idx) => ({ stage: idx + 1, roles: ids })),
   roles: rolePlan,
   ...(preflight ? { preflight } : {}),
 };
 
-
 console.log(`角色团队阶段顺序（共 ${stages.length} 个阶段）：`);
-stages.forEach((ids, i) => {
-  console.log(`  第${i + 1}阶段（可并行）：${ids.map((id) => `${id}(${byId.get(id).name})`).join("、")}`);
-});
-const pendingRoles = roles.filter((r) => (r.policy?.blocked_on?.length || 0) > 0);
-if (pendingRoles.length > 0) {
-  console.log("\n⚠️ 以下角色有【待确认的决策门控】（需人工回答，否则它们会停在 intermediate，不输出 final）：");
-  pendingRoles.forEach((r) => console.log(`  - ${r.id}(${r.name})：${r.policy.blocked_on.join("、")}`));
+stages.forEach((ids, i) => { console.log(`  第${i + 1}阶段（可并行）：${ids.map((id) => `${id}(${byId.get(id).name})`).join("、")}`); });
+if (isV13Pack && eff) {
+  const blocked = roles.filter((r) => eff[r.id] === "blocked");
+  const needDec = roles.filter((r) => eff[r.id] === "needs_decision");
+  console.log("\n⚠️ v1.3 preflight（strict production）：");
+  if (blocked.length) console.log("  blocked（不派发）：" + blocked.map((r) => `${r.id}(${r.name})`).join("、"));
+  if (needDec.length) console.log("  needs_decision（待决策）：" + needDec.map((r) => `${r.id}(${r.name})`).join("、"));
+} else {
+  const pendingRoles = roles.filter((r) => (r.policy?.blocked_on?.length || 0) > 0);
+  if (pendingRoles.length > 0) { console.log("\n⚠️ 以下角色有【待确认的决策门控】："); pendingRoles.forEach((r) => console.log(`  - ${r.id}(${r.name})：${r.policy.blocked_on.join("、")}`)); }
 }
 
 const outPath = arg("out") || "role-team-out/plan.json";
-if (!hasFlag("dry-run")) {
-  const abs = isAbsolute(outPath) ? outPath : join(root, outPath);
-  mkdirSync(dirname(abs), { recursive: true });
-  writeFileSync(abs, JSON.stringify(out, null, 2) + "\n", "utf8");
-  console.log(`\n已写入 ${outPath}（各角色自包含 prompt 见 roles.*.prompt，或直接看上面的阶段顺序）`);
-} else {
-  console.log("\n--dry-run：未写文件。可用 --out 指定输出路径。");
-}
-
-
-
-
+if (!hasFlag("dry-run")) { const abs = isAbsolute(outPath) ? outPath : join(root, outPath); mkdirSync(dirname(abs), { recursive: true }); writeFileSync(abs, JSON.stringify(out, null, 2) + "\n", "utf8"); console.log(`\n已写入 ${outPath}`); } else { console.log("\n--dry-run：未写文件。"); }

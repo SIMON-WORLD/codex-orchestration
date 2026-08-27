@@ -1,31 +1,36 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "role.schema.json",
-  "title": "Role（v1.3 目标结构）",
+  "title": "Role（v1.3）",
   "type": "object",
-  "description": "角色：谁负责 + 需要哪些能力 + 产出什么。Skeleton；v1.2 的 methodology/toolchain/policy 为待弃用字段（meta 级的输出规范选择由 compat 层处理）（compat wrapper 映射）。",
+  "description": "角色：responsibility + authority + inputs/outputs + capability_scope + escalation。科研方法由 selected_capabilities → registry → resolver 决定。v1.2 的 prompt/methodology/toolchain/journal/policy 为待弃用字段（compat wrapper 映射）。",
   "properties": {
     "id": { "type": "string" },
     "domain": { "type": "string" },
     "name": { "type": "string" },
-    "responsibility": { "type": "string" },
-    "authority": { "type": "string" },
+    "description": { "type": "string" },
+    "responsibility": { "type": "array", "items": { "type": "string" }, "description": "该角色负责做什么" },
+    "authority": {
+      "type": "object",
+      "properties": {
+        "may_decide": { "type": "array", "items": { "type": "string" } },
+        "must_escalate": { "type": "array", "items": { "type": "string" }, "description": "无权自行决定，必须上报" }
+      }
+    },
     "inputs": { "type": "array", "items": { "type": "string" } },
     "outputs": { "type": "array", "items": { "type": "string" } },
-    "capability_scope": { "type": "array", "items": { "type": "string" }, "description": "本角色能承担的能力类型（可含 * 通配前缀）" },
-    "selected_capabilities": { "type": "array", "items": { "type": "string" }, "description": "某次研究的动态选择（在 plan 级，不在 role 级）" },
-    "required_capabilities": { "type": "array", "items": { "type": "string" }, "deprecated": true, "description": "已废弃：静态要求所有方法会误阻塞；改用 capability_scope + 引擎级 selected_capabilities" },
+    "capability_scope": { "type": "array", "items": { "type": "string" }, "description": "允许承担的能力范围（含 * 通配）；不是每次都需要执行的范围" },
+    "selected_capabilities": { "type": "array", "items": { "type": "string" }, "deprecated": true, "description": "某次研究的动态选择，在 study 级（不在 role 级）" },
+    "required_capabilities": { "type": "array", "items": { "type": "string" }, "deprecated": true },
     "depends_on": { "type": "array", "items": { "type": "string" } },
     "target": { "enum": ["projectless", "project", "chatgptWorkCloud"] },
     "escalation_rules": { "type": "array", "items": { "type": "string" } },
-    "methodology": { "type": "object", "deprecated": true, "description": "v1.2；迁移到 capability registry" },
-    "toolchain": { "type": "string", "deprecated": true, "description": "v1.2；迁到 run-level execution_context" },
-
-    "policy": { "type": "object", "deprecated": true, "description": "v1.2；迁到 risk/fallback policy" },
+    "prompt": { "type": "string", "deprecated": true, "description": "v1.2 自包含 prompt；v1.3 由 scaffold 从 responsibility/authority + selected capabilities 生成" },
+    "methodology": { "type": "object", "deprecated": true },
+    "toolchain": { "type": "string", "deprecated": true },
+    "journal": { "type": "string", "deprecated": true },
+    "policy": { "type": "object", "deprecated": true },
     "evidence_grading": { "type": "boolean", "deprecated": true }
   },
-  "required": ["id", "name", "prompt", "capability_scope"]
+  "required": ["id", "name", "responsibility", "authority", "capability_scope"]
 }
-
-
-
