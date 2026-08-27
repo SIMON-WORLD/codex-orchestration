@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 // 通用「角色团队」派发计划生成器（领域无关）。
-// 领域内容（journal profile / toolchain 等）一律来自 domains/<domain>/manifest.json，Core 自身不包含任何领域字面量。
+// 领域内容（output profile / toolchain / integrity 文本）一律来自 domains/<domain>/manifest.json；
+// Core 只理解通用概念：task / role / output_profile / dependency / decision_gate / evidence_grading，
+// 不硬编码任何领域字面量（如具体输出规范、具体方法、具体软件等）。
 // 输入: --roles <roles.json> （必填）
-//       --domain <name>      （可选：加载 domains/<name>/manifest.json 以提供 journal / toolchain / 输出规范）
+//       --domain <name>      （可选：加载 domains/<name>/manifest.json 以提供 output_profiles / toolchain / 输出规范）
+//       --output-profile <id>（可选：从 manifest.output_profiles 选择要注入的 profile，如 aer / zh_classic）
 //       --question "<...>"   （可选）
 //       --inject <json>      （可选：预填上游输出，用于自包含预览/测试）
 //       --out <path>         （可选：写 JSON，默认 role-team-out/plan.json；--dry-run 只打印不写）
 //       --compat-mode        （可选：标记该次生成为 v1.2 兼容路径，写入 plan.meta.compatibility_mode）
 //       --legacy-warning <s> （可选：兼容路径的提示文本，写入 plan.meta.legacy_warning）
-// 输出: 人类可读阶段顺序 + 逐角色自包含 prompt（JSON）
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,7 +20,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 function readJson(rel) {
   return JSON.parse(readFileSync(join(root, rel), "utf8"));
 }
-
 function arg(name) {
   const i = process.argv.indexOf("--" + name);
   if (i === -1) return undefined;
@@ -38,11 +39,15 @@ function loadDomain(domain) {
   }
   return manifest;
 }
-function loadJournalProfile(domain, id) {
+function loadOutputProfile(domain, id, manifest) {
   if (!domain || !id) return null;
-  const p = readJson(`domains/${domain}/journal/${id}.json`);
+  const entry = manifest?.output_profiles?.[id];
+  if (!entry?.path) {
+    throw new Error(`未知 output profile "${id}"（domain=${domain}）：manifest.output_profiles 中无该配置`);
+  }
+  const p = readJson(`domains/${domain}/${entry.path}`);
   if (!p || !Array.isArray(p.rules)) {
-    throw new Error(`未知的 output profile "${id}"（domain=${domain}），无法加载 domains/${domain}/journal/${id}.json`);
+    throw new Error(`无法加载 output profile "${id}"（domain=${domain}）：domains/${domain}/${entry.path} 缺少 rules`);
   }
   return p;
 }
@@ -50,11 +55,8 @@ function loadJournalProfile(domain, id) {
 // ---- 解析 roles ----
 function loadRoles(file) {
   let raw;
-  try {
-    raw = JSON.parse(readFileSync(file, "utf8"));
-  } catch (e) {
-    throw new Error(`无法解析 roles 文件 ${file}：${e.message}`);
-  }
+  try { raw = JSON.parse(readFileSync(file, "utf8")); }
+  catch (e) { throw new Error(`无法解析 roles 文件 ${file}：${e.message}`); }
   const roles = raw && Array.isArray(raw.roles) ? raw.roles : [];
   if (roles.length === 0) {
     console.warn("警告：roles 为空数组，将生成空的派发计划。");
@@ -128,12 +130,12 @@ function buildPrompt(role, meta, question, upstreamSpec, inject, ctx) {
       parts.push("");
     }
   }
-  // 期刊规范：仅当有 domain + 已选 profile + 角色产出匹配时注入
-  if (ctx.journalProfile && ctx.journalApplies(role)) {
-    const j = ctx.journalProfile;
-    parts.push("## 期刊规范");
-    parts.push(`本角色产出面向：${j.name}`);
-    j.rules.forEach((r) => parts.push(`- ${r}`));
+  // 输出规范：仅当有 domain + 已选 profile + 角色产出匹配时注入
+  if (ctx.outputProfile && ctx.profileApplies(role)) {
+    const p = ctx.outputProfile;
+    parts.push(`## ${p.section || "输出规范"}`);
+    parts.push(`本角色产出面向：${p.name}`);
+    p.rules.forEach((r) => parts.push(`- ${r}`));
     parts.push("");
   }
   if (role.policy) {
@@ -190,41 +192,31 @@ function buildUpstreamSpec(role, inject, byId) {
 // ---- main ----
 const rolesFile = arg("roles");
 if (!rolesFile) {
-  console.error("用法：node core/scaffold_role_team.mjs --roles <roles.json> [--domain <name>] [--question \"...\"] [--inject <json>] [--out <path>] [--dry-run]");
+  console.error("用法：node core/scaffold_role_team.mjs --roles <roles.json> [--domain <name>] [--output-profile <id>] [--question \"...\"] [--inject <json>] [--out <path>] [--dry-run]");
   process.exit(2);
 }
 
 const question = arg("question") || "";
 let inject = {};
 if (arg("inject")) {
-  try {
-    inject = JSON.parse(readFileSync(arg("inject"), "utf8"));
-  } catch (e) {
-    throw new Error(`无法解析 --inject 文件 ${arg("inject")}：${e.message}`);
-  }
+  try { inject = JSON.parse(readFileSync(arg("inject"), "utf8")); }
+  catch (e) { throw new Error(`无法解析 --inject 文件 ${arg("inject")}：${e.message}`); }
 }
 
 const domain = arg("domain") || null;
 const manifest = loadDomain(domain);
 
-// 期刊 profile 选取：优先 meta.output_profile，其次 meta.journal（v1.2 兼容字段）
-const profileId = (() => {
-  const m = loadRoles(rolesFile).meta;
-  return m?.output_profile ?? m?.journal ?? null;
-})();
-let journalProfile = null;
+// 选择 output profile id：优先 --output-profile，其次 meta.output_profile（v1.2 的领域选择字段由 compat 层翻译成 --output-profile）
+const profileId = arg("output-profile") || loadRoles(rolesFile).meta.output_profile || null;
+let outputProfile = null;
 if (manifest && profileId) {
-  if (!manifest.journal?.profile_ids?.includes(profileId)) {
-    throw new Error(`meta.journal/output_profile 无效（应为 ${manifest.journal.profile_ids.join("/")}）：${profileId}`);
-  }
-  journalProfile = loadJournalProfile(domain, profileId);
+  outputProfile = loadOutputProfile(domain, profileId, manifest);
 }
-const journalApplies = manifest?.journal?.apply_to_role_outputs
-  ? (role) => (role.outputs || []).some((o) => manifest.journal.apply_to_role_outputs.some((k) => String(o).toLowerCase().includes(k)))
+const profileApplies = manifest?.output_apply_to_role_outputs
+  ? (role) => (role.outputs || []).some((o) => manifest.output_apply_to_role_outputs.some((k) => String(o).toLowerCase().includes(k)))
   : () => false;
 const toolchains = manifest?.toolchains || null;
 
-// 校验 toolchain 字段是否在 domain 前缀内
 const { meta, roles } = loadRoles(rolesFile);
 if (toolchains) {
   for (const r of roles) {
@@ -237,7 +229,7 @@ if (toolchains) {
 const byId = new Map(roles.map((r) => [r.id, r]));
 const stages = planStages(roles);
 
-const ctx = { journalProfile, journalApplies, toolchains, evidenceGradingLines: manifest?.research_integrity?.evidence_grading_lines || null };
+const ctx = { outputProfile, profileApplies, toolchains, evidenceGradingLines: manifest?.research_integrity?.evidence_grading_lines || null };
 const rolePlan = {};
 for (const r of roles) {
   const upstreamSpec = buildUpstreamSpec(r, inject, byId);
@@ -257,6 +249,7 @@ const out = {
   meta: {
     source: rolesFile,
     domain: domain || null,
+    output_profile: outputProfile?.id || null,
     question: question || null,
     stage_count: stages.length,
     ...meta,
@@ -288,5 +281,4 @@ if (!hasFlag("dry-run")) {
 } else {
   console.log("\n--dry-run：未写文件。可用 --out 指定输出路径。");
 }
-
 

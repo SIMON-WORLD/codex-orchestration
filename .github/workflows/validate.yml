@@ -25,6 +25,11 @@ jobs:
       - name: Validate SKILL.md frontmatter
         run: |
           node -e "const fs=require('fs'); for(const f of ['skills/codex-orchestration/SKILL.md','skills/codex-role-team/SKILL.md']){ const s=fs.readFileSync(f,'utf8'); if(!s.startsWith('---')){throw new Error(f+' 缺少 frontmatter');} if(!/^name:\s*\S/m.test(s)){throw new Error(f+' 缺 name');} if(!/^description:\s*\S/m.test(s)){throw new Error(f+' 缺 description');} console.log('OK '+f); }"
+      - name: Validate compat-mode separation (v1.2 vs v1.3)
+        run: |
+          node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.json --out role-team-out/_gen.json
+          node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --out role-team-out/_res.json
+          node -e "const g=require('./role-team-out/_gen.json'); const r=require('./role-team-out/_res.json'); if(g.meta.compatibility_mode) throw new Error('通用 roles.json 不应有 compatibility_mode'); if(r.meta.compatibility_mode!=='legacy_v1_2') throw new Error('roles.research.json 应标记 legacy_v1_2'); console.log('OK: generic=no-compat; research=legacy_v1_2')"
       - name: Validate research role schema
         run: node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --dry-run
       - name: No secrets in tracked files
@@ -33,5 +38,6 @@ jobs:
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
 
 

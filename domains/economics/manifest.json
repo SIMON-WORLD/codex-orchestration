@@ -2,11 +2,11 @@
   "domain": "economics",
   "version": "0.1",
   "scientific": { "journal_neutral": true },
-  "journal": {
-    "profile_ids": ["aer", "zh_classic"],
-    "profile_field": "journal",
-    "apply_to_role_outputs": ["manuscript", "review_report", "replicability_check", "empirical_results", "paper"]
+  "output_profiles": {
+    "aer": { "path": "journal/aer.json" },
+    "zh_classic": { "path": "journal/zh_classic.json" }
   },
+  "output_apply_to_role_outputs": ["manuscript", "review_report", "replicability_check", "empirical_results", "paper"],
   "toolchains": {
     "stata": "Stata（reghdfe / esttab / coefplot / winsor2 / csdid / rdrobust，见 MixtapeTools）",
     "r": "R（fixest / modelsummary / broom / tidyverse，见 christopherkenny / 应用统计）",
@@ -20,4 +20,3 @@
     ]
   }
 }
-

@@ -3,20 +3,23 @@
   "$id": "domain.manifest.schema.json",
   "title": "Domain Manifest（v1.3）",
   "type": "object",
-  "description": "域清单：只声明 supported_output_profiles / domain defaults / policies；不存某次研究的 target_journal 或永久 preferred_runtime。",
+  "description": "域清单：声明 output_profiles / domain defaults / policies。不存某次研究的目标输出规范或永久 preferred_runtime；Core 只按通用的 output_profile 概念处理。",
   "properties": {
     "domain": { "type": "string" },
     "version": { "type": "string" },
-    "scientific": { "type": "object", "properties": { "journal_neutral": { "type": "boolean" } } },
-    "journal": {
+    "scientific": { "type": "object", "description": "域科学执行策略（如是否输出规范中性）；不在此枚举领域专属字段" },
+    "output_profiles": {
       "type": "object",
-      "description": "output profile 定义（late-bound，不进入 data/empirical 科学参数）",
-      "properties": { "profile_ids": { "type": "array", "items": { "type": "string" } }, "profile_field": { "type": "string" }, "apply_to_role_outputs": { "type": "array", "items": { "type": "string" } } }
+      "description": "通用输出规范映射：id → { path }。Core 据此加载 profile 文件（不关心具体是论文/报告/演示等）。",
+      "additionalProperties": { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"] }
     },
+    "output_apply_to_role_outputs": { "type": "array", "items": { "type": "string" }, "description": "命中这些 outputs（子串）的角色会注入所选 output profile" },
     "toolchains": { "type": "object", "description": "各 runtime 的描述（仅用于 prompt 注入；不默认统一 runtime）" },
     "policies": { "type": "object", "properties": { "risk": { "type": "object", "properties": { "low": { "type": "string" }, "medium": { "type": "string" }, "high": { "type": "string" } } } } },
+    "research_integrity": { "type": "object", "properties": { "evidence_grading_lines": { "type": "array", "items": { "type": "string" } } } },
     "supported_output_profiles": { "type": "array", "items": { "type": "string" } },
     "env_probe": { "type": "object" }
   },
   "required": ["domain", "version", "scientific"]
 }
+

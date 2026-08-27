@@ -3,7 +3,7 @@
   "$id": "role.schema.json",
   "title": "Role（v1.3 目标结构）",
   "type": "object",
-  "description": "角色：谁负责 + 需要哪些能力 + 产出什么。Skeleton；v1.2 的 methodology/toolchain/journal/policy 为待弃用字段（compat wrapper 映射）。",
+  "description": "角色：谁负责 + 需要哪些能力 + 产出什么。Skeleton；v1.2 的 methodology/toolchain/policy 为待弃用字段（meta 级的输出规范选择由 compat 层处理）（compat wrapper 映射）。",
   "properties": {
     "id": { "type": "string" },
     "domain": { "type": "string" },
@@ -20,9 +20,12 @@
     "escalation_rules": { "type": "array", "items": { "type": "string" } },
     "methodology": { "type": "object", "deprecated": true, "description": "v1.2；迁移到 capability registry" },
     "toolchain": { "type": "string", "deprecated": true, "description": "v1.2；迁到 run-level execution_context" },
-    "journal": { "type": "string", "deprecated": true, "description": "v1.2；迁到 execution_context.target_journal" },
+
     "policy": { "type": "object", "deprecated": true, "description": "v1.2；迁到 risk/fallback policy" },
     "evidence_grading": { "type": "boolean", "deprecated": true }
   },
   "required": ["id", "name", "prompt", "capability_scope"]
 }
+
+
+
