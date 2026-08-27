@@ -25,10 +25,13 @@ jobs:
       - name: Validate SKILL.md frontmatter
         run: |
           node -e "const fs=require('fs'); for(const f of ['skills/codex-orchestration/SKILL.md','skills/codex-role-team/SKILL.md']){ const s=fs.readFileSync(f,'utf8'); if(!s.startsWith('---')){throw new Error(f+' 缺少 frontmatter');} if(!/^name:\s*\S/m.test(s)){throw new Error(f+' 缺 name');} if(!/^description:\s*\S/m.test(s)){throw new Error(f+' 缺 description');} console.log('OK '+f); }"
+      - name: Validate research role schema
+        run: node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --dry-run
       - name: No secrets in tracked files
         run: |
           if git ls-files | grep -iE 'token|secret|\.codex/' ; then
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
 

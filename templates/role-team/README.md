@@ -36,6 +36,12 @@
 | `target` | 可选 | `projectless`（默认）或 `project`；需要共享工作区/数据用 `project` |
 | `methodology` | 可选 | 锚定的成熟工作流（`skill`/`repo`/`url`/`note`/`steps[]`）；脚手架会在 prompt 里注入「方法参考 + 摘录步骤」 |
 | `toolchain` | 可选 | 本角色工具链（`stata`/`r`/`python`）；有则脚手架注入「工具链」，只影响计算类角色 |
+| `policy` | 可选 | 决策门控：`mode`（`hard_stop`/`semi_auto`/`auto_note`）+ `blocked_on`/`confirm_on`/`log_required`；脚手架注入「决策门控」，用于禁止 agent 替研究者做关键决定 |
+| `evidence_grading` | 可选 | 布尔；真则注入「证据分级」（六级因果措辞+证据台账，写作/综述/审查类角色设 true） |
+
+## 顶层 meta 与期刊规范
+
+`meta.journal` 可选，取值 `aer`（默认，AER/QJE/JPE/ReStud 国际标准）或 `zh_classic`（中文经管四刊）。脚手架会把对应「期刊规范」注入到产出论文的角色（writing/review/empirical）。`meta.toolchain` 默认 `stata`，可改 `r`/`python`，给计算类角色定工具链。
 
 ## 怎么改造成自己领域
 

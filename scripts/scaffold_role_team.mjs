@@ -10,12 +10,44 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 const TOOLCHAIN = {
   stata: "Stata（reghdfe / esttab / coefplot / winsor2 / csdid / rdrobust，见 MixtapeTools）",
   r: "R（fixest / modelsummary / broom / tidyverse，见 christopherkenny / 应用统计）",
   python: "Python（linearmodels / statsmodels / pyfixest / pandas，见 StatsPAI / 全实证流程）",
 };
 
+// 期刊规范（meta.journal）；脚手架据此注入「## 期刊规范」。
+const JOURNAL = {
+  aer: {
+    name: "AER / QJE / JPE / ReStud（国际顶刊）",
+    rules: [
+      "摘要 100–150 词（硬上限 200 词），标题 5–17 词中位约 10 词",
+      "正文 ≤ 约 40 页（含表格图）；AER: Insights 短文 ≤ 6000 词",
+      "必须提供数据 + 代码复现包（AEA Data Editor / DCAS 标准）",
+      "识别驱动：先讲识别策略与识别假设，再给实证部分",
+      "区分 ITT 与 TOT、分配与实施、基线分母与不显著结果",
+    ],
+  },
+  zh_classic: {
+    name: "经济研究 / 管理世界 / 金融研究 / 中国工业经济",
+    rules: [
+      "中文摘要约 300 字，关键词 3–5 个",
+      "正文篇幅约 1.5 万字，符合中文经管期刊结构（摘要—引言—文献—研究设计—数据—实证—结论）",
+      "数据与代码可得性说明，可附复现包",
+      "识别驱动：先讲研究设计与识别，再给实证",
+      "因果措辞分级，避免把相关写成因果",
+    ],
+  },
+};
+
+const POLICY_MODES = ["hard_stop", "semi_auto", "auto_note"];
+
+// 这些角色产出的结果会进入期刊/论文格式流程，因此注入期刊规范。
+function journalApplies(role) {
+  const outs = role.outputs || [];
+  return outs.some((o) => /manuscript|review_report|replicability_check|empirical_results|paper/i.test(o));
+}
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -65,6 +97,27 @@ function loadRoles(file) {
     if (r.toolchain !== undefined && !TOOLCHAIN[r.toolchain]) {
       throw new Error(`角色 "${r.id}" 的 toolchain 无效（应为 stata/r/python）：${r.toolchain}`);
     }
+    if (r.policy !== undefined) {
+      if (typeof r.policy !== "object" || r.policy === null) {
+        throw new Error(`角色 "${r.id}" 的 policy 必须是对象：${JSON.stringify(r.policy)}`);
+      }
+      if (r.policy.mode !== undefined && !POLICY_MODES.includes(r.policy.mode)) {
+        throw new Error(`角色 "${r.id}" 的 policy.mode 无效（应为 hard_stop/semi_auto/auto_note）：${r.policy.mode}`);
+      }
+      for (const k of ["blocked_on", "confirm_on"]) {
+        if (r.policy[k] !== undefined) {
+          if (!Array.isArray(r.policy[k]) || !r.policy[k].every((x) => typeof x === "string" && x.trim())) {
+            throw new Error(`角色 "${r.id}" 的 policy.${k} 必须是字符串数组：${JSON.stringify(r.policy[k])}`);
+          }
+        }
+      }
+      if (r.policy.log_required !== undefined && typeof r.policy.log_required !== "boolean") {
+        throw new Error(`角色 "${r.id}" 的 policy.log_required 必须是布尔值：${r.policy.log_required}`);
+      }
+    }
+    if (r.evidence_grading !== undefined && typeof r.evidence_grading !== "boolean") {
+      throw new Error(`角色 "${r.id}" 的 evidence_grading 必须是布尔值：${r.evidence_grading}`);
+    }
   }
   const ids = new Set(roles.map((r) => r.id));
   for (const r of roles) {
@@ -77,6 +130,9 @@ function loadRoles(file) {
   const meta = raw?.meta || {};
   if (meta.toolchain !== undefined && !TOOLCHAIN[meta.toolchain]) {
     throw new Error(`meta.toolchain 无效（应为 stata/r/python）：${meta.toolchain}`);
+  }
+  if (meta.journal !== undefined && !JOURNAL[meta.journal]) {
+    throw new Error(`meta.journal 无效（应为 aer/zh_classic）：${meta.journal}`);
   }
   return { meta, roles };
 }
@@ -140,6 +196,35 @@ function buildPrompt(role, meta, question, upstreamSpec, inject) {
       }
       parts.push("");
     }
+  }
+  if (meta.journal && JOURNAL[meta.journal] && journalApplies(role)) {
+    const j = JOURNAL[meta.journal];
+    parts.push("## 期刊规范");
+    parts.push(`本角色产出面向：${j.name}`);
+    j.rules.forEach((r) => parts.push(`- ${r}`));
+    parts.push("");
+  }
+  if (role.policy) {
+    parts.push("## 决策门控");
+    if (role.policy.blocked_on?.length) {
+      parts.push(`以下属【关键决定】，无明确答案（或无人提供）时**禁止自行决定**：${role.policy.blocked_on.join("、")}。`);
+      parts.push("如有待定项，停止并输出 intermediate 结果 + `decision_gate.md`（逐条列出待确认项），**不要输出 final**。");
+    } else {
+      parts.push("本角色若遇到研究实质性决定且无人工答案，停止并输出 intermediate + `decision_gate.md`。");
+    }
+    if (role.policy.confirm_on?.length) {
+      parts.push(`请把以下假设逐条列给用户确认：${role.policy.confirm_on.join("、")}。`);
+    }
+    if (role.policy.log_required) {
+      parts.push("请同步记录 `decision_log`（你做了哪些假设、哪些待确认）。");
+    }
+    parts.push("");
+  }
+  if (role.evidence_grading) {
+    parts.push("## 证据分级");
+    parts.push("每条因果/机制结论都需登记进证据台账，并标注证据级别：identified / model-implied / exclusion / consistent-with / suggestive / speculative。");
+    parts.push("禁止把相关性写成因果；明确区分 ITT 与 TOT、分配与实施、基线分母与不显著结果；再好的文笔也不能抵消一处事实错误。");
+    parts.push("");
   }
   const methodology = role.methodology;
   if (methodology && typeof methodology === "object") {
@@ -208,6 +293,7 @@ for (const r of roles) {
     name: r.name,
     target: r.target || "projectless",
     toolchain: r.toolchain || null,
+    policy_pending: (r.policy?.blocked_on?.length || 0) > 0,
     prompt: buildPrompt(r, meta, question, upstreamSpec, inject),
     expected_outputs: r.outputs || [],
     upstream_spec: upstreamSpec,
@@ -227,6 +313,12 @@ stages.forEach((ids, i) => {
   console.log(`  第${i + 1}阶段（可并行）：${names}`);
 });
 
+const pendingRoles = roles.filter((r) => (r.policy?.blocked_on?.length || 0) > 0);
+if (pendingRoles.length > 0) {
+  console.log("\n⚠️ 以下角色有【待确认的决策门控】（需人工回答，否则它们会停在 intermediate，不输出 final）：");
+  pendingRoles.forEach((r) => console.log(`  - ${r.id}(${r.name})：${r.policy.blocked_on.join("、")}`));
+}
+
 const outPath = arg("out") || "role-team-out/plan.json";
 if (!hasFlag("dry-run")) {
   const abs = isAbsolute(outPath) ? outPath : join(root, outPath);
@@ -236,3 +328,4 @@ if (!hasFlag("dry-run")) {
 } else {
   console.log("\n--dry-run：未写文件。可用 --out 指定输出路径。");
 }
+
