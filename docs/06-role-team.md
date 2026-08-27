@@ -56,6 +56,7 @@
 依赖图：`literature_search`、`data` 并行；`literature_search` 之后 `literature_review`、`data` 之后 `empirical`；`empirical` 后 `visualize` 与 `writing` 并行（`writing` 还依赖文献与数据）；`writing` 汇入 `review`。
 
 > 数据/实证/可视化默认 `toolchain: stata`（可改 `r`/`python`）；文字类角色（综述/写作/审查）不带工具链。
+> **Stata 需授权**：在无 Stata 的环境（虚拟机 / macOS / Linux / 云）验证或跑流程时，把 `meta.toolchain`，或把 `data`/`empirical`/`visualize` 的 `toolchain` 设为 `python`/`r` 即可；不影响编排、决策门控与证据分级验证。
 
 ## 科研预设的方法论锚定
 
@@ -106,3 +107,4 @@ read_thread({ threadId: emp, includeOutputs: true });
 - 想更细的线程操作（fork / handoff / 归档 / 定时）→ `docs/02-orchestration-patterns.md`。
 - 工具名与真实行为 → `docs/03-tool-reference.md`。
 - 想让另一台机器/虚拟机测试 → `docs/05-testing-guide.md`。
+
