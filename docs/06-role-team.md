@@ -30,6 +30,8 @@
 | `inputs` / `outputs` | 上游接收 / 本角色产出 |
 | `depends_on` | 上游角色 id 列表 |
 | `target` | `projectless`（默认）或 `project`（共享工作区/数据） |
+| `methodology` | 可选 | 锚定的成熟工作流（`skill`/`repo`/`url`/`note`/`steps[]`）；脚手架会注入「方法参考 + 摘录步骤」 |
+| `toolchain` | 可选 | 本角色工具链（`stata`/`r`/`python`）；有则脚手架注入「工具链」 |
 
 ## 科研旗舰预设
 
@@ -45,6 +47,18 @@
 | `review` 审查/审稿 | 审稿意见 | `writing` | `review_report` |
 
 依赖图：`literature`、`data` 并行；`data` 之后 `empirical`；`empirical` 后 `visualize` 与 `writing` 并行（`writing` 还依赖 `literature`、`data`）；`writing` 汇入 `review`。
+
+> 数据/实证/可视化默认 `toolchain: stata`（可改为 `r`/`python`）；文字类角色（文献/写作/审查）不带工具链。
+
+## 科研预设的方法论锚定
+
+科研预设的每个角色都锚定了 GitHub 上「最成熟、被认可」的工作流，采用**混合模式**：角色 prompt 优先加载锚定 skill（若可用），否则按摘录的核心步骤自包含执行，并标注来源。
+
+| 角色 | 锚定来源 | 仓库 | 说明 |
+|---|---|---|---|
+| literature / writing / review | academic-research-skills | `Imbad0202/academic-research-skills` | 最被认可的学术科研 agent skill 合集（含 reviewer） |
+| data / empirical / visualize | MixtapeTools | `scunning1975/MixtapeTools` | Causal Inference: The Mixtape 配套（AER 风格表格/图） |
+| review（备选） | paper-summary | `christopherkenny/skills` | 政治学/应用统计，质量高 |
 
 ## 怎么跑
 

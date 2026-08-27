@@ -10,6 +10,12 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
+const TOOLCHAIN = {
+  stata: "Stata（reghdfe / esttab / coefplot / winsor2 / csdid / rdrobust，见 MixtapeTools）",
+  r: "R（fixest / modelsummary / broom / tidyverse，见 christopherkenny / 应用统计）",
+  python: "Python（linearmodels / statsmodels / pyfixest / pandas，见 StatsPAI / 全实证流程）",
+};
+
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -48,8 +54,16 @@ function loadRoles(file) {
     if (typeof r?.name !== "string" || !r.name.trim()) {
       throw new Error(`角色 "${r.id}" 缺少有效的 name：${JSON.stringify(r)}`);
     }
-    if (typeof r?.prompt !== "string" || !r.prompt.trim()) {
+    if (
+      typeof r?.prompt !== "string" || !r.prompt.trim()
+    ) {
       throw new Error(`角色 "${r.id}" 缺少有效的 prompt（自包含任务说明）：${JSON.stringify(r)}`);
+    }
+    if (r.methodology !== undefined && (typeof r.methodology !== "object" || r.methodology === null)) {
+      throw new Error(`角色 "${r.id}" 的 methodology 必须是对象：${JSON.stringify(r.methodology)}`);
+    }
+    if (r.toolchain !== undefined && !TOOLCHAIN[r.toolchain]) {
+      throw new Error(`角色 "${r.id}" 的 toolchain 无效（应为 stata/r/python）：${r.toolchain}`);
     }
   }
   const ids = new Set(roles.map((r) => r.id));
@@ -60,7 +74,11 @@ function loadRoles(file) {
       }
     }
   }
-  return { meta: raw?.meta || {}, roles };
+  const meta = raw?.meta || {};
+  if (meta.toolchain !== undefined && !TOOLCHAIN[meta.toolchain]) {
+    throw new Error(`meta.toolchain 无效（应为 stata/r/python）：${meta.toolchain}`);
+  }
+  return { meta, roles };
 }
 
 // ---- 拓扑排序：返回并行阶段数组 ----
@@ -87,7 +105,7 @@ function planStages(roles) {
 }
 
 // ---- 为单个角色生成自包含 prompt ----
-function buildPrompt(role, question, upstreamSpec, inject) {
+function buildPrompt(role, meta, question, upstreamSpec, inject) {
   const parts = [];
   parts.push(`# 任务：${role.name}`);
   parts.push("");
@@ -122,6 +140,24 @@ function buildPrompt(role, question, upstreamSpec, inject) {
       }
       parts.push("");
     }
+  }
+  const methodology = role.methodology;
+  if (methodology && typeof methodology === "object") {
+    parts.push("## 方法参考");
+    if (methodology.repo) parts.push(`来源：${methodology.repo}${methodology.url ? " — " + methodology.url : ""}`);
+    if (methodology.skill) parts.push(`优先：若当前环境可加载 \`${methodology.skill}\`，请先加载并按其实践执行。`);
+    if (methodology.note) parts.push(methodology.note);
+    if (Array.isArray(methodology.steps) && methodology.steps.length) {
+      parts.push("核心步骤（如无法加载上述 skill，按此回退执行）：");
+      methodology.steps.forEach((s, idx) => parts.push(`${idx + 1}. ${s}`));
+    }
+    parts.push("");
+  }
+  const toolchain = role.toolchain;
+  if (toolchain && TOOLCHAIN[toolchain]) {
+    parts.push("## 工具链");
+    parts.push(`本角色请使用 ${TOOLCHAIN[toolchain]}。`);
+    parts.push("");
   }
   parts.push("## 交付要求");
   parts.push(`请只围绕本任务提交结果，并确保包含以下产出：${role.outputs?.join("、") || "任务结果"}。`);
@@ -171,7 +207,8 @@ for (const r of roles) {
     id: r.id,
     name: r.name,
     target: r.target || "projectless",
-    prompt: buildPrompt(r, question, upstreamSpec, inject),
+    toolchain: r.toolchain || null,
+    prompt: buildPrompt(r, meta, question, upstreamSpec, inject),
     expected_outputs: r.outputs || [],
     upstream_spec: upstreamSpec,
   };

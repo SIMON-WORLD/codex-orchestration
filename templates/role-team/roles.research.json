@@ -1,68 +1,114 @@
 {
   "meta": {
     "title": "科研角色团队",
-    "description": "科研旗舰预设：文献 → 数据 → 实证 → 写作 → 审查；可视化挂在数据之后，可与实证并行。"
+    "description": "科研旗舰预设：文献 → 数据 → 实证 → 写作 → 审查；可视化挂在实证之后，与写作并行。方法论锚定 GitHub 成熟工作流（Imbad0202 / MixtapeTools）。",
+    "toolchain": "stata"
   },
   "roles": [
     {
       "id": "literature",
       "name": "文献专员",
       "description": "检索、筛选、整理给定研究问题的高质量文献并输出综述",
-      "prompt": "你是科研团队里的「文献专员」。你的任务：围绕下面给出的研究问题，检索并筛选高质量文献（优先顶刊/权威来源、近十年、与问题强相关）；对每篇给出作者、年份、期刊/来源、核心结论；最后输出一份结构化文献综述，说明该问题的研究现状、主要分歧与研究空缺。只做文献部分，不要执行实证。",
+      "prompt": "你是科研团队里的「文献专员」。围绕研究问题，输出一份结构化、带引用的文献综述（研究现状、主要分歧、研究空缺）。只做文献，不要执行实证。",
       "inputs": ["research_question"],
       "outputs": ["literature_review"],
       "depends_on": [],
-      "target": "projectless"
+      "target": "projectless",
+      "methodology": {
+        "skill": "academic-research-skills (literature/academic-pipeline)",
+        "repo": "Imbad0202/academic-research-skills",
+        "url": "https://github.com/Imbad0202/academic-research-skills",
+        "note": "通用学术科研来源；优先按其文献/检索 skill 实践执行。",
+        "steps": ["用语义检索/数据库（如 Semantic Scholar、OpenAlex、CrossRef、arXiv）扩大候选", "按标题与摘要初筛，剔除低相关/低质量", "对保留文献提取作者、年份、期刊/来源、核心结论与方法", "归纳该主题的研究现状、主流方法、分歧点与空缺", "输出带引用的结构化文献综述并标注来源"]
+      }
     },
     {
       "id": "data",
       "name": "数据处理",
       "description": "根据研究问题整理、清洗、构建可用数据并做描述性说明",
-      "prompt": "你是科研团队里的「数据处理专员」。你的任务：围绕研究问题，明确所需的数据结构与变量；若已有数据则清洗、统一口径、处理缺失与异常；若数据缺失则说明需要获取的数据源与构造方法。输出一份「数据说明」，包含数据字典（变量、定义、单位、来源、样本、处理口径）与描述性统计。只做数据处理，不要跑回归。",
+      "prompt": "你是科研团队里的「数据处理专员」。围绕研究问题，产出「数据说明」：数据结构与变量、数据字典（变量/定义/单位/来源/样本/处理口径）、描述性统计。只做数据处理，不要跑回归。",
       "inputs": ["research_question"],
       "outputs": ["data_summary"],
       "depends_on": [],
-      "target": "project"
+      "target": "project",
+      "toolchain": "stata",
+      "methodology": {
+        "skill": "MixtapeTools (data cleaning / Table 1)",
+        "repo": "scunning1975/MixtapeTools",
+        "url": "https://github.com/scunning1975/MixtapeTools",
+        "note": "应用经济学数据流程；优先加载 MixtapeTools 相应 skill。",
+        "steps": ["明确所需数据结构与变量，说明数据来源与口径", "导入并清洗（缺失/异常/单位/重复；必要时 destring、winsor2）", "变量构造（取对数、哑变量、滞后/差分、标准化等按需）", "做描述性统计与数据字典（变量、定义、单位、来源、样本、处理口径）", "给出样本范围与潜在数据限制"]
+      }
     },
     {
       "id": "empirical",
       "name": "实证/显著性",
       "description": "基于数据做实证分析、稳健性与显著性检验并解读",
-      "prompt": "你是科研团队里的「实证专员」。你的任务：使用上游数据做实证分析（识别策略、基准回归、稳健性、内生性与显著性检验），给出核心表格与结果，并对系数方向、显著性与经济含义做清晰解读，同时指出识别假设与潜在威胁。只做实证，不要写完整论文。",
+      "prompt": "你是科研团队里的「实证专员」。基于上游数据做实证分析，给出核心表格与结果，并对系数方向、显著性与经济含义做清晰解读，同时指出识别假设与潜在威胁。只做实证，不要写完整论文。",
       "inputs": ["research_question", "data_summary"],
       "outputs": ["empirical_results"],
       "depends_on": ["data"],
-      "target": "project"
+      "target": "project",
+      "toolchain": "stata",
+      "methodology": {
+        "skill": "MixtapeTools — causal inference",
+        "repo": "scunning1975/MixtapeTools",
+        "url": "https://github.com/scunning1975/MixtapeTools",
+        "note": "应用经济学因果推断/AER 风格；优先加载 MixtapeTools 相应 skill。",
+        "steps": ["明确识别策略与潜在结果框架，说明处理变量/对照/机制", "做诊断（平衡性、自相关/面板、多重共线性、Hausman、过度识别等）", "基准回归：渐进加入控制与固定效应（M1→M6 风格）", "按需选因果方法（DiD / RDD / IV / 合成控制 / 匹配等）", "稳健性（替换样本/聚类/安慰剂/敏感性、bacondecomp、honestdid、rwolf、oster）", "显著性检验并做多重检验校正，报告标准误/置信区间", "解读系数方向、大小与经济含义，点明识别假设与威胁"]
+      }
     },
     {
       "id": "writing",
       "name": "写作",
       "description": "基于上游文献、数据与实证结果写成结构化论文/报告",
-      "prompt": "你是科研团队里的「写作专员」。你的任务：综合上游的文献综述、数据说明与实证结果，撰写一份结构完整的论文/研究报告（摘要、引言、文献、数据、方法、结果、讨论、结论、参考文献），确保事实来自上游、结论与实证一致，引用格式统一。只负责成文，不新增实证。",
+      "prompt": "你是科研团队里的「写作专员」。综合上游文献综述、数据说明与实证结果，写成结构完整、事实可溯源的论文/报告。只负责成文，不新增实证。",
       "inputs": ["research_question", "literature_review", "data_summary", "empirical_results"],
       "outputs": ["manuscript"],
       "depends_on": ["literature", "empirical", "data"],
-      "target": "projectless"
+      "target": "projectless",
+      "methodology": {
+        "skill": "academic-research-skills (academic-writing)",
+        "repo": "Imbad0202/academic-research-skills",
+        "url": "https://github.com/Imbad0202/academic-research-skills",
+        "note": "学术写作来源；优先按其写作 skill 实践执行。",
+        "steps": ["按 摘要—引言—文献—数据—方法—结果—讨论—结论—参考文献 组织", "事实必须来自上游（文献/数据/实证），不自行编造结果", "结论与实证结果保持一致，突出贡献与局限", "统一引用格式并列出参考文献"]
+      }
     },
     {
       "id": "review",
       "name": "审查/审稿",
       "description": "对照审稿标准审查成文，指出问题与改进建议",
-      "prompt": "你是科研团队里的「审查/审稿专员」。你的任务：以审稿人视角审阅上游论文/报告，重点检查研究问题与识别是否成立、实证与结论是否一致、文献引用是否准确、数据与口径是否透明、逻辑与写作是否清晰。输出一份结构化审稿意见，按「主要问题 / 次要问题 / 具体修改建议」分层，并给出可读性判断。只审查，不代写。",
+      "prompt": "你是科研团队里的「审查/审稿专员」。以审稿人视角审阅上游论文/报告，输出结构化审稿意见（主要问题 / 次要问题 / 具体修改建议）与可读性判断。只审查，不代写。",
       "inputs": ["manuscript"],
       "outputs": ["review_report"],
       "depends_on": ["writing"],
-      "target": "projectless"
+      "target": "projectless",
+      "methodology": {
+        "skill": "academic-research-skills (academic-paper-reviewer)",
+        "repo": "Imbad0202/academic-research-skills",
+        "url": "https://github.com/Imbad0202/academic-research-skills",
+        "note": "审稿来源；备选也见 christopherkenny/skills 的 paper-summary（政治学/应用统计）。",
+        "steps": ["检查研究问题与识别是否成立、假设是否合理", "核对实证结果与结论是否一致、表格/数字是否自洽", "检查文献引用是否准确、数据与口径是否透明", "评估逻辑、结构与写作清晰度", "按「主要问题 / 次要问题 / 具体修改建议」分层输出"]
+      }
     },
     {
       "id": "visualize",
       "name": "可视化",
-      "description": "根据数据生成论文级图表",
-      "prompt": "你是科研团队里的「可视化专员」。你的任务：基于上游数据说明与实证结果，生成适合论文的图表（如描述性分布、核心回归系数图、趋势图等），并注明每张图的含义、变量与数据来源。只做可视化，不解释因果。",
+      "description": "根据数据与实证结果生成论文级图表",
+      "prompt": "你是科研团队里的「可视化专员」。基于上游数据说明与实证结果，生成适合论文的图表，并注明每张图的含义、变量与数据来源。只做可视化，不解释因果。",
       "inputs": ["data_summary", "empirical_results"],
       "outputs": ["figures"],
       "depends_on": ["data", "empirical"],
-      "target": "project"
+      "target": "project",
+      "toolchain": "stata",
+      "methodology": {
+        "skill": "MixtapeTools (figures / coefplot)",
+        "repo": "scunning1975/MixtapeTools",
+        "url": "https://github.com/scunning1975/MixtapeTools",
+        "note": "图表来源；优先加载 MixtapeTools 图表 skill（coefplot、binscatter、rdplot、twoway）。",
+        "steps": ["基于数据说明做描述性图（分布、分组、趋势）", "基于实证结果做回归系数图/事件研究图（coefplot、marginsplot、binscatter 等）", "标注每张图含义、变量、单位与数据来源", "保持论文级清晰度与可读性"]
+      }
     }
   ]
 }

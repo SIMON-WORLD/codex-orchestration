@@ -34,6 +34,8 @@
 | `outputs` | 建议 | 这个角色产出的结果条目名，供下游 `inputs` 引用 |
 | `depends_on` | 建议 | 上游角色 id 列表；为空表示无依赖（可并行） |
 | `target` | 可选 | `projectless`（默认）或 `project`；需要共享工作区/数据用 `project` |
+| `methodology` | 可选 | 锚定的成熟工作流（`skill`/`repo`/`url`/`note`/`steps[]`）；脚手架会在 prompt 里注入「方法参考 + 摘录步骤」 |
+| `toolchain` | 可选 | 本角色工具链（`stata`/`r`/`python`）；有则脚手架注入「工具链」，只影响计算类角色 |
 
 ## 怎么改造成自己领域
 
@@ -43,6 +45,6 @@
 4. 跑脚手架生成派发计划复核顺序：`node scripts/scaffold_role_team.mjs --roles <你的文件> --question "<任务>" --out role-team-out/plan.json`。
 5. 按 `skills/codex-role-team/SKILL.md` 的流程让主导会话创建并调度这些角色线程。
 
-## 为什么提示词要「自包含」
+## 为什么提示词用「混合」模式
 
-角色线程是独立会话，不一定能读到本仓库或你本机的 skill。每个 `prompt` 必须把任务、输入、产出契约说全，才能在任何环境里独立跑起来。上游输出由主导会话用 `send_message_to_thread` 或重建 prompt 注入，不要指望 worker 自己去找。
+角色线程是独立会话，不一定能读到本仓库或你本机的 skill。科研角色采用**混合**：prompt 优先加载锚定的成熟 skill（若可用），否则按 `methodology.steps` 的核心步骤**自包含回退**执行，并标注来源。每个角色都必须把任务、输入、产出契约说全，才能在任何环境里独立跑起来。上游输出由主导会话用 `send_message_to_thread` 或重建 prompt 注入，不要指望 worker 自己去找。
