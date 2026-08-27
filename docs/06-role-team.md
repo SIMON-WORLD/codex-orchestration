@@ -8,8 +8,8 @@
 协调者（本会话）
  ├─ roles 文件：定义谁是员工、谁依赖谁
  ├─ 第1阶段(并行)  →  literature、data
- ├─ 第2阶段(并行)  →  empirical、visualize
- ├─ 第3阶段       →  writing
+ ├─ 第2阶段       →  empirical
+ ├─ 第3阶段(并行)  →  visualize、writing
  ├─ 第4阶段       →  review
  └─ 合并 → 汇报
 ```
@@ -40,11 +40,11 @@
 | `literature` 文献专员 | 检索、筛选、综述文献 | — | `literature_review` |
 | `data` 数据处理 | 整理/清洗/构造数据 | — | `data_summary` |
 | `empirical` 实证/显著性 | 实证、稳健性、显著性 | `data` | `empirical_results` |
-| `visualize` 可视化 | 论文级图表 | `data` | `figures` |
+| `visualize` 可视化 | 论文级图表 | `data`,`empirical` | `figures` |
 | `writing` 写作 | 结构化论文/报告 | `literature`,`data`,`empirical` | `manuscript` |
 | `review` 审查/审稿 | 审稿意见 | `writing` | `review_report` |
 
-依赖图：`literature`、`data` 并行；`data` 之后 `empirical` 与 `visualize` 并行；`literature`、`data`、`empirical` 汇入 `writing`；`writing` 汇入 `review`。
+依赖图：`literature`、`data` 并行；`data` 之后 `empirical`；`empirical` 后 `visualize` 与 `writing` 并行（`writing` 还依赖 `literature`、`data`）；`writing` 汇入 `review`。
 
 ## 怎么跑
 

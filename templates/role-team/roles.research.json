@@ -61,7 +61,7 @@
       "prompt": "你是科研团队里的「可视化专员」。你的任务：基于上游数据说明与实证结果，生成适合论文的图表（如描述性分布、核心回归系数图、趋势图等），并注明每张图的含义、变量与数据来源。只做可视化，不解释因果。",
       "inputs": ["data_summary", "empirical_results"],
       "outputs": ["figures"],
-      "depends_on": ["data"],
+      "depends_on": ["data", "empirical"],
       "target": "project"
     }
   ]
