@@ -54,6 +54,30 @@ r = run("f.high.verified.unknownver", { env: envPython("unknown") }); check("18 
 r = run("f.high.verified.notenv", { env: envNoPy() }); check("19 verified unavailable reason", r.reason === "verified_implementation_unavailable", `got=${r.reason}`);
 r = run("f.high.tested"); check("20 no-verified reason (high production tested)", r.reason === "no_verified_implementation", `got=${r.reason}`);
 
+const pyInst = (id, provider, version, pkgs) => ({ runtime: "python", provider, available: true, known: true, version, packages: pkgs });
+const pandas = () => ({ pandas: { available: true, known: true, version: "2.2" } });
+
+// --- P2.2：runtime instances + overlay ---
+// A. system 无 pandas，codex 有 pandas -> 选 python.codex
+r = run("f.high.verified.pandas", { env: { runtime_instances: { "python.system": pyInst("python.system", "os", "3.14", {}), "python.codex": pyInst("python.codex", "codex_harness", "3.12", pandas()) } } });
+check("21 A system 无 pandas + codex 有 pandas -> choose python.codex", r.resolution === "resolved" && r.runtime_instance === "python.codex", `got=${r.resolution}/${r.runtime_instance}`);
+
+// B. 两个 Python 都有 package -> 任一 instance 可用（按排序，无跨实例错误）
+r = run("f.high.verified.pandas", { env: { runtime_instances: { "python.system": pyInst("python.system", "os", "3.14", pandas()), "python.codex": pyInst("python.codex", "codex_harness", "3.12", pandas()) } } });
+check("22 B 两个 Python 都有 pandas -> resolved", r.resolution === "resolved" && ["python.system", "python.codex"].includes(r.runtime_instance), `got=${r.resolution}/${r.runtime_instance}`);
+
+// C. package 只在 system -> 不跨 instance 拼到 codex
+r = run("f.high.verified.pandas", { env: { runtime_instances: { "python.system": pyInst("python.system", "os", "3.14", pandas()), "python.codex": pyInst("python.codex", "codex_harness", "3.12", {}) } } });
+check("23 C package 只在 system -> 选 python.system（不跨实例拼接）", r.resolution === "resolved" && r.runtime_instance === "python.system", `got=${r.resolution}/${r.runtime_instance}`);
+
+// D. overlay 提供 Codex system skill -> skill becomes available
+r = run("f.medium.skill", { env: { resources: { skills: { codex_causal: { available: true, known: true, version: null, source: "overlay" } } } } });
+check("24 D overlay 提供 skill -> resolved", r.resolution === "resolved", `got=${r.resolution}`);
+
+// E. 无 overlay / 无真实 resource -> 仍 unavailable，不产生假阳性
+r = run("f.medium.skill", { env: { resources: { skills: {} } } });
+check("25 E 无 resource -> needs_decision（非 resolved）", r.resolution === "needs_decision", `got=${r.resolution}`);
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
 

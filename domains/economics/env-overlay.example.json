@@ -1,0 +1,27 @@
+{
+  "note": "Codex harness overlay：由协调者提供 probe 无法可靠自动发现的 bundled runtime / system skills；无路径无隐私。",
+  "runtime_instances": {
+    "python.codex": {
+      "runtime": "python",
+      "provider": "codex_harness",
+      "available": true,
+      "known": true,
+      "version": "3.12.13",
+      "packages": {
+        "pandas": { "available": true, "known": true, "version": "2.2.3" },
+        "linearmodels": { "available": true, "known": true, "version": "7.0" },
+        "statsmodels": { "available": true, "known": true, "version": "0.14.6" },
+        "pyfixest": { "available": true, "known": true, "version": "0.60.0" }
+      }
+    }
+  },
+  "resources": {
+    "skills": {
+      "nature-literature-pipeline": { "available": true, "known": true, "version": null, "source": "overlay" }
+    },
+    "workflows": {
+      "nature-literature-pipeline": { "available": true, "known": true, "version": null, "source": "overlay" }
+    }
+  }
+}
+

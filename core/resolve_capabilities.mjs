@@ -66,32 +66,46 @@ function satisfies(version, constraint) {
 }
 
 // ---- 环境判定（skill/workflow 需 resources 证据；tool 需 runtime+packages；unknown version 不满足约束） ----
-function envFulfilled(impl, env) {
-  const kind = impl.kind;
-  if (kind === "skill" || kind === "workflow") {
-    const bucket = kind === "skill" ? env?.resources?.skills : env?.resources?.workflows;
+function resolveInstances(env) {
+  if (env?.runtime_instances && Object.keys(env.runtime_instances).length > 0) {
+    return Object.entries(env.runtime_instances).map(([id, inst]) => ({ id, ...inst }));
+  }
+  // 兼容旧 snapshot：runtimes(版本) + packages（作为每个 runtime 的可用包，宽松映射）
+  const insts = [];
+  for (const [rt, info] of Object.entries(env?.runtimes || {})) {
+    insts.push({ id: `${rt}.os`, runtime: rt, provider: "os", available: info.available, known: info.known, version: info.version, packages: env?.packages || {} });
+  }
+  return insts;
+}
+function findInstance(impl, env) {
+  if (impl.kind === "skill" || impl.kind === "workflow") {
+    const bucket = impl.kind === "skill" ? env?.resources?.skills : env?.resources?.workflows;
     const entry = bucket?.[impl.name] || bucket?.[impl.id];
-    return !!(entry && entry.available === true); // 无证据 = 不可用；known=false 不得当作 available
+    return (entry && entry.available === true) ? { resource: impl.kind, id: impl.name } : null;
   }
-  const reqs = impl.environment_requirements;
-  if (!reqs) return true;
-  if (reqs.runtime && reqs.runtime !== "any") {
-    const rt = env?.runtimes?.[reqs.runtime];
-    if (!rt || !rt.available) return false;
-    if (reqs.version_constraints) {
-      if (!versionKnown(rt.version)) return false; // unknown version 不满足
-      if (!satisfies(rt.version, reqs.version_constraints)) return false;
+  if (impl.runtime === "any") return { any: true };
+  const reqs = impl.environment_requirements || {};
+  const candidates = resolveInstances(env).filter((i) => i.runtime === impl.runtime && i.available === true);
+  for (const inst of candidates) {
+    if (reqs.version_constraints && !satisfies(inst.version, reqs.version_constraints)) continue;
+    if (reqs.packages) {
+      let ok = true;
+      for (const [pkg, ver] of Object.entries(reqs.packages)) {
+        const p = inst.packages?.[pkg];
+        if (!p || !p.available) { ok = false; break; }
+        if (ver && !satisfies(p.version, ver)) { ok = false; break; }
+      }
+      if (!ok) continue;
     }
+    return inst;
   }
-  if (reqs.packages) {
-    for (const [pkg, ver] of Object.entries(reqs.packages)) {
-      const p = env?.packages?.[pkg];
-      if (!p || !p.available) return false;
-      if (ver && !versionKnown(p.version)) return false;
-      if (ver && p.version && !satisfies(p.version, ver)) return false;
-    }
-  }
-  return true;
+  return null;
+}
+function envFulfilled(impl, env) {
+  return findInstance(impl, env) !== null;
+}
+function bestInstance(impl, env) {
+  return findInstance(impl, env);
 }
 
 // ---- 科学前提：machine / manual；未知/malformed -> invalid（绝不默认 ok） ----
@@ -164,11 +178,11 @@ function hasVerifiedVersionIssue(cap, env) {
   for (const i of (cap.implementations || [])) {
     if (i.verification_status !== "verified") continue;
     const reqs = i.environment_requirements || {};
-    const rt = reqs.runtime && reqs.runtime !== "any" ? env?.runtimes?.[reqs.runtime] : null;
-    if (rt && rt.available === true) {
-      if (reqs.version_constraints && !satisfies(rt.version, reqs.version_constraints)) return true;
+    if (i.runtime === "any") continue;
+    for (const inst of resolveInstances(env).filter((x) => x.runtime === i.runtime && x.available === true)) {
+      if (reqs.version_constraints && !satisfies(inst.version, reqs.version_constraints)) return true;
       if (reqs.packages) for (const [pkg, ver] of Object.entries(reqs.packages)) {
-        const p = env?.packages?.[pkg];
+        const p = inst.packages?.[pkg];
         if (p && p.available === true && ver && !satisfies(p.version, ver)) return true;
       }
     }
@@ -202,7 +216,7 @@ function resolveOne(capId, cap, study, env, ctx) {
       return { resolution: "blocked", reason: "low_risk_no_implementation_fallback_not_allowed", capability: capId, maturity: deriveMaturity(cap) };
     }
     const chosen = pickBest(envOK, ctx);
-    return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), reason: "low_risk_available" };
+    const li = bestInstance(chosen, env); return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, runtime_instance: li?.id || null, provider: li?.provider || null, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), reason: "low_risk_available" };
   }
 
   // 可选实现 = envOK 中（风险准入通过 或 对非 high 已显式批准）
@@ -211,7 +225,7 @@ function resolveOne(capId, cap, study, env, ctx) {
     const chosen = pickBest(selectable, ctx);
     const approved = !isPermissible(cap, chosen, ctx) && isApproved(cap, chosen, ctx);
     const explicitOverride = ctx.mode === "test" && ctx.allow_experimental === true && (chosen.verification_status === "tested" || (risk === "medium" && ["experimental", "reference"].includes(chosen.verification_status)));
-    return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), override_recorded: explicitOverride || approved, approval_recorded: approved, reason: approved ? "medium_approval_recorded" : (explicitOverride ? "test_override_recorded" : "resolved") };
+    const li = bestInstance(chosen, env); return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, runtime_instance: li?.id || null, provider: li?.provider || null, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), override_recorded: explicitOverride || approved, approval_recorded: approved, reason: approved ? "medium_approval_recorded" : (explicitOverride ? "test_override_recorded" : "resolved") };
   }
 
   if (risk === "high" && ctx.mode === "production") {
@@ -262,6 +276,8 @@ if (isMain) {
   const study = loadJson(studyPath, studyPath);
   const registry = loadRegistry(registryPath, domain ? `domains/${domain}/capabilities` : null);
   const env = envPath ? loadJson(envPath, envPath) : {};
+  const ovPath = arg("env-overlay");
+  if (ovPath) mergeOverlay(env, loadJson(ovPath, ovPath));
   const ctx = {
     mode: study.execution_context?.mode || "production",
     allow_experimental: !!study.execution_context?.allow_experimental,
@@ -272,5 +288,23 @@ if (isMain) {
   console.log(JSON.stringify(result, null, 2));
 }
 
-export { resolveAll, resolveOne, deriveMaturity, envFulfilled, satisfies, STATUS_RANK, loadRegistry, evalPrecondition, isPermissible, isApproved };
+// ---- 环境 overlay 合并（harness runtime / resources 由协调者提供，合并进 snapshot） ----
+function mergeOverlay(env, overlay) {
+  if (!overlay) return env;
+  const out = { ...env };
+  if (overlay.runtime_instances) out.runtime_instances = { ...(env.runtime_instances || {}), ...overlay.runtime_instances };
+  if (overlay.runtimes) out.runtimes = { ...(env.runtimes || {}), ...overlay.runtimes };
+  if (overlay.packages) out.packages = { ...(env.packages || {}), ...overlay.packages };
+  if (overlay.resources) {
+    const res = out.resources || {};
+    if (overlay.resources.skills) res.skills = { ...(res.skills || {}), ...overlay.resources.skills };
+    if (overlay.resources.workflows) res.workflows = { ...(res.workflows || {}), ...overlay.resources.workflows };
+    out.resources = res;
+  }
+  return out;
+}
+export { resolveAll, resolveOne, deriveMaturity, envFulfilled, satisfies, STATUS_RANK, loadRegistry, evalPrecondition, isPermissible, isApproved, resolveInstances, findInstance, bestInstance, mergeOverlay };
+
+
+
 
