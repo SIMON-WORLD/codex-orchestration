@@ -1,0 +1,23 @@
+{
+  "domain": "economics",
+  "version": "0.1",
+  "scientific": { "journal_neutral": true },
+  "journal": {
+    "profile_ids": ["aer", "zh_classic"],
+    "profile_field": "journal",
+    "apply_to_role_outputs": ["manuscript", "review_report", "replicability_check", "empirical_results", "paper"]
+  },
+  "toolchains": {
+    "stata": "Stata（reghdfe / esttab / coefplot / winsor2 / csdid / rdrobust，见 MixtapeTools）",
+    "r": "R（fixest / modelsummary / broom / tidyverse，见 christopherkenny / 应用统计）",
+    "python": "Python（linearmodels / statsmodels / pyfixest / pandas，见 StatsPAI / 全实证流程）"
+  },
+  "policies": { "risk": { "low": "fallback_recorded", "medium": "tested_preferred", "high": "verified_only" } },
+  "research_integrity": {
+    "evidence_grading_lines": [
+      "每条因果/机制结论都需登记进证据台账，并标注证据级别：identified / model-implied / exclusion / consistent-with / suggestive / speculative。",
+      "禁止把相关性写成因果；明确区分 ITT 与 TOT、分配与实施、基线分母与不显著结果；再好的文笔也不能抵消一处事实错误。"
+    ]
+  }
+}
+

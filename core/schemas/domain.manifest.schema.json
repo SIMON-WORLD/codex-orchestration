@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "domain.manifest.schema.json",
+  "title": "Domain Manifest（v1.3）",
+  "type": "object",
+  "description": "域清单：只声明 supported_output_profiles / domain defaults / policies；不存某次研究的 target_journal 或永久 preferred_runtime。",
+  "properties": {
+    "domain": { "type": "string" },
+    "version": { "type": "string" },
+    "scientific": { "type": "object", "properties": { "journal_neutral": { "type": "boolean" } } },
+    "journal": {
+      "type": "object",
+      "description": "output profile 定义（late-bound，不进入 data/empirical 科学参数）",
+      "properties": { "profile_ids": { "type": "array", "items": { "type": "string" } }, "profile_field": { "type": "string" }, "apply_to_role_outputs": { "type": "array", "items": { "type": "string" } } }
+    },
+    "toolchains": { "type": "object", "description": "各 runtime 的描述（仅用于 prompt 注入；不默认统一 runtime）" },
+    "policies": { "type": "object", "properties": { "risk": { "type": "object", "properties": { "low": { "type": "string" }, "medium": { "type": "string" }, "high": { "type": "string" } } } } },
+    "supported_output_profiles": { "type": "array", "items": { "type": "string" } },
+    "env_probe": { "type": "object" }
+  },
+  "required": ["domain", "version", "scientific"]
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "capability.schema.json",
+  "title": "Capability（v1.3）",
+  "type": "object",
+  "description": "能力：具体能做什么 + 质量状态 + 风险 + 要求。Skeleton；P2 才接入 resolver。",
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z]+\\.[a-z0-9_.]+$", "description": "命名空间化，如 <domain>.<category>.<capability>" },
+    "domain": { "type": "string" },
+    "description": { "type": "string" },
+    "risk_level": { "enum": ["low", "medium", "high"] },
+    "methodology": { "type": "object", "properties": { "references": { "type": "array" }, "note": { "type": "string" } } },
+    "implementations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": { "enum": ["tool", "skill", "workflow", "script"] },
+          "name": { "type": "string" },
+          "runtime": { "type": "string", "description": "该实现自身的 runtime（如 python/r/julia/...）；不设永久 preferred_runtime" },
+          "verification_status": { "enum": ["reference", "experimental", "tested", "verified", "deprecated"] },
+          "evidence": { "type": ["string", "null"], "description": "benchmark_ref；无则 null，不得虚标 verified" }
+        },
+        "required": ["kind", "name", "verification_status"]
+      }
+    },
+    "environment_requirements": { "type": "object", "description": "具体实现的 runtime/package/version；原则上属于实现，不属能力层" },
+    "environment_requirements_on_implementation": { "type": "boolean", "default": true },
+    "scientific_preconditions": { "type": "array", "description": "真实科研前提；machine-checkable 的用结构化对象，否则标 manual_validation_required" },
+    "decision_requirements": { "type": "array", "items": { "type": "string" }, "description": "treatment def / clustering / sample exclusion / estimator choice 等需人工确认的项" },
+    "fallback_policy": { "enum": ["hard_stop", "needs_decision", "recorded", "allow"] },
+    "maturity": { "type": "object", "description": "派生值，不独立人工维护", "properties": { "value": { "enum": ["reference", "experimental", "tested", "verified", "deprecated", "n/a"] }, "derived_from": { "type": "array" }, "rules": { "type": "string" } } }
+  },
+  "required": ["id", "domain", "description", "risk_level", "implementations"]
+}
+
