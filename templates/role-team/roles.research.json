@@ -65,7 +65,7 @@
       "prompt": "你是科研团队里的「写作专员」。综合上游文献综述、数据说明与实证结果，写成结构完整、事实可溯源的论文/报告。只负责成文，不新增实证。",
       "inputs": ["research_question", "literature_review", "data_summary", "empirical_results"],
       "outputs": ["manuscript"],
-      "depends_on": ["literature", "empirical", "data"],
+      "depends_on": ["literature", "data", "empirical"],
       "target": "projectless",
       "methodology": {
         "skill": "academic-research-skills (academic-writing)",
