@@ -30,6 +30,10 @@ jobs:
           node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.json --out role-team-out/_gen.json
           node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --out role-team-out/_res.json
           node -e "const g=require('./role-team-out/_gen.json'); const r=require('./role-team-out/_res.json'); if(g.meta.compatibility_mode) throw new Error('通用 roles.json 不应有 compatibility_mode'); if(r.meta.compatibility_mode!=='legacy_v1_2') throw new Error('roles.research.json 应标记 legacy_v1_2'); console.log('OK: generic=no-compat; research=legacy_v1_2')"
+      - name: Validate real capability schema
+        run: node core/validate_capability_schema.mjs
+      - name: Run capability schema rejection spec
+        run: node tests/schema.spec.mjs
       - name: Run Capability Resolver fixture spec
         run: node tests/resolver.spec.mjs
       - name: Guard against fabricated verified in real registry
@@ -43,6 +47,7 @@ jobs:
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
 
 
 

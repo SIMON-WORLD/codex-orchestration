@@ -252,7 +252,7 @@ if (arg("study")) {
     const study = JSON.parse(readFileSync(arg("study"), "utf8"));
     const regDir = `domains/${study.domain || domain}/capabilities`;
     const env = arg("env") ? JSON.parse(readFileSync(arg("env"), "utf8")) : {};
-    const pctx = { mode: study.execution_context?.mode || "production", allow_experimental: !!study.execution_context?.allow_experimental, preferred_runtimes: study.execution_context?.preferred_runtimes || [] };
+    const pctx = { mode: study.execution_context?.mode || "production", allow_experimental: !!study.execution_context?.allow_experimental, preferred_runtimes: study.execution_context?.preferred_runtimes || [], approved_overrides: study.execution_context?.approved_overrides || [] };
     preflight = resolveAll(study, loadRegistry(regDir), env, pctx);
   } catch (e) { throw new Error(`preflight 失败：${e.message}`); }
 }
@@ -295,6 +295,7 @@ if (!hasFlag("dry-run")) {
 } else {
   console.log("\n--dry-run：未写文件。可用 --out 指定输出路径。");
 }
+
 
 
 

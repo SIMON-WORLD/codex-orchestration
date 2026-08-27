@@ -3,21 +3,23 @@
 // Core 只理解通用概念：capability / implementation / runtime / environment / status / risk / policy /
 // precondition / decision / resolved / needs_decision / blocked。不硬编码任何领域方法名或软件名。
 // 输入: --study <study_design.json> （必填）
-//       --registry <capabilities/index.json> （可选，默认 domains/<domain>/capabilities/index.json）
+//       --registry <capabilities dir/文件> （可选，默认 domains/<domain>/capabilities）
 //       --env <env.json> （可选：执行环境快照，来自 scripts/probe_env.mjs 或手工；缺省保守 unknown）
 //       --domain <name>　（可选：用于定位默认 registry 路径）
-// 输出: 每个 selected capability 的 resolution + 每个 role 的 preflight 状态。
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-
 const STATUS_RANK = { verified: 4, tested: 3, experimental: 2, reference: 1, deprecated: 0 };
 
 function readJson(rel) { return JSON.parse(readFileSync(join(root, rel), "utf8")); }
 function arg(name) { const i = process.argv.indexOf("--" + name); return i >= 0 ? process.argv[i + 1] : undefined; }
 function hasFlag(name) { return process.argv.includes("--" + name); }
+function loadJson(path, rel) {
+  try { return JSON.parse(readFileSync(isAbsolute(path) ? path : join(root, rel), "utf8")); }
+  catch (e) { throw new Error(`无法解析 JSON ${path}：${e.message}`); }
+}
 function isDir(p) { try { return statSync(p).isDirectory(); } catch { return false; } }
 function loadRegistry(path, defaultDir) {
   const p = path || defaultDir;
@@ -35,10 +37,6 @@ function loadRegistry(path, defaultDir) {
   if (Array.isArray(data)) { const reg = {}; for (const c of data) if (c && c.id) reg[c.id] = c; return reg; }
   return data || {};
 }
-function loadJson(path, rel) {
-  try { return JSON.parse(readFileSync(isAbsolute(path) ? path : join(root, rel), "utf8")); }
-  catch (e) { throw new Error(`无法解析 JSON ${path}：${e.message}`); }
-}
 
 // ---- 版本约束（最小实现：支持 >=X / ==X / 裸 X，数字小段逐段比较） ----
 function compareVersion(a, b) {
@@ -50,8 +48,10 @@ function compareVersion(a, b) {
   }
   return 0;
 }
+function versionKnown(v) { return v !== undefined && v !== null && v !== "unknown" && v !== ""; }
 function satisfies(version, constraint) {
   if (constraint === undefined || constraint === null || constraint === "") return true;
+  if (!versionKnown(version)) return false; // unknown version 不满足约束
   const c = String(constraint).trim();
   const m = c.match(/^(>=|==|>|<)?\s*(.+)$/);
   const op = (m && m[1]) || "==";
@@ -65,40 +65,50 @@ function satisfies(version, constraint) {
   }
 }
 
-// ---- 环境判定 ----
+// ---- 环境判定（skill/workflow 需 resources 证据；tool 需 runtime+packages；unknown version 不满足约束） ----
 function envFulfilled(impl, env) {
+  const kind = impl.kind;
+  if (kind === "skill" || kind === "workflow") {
+    const bucket = kind === "skill" ? env?.resources?.skills : env?.resources?.workflows;
+    const entry = bucket?.[impl.name] || bucket?.[impl.id];
+    return !!(entry && entry.available === true); // 无证据 = 不可用；known=false 不得当作 available
+  }
   const reqs = impl.environment_requirements;
-  if (!reqs) return true; // 无要求 → 视为可用（但 high-risk 仍要求 verified）
+  if (!reqs) return true;
   if (reqs.runtime && reqs.runtime !== "any") {
     const rt = env?.runtimes?.[reqs.runtime];
-    if (!rt || !rt.available) return false; // 未知/不可用都算不满足
-    if (reqs.version_constraints && rt.version && !satisfies(rt.version, reqs.version_constraints)) return false;
+    if (!rt || !rt.available) return false;
+    if (reqs.version_constraints) {
+      if (!versionKnown(rt.version)) return false; // unknown version 不满足
+      if (!satisfies(rt.version, reqs.version_constraints)) return false;
+    }
   }
   if (reqs.packages) {
     for (const [pkg, ver] of Object.entries(reqs.packages)) {
       const p = env?.packages?.[pkg];
       if (!p || !p.available) return false;
+      if (ver && !versionKnown(p.version)) return false;
       if (ver && p.version && !satisfies(p.version, ver)) return false;
     }
   }
   return true;
 }
 
-// ---- 科学前提：machine vs manual ----
+// ---- 科学前提：machine / manual；未知/malformed -> invalid（绝不默认 ok） ----
 function evalPrecondition(prec, study) {
-  if (prec && prec.kind === "machine") {
+  if (!prec || typeof prec !== "object") return { status: "invalid", reason: "scientific_precondition_malformed" };
+  if (prec.kind === "machine") {
+    if (!prec.field || prec.required_value === undefined) return { status: "invalid", reason: "scientific_precondition_malformed" };
     const val = study.preconditions?.[prec.field];
-    if (val === undefined || val === null || val === "") return prec.on_missing || "needs_decision";
-    const match = String(val) === String(prec.required_value);
-    if (!match) return prec.on_mismatch || "blocked";
-    return "ok";
+    if (val === undefined || val === null || val === "") return { status: prec.on_missing || "needs_decision", reason: "scientific_precondition_missing" };
+    if (String(val) !== String(prec.required_value)) return { status: prec.on_mismatch || "blocked", reason: "scientific_precondition_mismatch" };
+    return { status: "ok" };
   }
-  // manual
-  if (prec && prec.kind === "manual") {
+  if (prec.kind === "manual") {
     const confirmed = study.manual_validations?.[prec.label];
-    return confirmed === true ? "ok" : "needs_decision";
+    return confirmed === true ? { status: "ok" } : { status: "needs_decision", reason: "manual_scientific_validation_required" };
   }
-  return "ok"; // 无字段的字符串视为已声明（保守：需人工，但此处由调用方决定）；默认 ok
+  return { status: "invalid", reason: "scientific_precondition_malformed" };
 }
 
 // ---- 风险准入 ----
@@ -113,10 +123,15 @@ function isPermissible(cap, impl, ctx) {
     if (ctx.mode === "production") return s === "verified" || s === "tested";
     return ["verified", "tested"].includes(s) || (["experimental", "reference"].includes(s) && ctx.allow_experimental === true);
   }
-  return true; // low：任何状态（含 fallback），是否 fallback 另判
+  return true;
 }
 
-// ---- implementation 选择：非按“最高 status”简单取，按既定顺序 ----
+// ---- run-level 显式批准（仅 capability+implementation，可解析；HIGH production 永远不绕过 verified_only；deprecated 不可批准） ----
+function isApproved(cap, impl, ctx) {
+  return (ctx.approved_overrides || []).some((o) => o && o.capability === cap.id && o.implementation === impl.id && o.approved === true);
+}
+
+// ---- implementation 选择：非按“最高 status”简单取 ----
 function pickBest(impls, ctx) {
   return [...impls].sort((a, b) => {
     const dr = STATUS_RANK[b.verification_status] - STATUS_RANK[a.verification_status];
@@ -137,7 +152,6 @@ function deriveMaturity(cap) {
   for (const i of nonDep) {
     const r = STATUS_RANK[i.verification_status];
     if (r > STATUS_RANK[best]) {
-      // tested/verified 必须有证据，否则不视为已达到
       if ((i.verification_status === "tested" || i.verification_status === "verified") && !i.verification?.evidence) continue;
       best = i.verification_status;
     }
@@ -145,91 +159,97 @@ function deriveMaturity(cap) {
   return best;
 }
 
+// ---- 是否存在 verified 实现但版本不满足（用于区分 diagnostic） ----
+function hasVerifiedVersionIssue(cap, env) {
+  for (const i of (cap.implementations || [])) {
+    if (i.verification_status !== "verified") continue;
+    const reqs = i.environment_requirements || {};
+    const rt = reqs.runtime && reqs.runtime !== "any" ? env?.runtimes?.[reqs.runtime] : null;
+    if (rt && rt.available === true) {
+      if (reqs.version_constraints && !satisfies(rt.version, reqs.version_constraints)) return true;
+      if (reqs.packages) for (const [pkg, ver] of Object.entries(reqs.packages)) {
+        const p = env?.packages?.[pkg];
+        if (p && p.available === true && ver && !satisfies(p.version, ver)) return true;
+      }
+    }
+  }
+  return false;
+}
+
 // ---- 单个能力解析 ----
 function resolveOne(capId, cap, study, env, ctx) {
-  // 1) 科学前提
   for (const prec of cap.scientific_preconditions || []) {
     const r = evalPrecondition(prec, study);
-    if (r === "blocked") return { resolution: "blocked", reason: `scientific_precondition_mismatch: ${prec.field || prec.label}`, capability: capId, maturity: deriveMaturity(cap) };
-    if (r === "needs_decision") return { resolution: "needs_decision", reason: `manual_scientific_validation_required: ${prec.label || prec.field}`, capability: capId, maturity: deriveMaturity(cap) };
+    if (r.status === "invalid") return { resolution: "blocked", reason: "scientific_precondition_malformed", capability: capId, maturity: deriveMaturity(cap) };
+    if (r.status === "blocked") return { resolution: "blocked", reason: "scientific_precondition_mismatch", field: prec.field, capability: capId, maturity: deriveMaturity(cap) };
+    if (r.status === "needs_decision") return { resolution: "needs_decision", reason: "manual_scientific_validation_required", field: prec.label, capability: capId, maturity: deriveMaturity(cap) };
   }
-  // 2) 决策要求
-  const missingDecisions = (cap.decision_requirements || []).filter((d) => {
-    const v = study.decisions?.[d];
-    return v === undefined || v === null || v === "";
-  });
-  if (missingDecisions.length > 0) {
-    return { resolution: "needs_decision", reason: "decision_requirements_missing", items: missingDecisions, capability: capId, maturity: deriveMaturity(cap) };
-  }
-  const nonDep = (cap.implementations || []).filter((i) => i.verification_status !== "deprecated");
-  const envOK = nonDep.filter((i) => envFulfilled(i, env));
+  const missingDecisions = (cap.decision_requirements || []).filter((d) => { const v = study.decisions?.[d]; return v === undefined || v === null || v === ""; });
+  if (missingDecisions.length > 0) return { resolution: "needs_decision", reason: "decision_missing", items: missingDecisions, capability: capId, maturity: deriveMaturity(cap) };
+
+  const allNonDep = (cap.implementations || []).filter((i) => i.verification_status !== "deprecated");
+  const hasVerifiedRegistry = allNonDep.some((i) => i.verification_status === "verified");
+  const envOK = allNonDep.filter((i) => envFulfilled(i, env));
+  const verifiedEnvOK = envOK.filter((i) => i.verification_status === "verified");
+  const verifiedUnavailable = hasVerifiedRegistry && verifiedEnvOK.length === 0;
   const risk = cap.risk_level;
 
-  // low risk：无实现可 fallback（按 fallback_policy）
   if (risk === "low") {
     if (envOK.length === 0) {
       if (cap.fallback_policy === "allow" || cap.fallback_policy === "recorded") {
-        return { resolution: "resolved", fallback_recorded: true, selected_implementation: null, runtime: null, verification_status: "fallback", risk_level: risk, capability: capId, maturity: deriveMaturity(cap), reason: "no implementation; self-contained fallback" };
+        return { resolution: "resolved", fallback_recorded: true, selected_implementation: null, runtime: null, verification_status: "fallback", risk_level: risk, capability: capId, maturity: deriveMaturity(cap), reason: "low_risk_fallback_recorded" };
       }
-      return { resolution: "blocked", reason: "no implementation and fallback not allowed", capability: capId, maturity: deriveMaturity(cap) };
+      return { resolution: "blocked", reason: "low_risk_no_implementation_fallback_not_allowed", capability: capId, maturity: deriveMaturity(cap) };
     }
     const chosen = pickBest(envOK, ctx);
-    return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), reason: "low-risk; best available" };
+    return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), reason: "low_risk_available" };
   }
 
-  const permissible = envOK.filter((i) => isPermissible(cap, i, ctx));
-  if (permissible.length === 0) {
-    // 判定原因
-    if (risk === "high" && ctx.mode === "production") {
-      const anyVerifiedEnvOK = envOK.some((i) => i.verification_status === "verified");
-      if (anyVerifiedEnvOK) {
-        return { resolution: "blocked", reason: "verified implementation exists but environment/requirements unmet", capability: capId, maturity: deriveMaturity(cap) };
-      }
-      return { resolution: "blocked", reason: "no verified implementation for high-risk production", capability: capId, maturity: deriveMaturity(cap) };
-    }
-    if (risk === "medium" && ctx.mode === "production") {
-      return { resolution: "needs_decision", reason: envOK.length === 0 ? "no available implementation; needs approval" : "only experimental/reference available; needs approval", capability: capId, maturity: deriveMaturity(cap) };
-    }
-    if (risk === "high" && ctx.mode === "test") {
-      if (!ctx.allow_experimental) return { resolution: "blocked", reason: "high-risk test requires verified, or tested with allow_experimental", capability: capId, maturity: deriveMaturity(cap) };
-      return { resolution: "needs_decision", reason: "high-risk test with allow_experimental but no admissable impl", capability: capId, maturity: deriveMaturity(cap) };
-    }
-    return { resolution: "needs_decision", reason: "no admissable implementation", capability: capId, maturity: deriveMaturity(cap) };
+  // 可选实现 = envOK 中（风险准入通过 或 对非 high 已显式批准）
+  const selectable = envOK.filter((i) => isPermissible(cap, i, ctx) || (isApproved(cap, i, ctx) && risk !== "high"));
+  if (selectable.length > 0) {
+    const chosen = pickBest(selectable, ctx);
+    const approved = !isPermissible(cap, chosen, ctx) && isApproved(cap, chosen, ctx);
+    const explicitOverride = ctx.mode === "test" && ctx.allow_experimental === true && (chosen.verification_status === "tested" || (risk === "medium" && ["experimental", "reference"].includes(chosen.verification_status)));
+    return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), override_recorded: explicitOverride || approved, approval_recorded: approved, reason: approved ? "medium_approval_recorded" : (explicitOverride ? "test_override_recorded" : "resolved") };
   }
-  const chosen = pickBest(permissible, ctx);
-  const override = ctx.mode === "test" && (chosen.verification_status === "tested" || (risk === "medium" && ["experimental", "reference"].includes(chosen.verification_status))) && ctx.allow_experimental === true;
-  return { resolution: "resolved", selected_implementation: chosen, runtime: chosen.runtime, verification_status: chosen.verification_status, risk_level: risk, capability: capId, maturity: deriveMaturity(cap), override_recorded: override, reason: "resolved" };
+
+  if (risk === "high" && ctx.mode === "production") {
+    if (!hasVerifiedRegistry) return { resolution: "blocked", reason: "no_verified_implementation", capability: capId, maturity: deriveMaturity(cap) };
+    if (hasVerifiedVersionIssue(cap, env)) return { resolution: "blocked", reason: "version_requirement_unsatisfied", capability: capId, maturity: deriveMaturity(cap) };
+    return { resolution: "blocked", reason: "verified_implementation_unavailable", capability: capId, maturity: deriveMaturity(cap) };
+  }
+  if (risk === "medium" && ctx.mode === "production") {
+    if (envOK.length > 0) return { resolution: "needs_decision", reason: "medium_approval_required", items: envOK.map((i) => i.id), capability: capId, maturity: deriveMaturity(cap) };
+    return { resolution: "needs_decision", reason: "no_implementation_approval_required", capability: capId, maturity: deriveMaturity(cap) };
+  }
+  if (risk === "high" && ctx.mode === "test") {
+    if (!ctx.allow_experimental) return { resolution: "blocked", reason: "high_risk_test_verified_required", capability: capId, maturity: deriveMaturity(cap) };
+    return { resolution: "needs_decision", reason: "high_risk_test_no_admissible", capability: capId, maturity: deriveMaturity(cap) };
+  }
+  return { resolution: "needs_decision", reason: "no_admissible_implementation", capability: capId, maturity: deriveMaturity(cap) };
 }
 
 // ---- 汇总 ----
 function resolveAll(study, registry, env, ctx) {
-  const dom = study.domain || null;
   const capResult = {};
   const roles = {};
   let overall = "ready";
   for (const [roleId, capIds] of Object.entries(study.selected_capabilities || {})) {
-    const perRole = [];
     let roleStatus = "ready";
     for (const capId of capIds) {
       const cap = registry[capId];
-      if (!cap) { capResult[capId] = { resolution: "blocked", reason: `unknown capability ${capId}` }; perRole.push(capId); roleStatus = "blocked"; continue; }
+      if (!cap) { capResult[capId] = { resolution: "blocked", reason: "unknown_capability" }; if (roleStatus === "ready") roleStatus = "blocked"; continue; }
       const r = resolveOne(capId, cap, study, env, ctx);
       capResult[capId] = r;
-      perRole.push(capId);
-      if (r.resolution === "blocked") { roleStatus = "blocked"; }
-      else if (r.resolution === "needs_decision" && roleStatus === "ready") { roleStatus = "needs_decision"; }
+      if (r.resolution === "blocked") roleStatus = "blocked";
+      else if (r.resolution === "needs_decision" && roleStatus === "ready") roleStatus = "needs_decision";
     }
-    const blockedCaps = capIds.filter((c) => capResult[c]?.resolution === "blocked");
-    roles[roleId] = {
-      status: roleStatus,
-      capabilities: perRole,
-      blocked_capabilities: blockedCaps,
-      needed_decisions: capIds.filter((c) => capResult[c]?.resolution === "needs_decision"),
-    };
+    roles[roleId] = { status: roleStatus, capabilities: capIds, blocked_capabilities: capIds.filter((c) => capResult[c]?.resolution === "blocked"), needed_decisions: capIds.filter((c) => capResult[c]?.resolution === "needs_decision") };
     if (roleStatus === "blocked") overall = "blocked";
     else if (roleStatus === "needs_decision" && overall !== "blocked") overall = "needs_decision";
   }
-  return { study_id: study.study_id || null, domain: dom, overall, capabilities: capResult, roles };
+  return { study_id: study.study_id || null, domain: study.domain || null, overall, capabilities: capResult, roles };
 }
 
 // ---- CLI（仅在作为主模块运行时执行，避免被 import 误触发） ----
@@ -244,15 +264,13 @@ if (isMain) {
   const env = envPath ? loadJson(envPath, envPath) : {};
   const ctx = {
     mode: study.execution_context?.mode || "production",
-    allow_experimental: study.execution_context?.allow_experimental || false,
+    allow_experimental: !!study.execution_context?.allow_experimental,
     preferred_runtimes: study.execution_context?.preferred_runtimes || [],
+    approved_overrides: study.execution_context?.approved_overrides || [],
   };
   const result = resolveAll(study, registry, env, ctx);
   console.log(JSON.stringify(result, null, 2));
 }
 
-// ---- 导出（供单元测试 / scaffold 集成使用） ----
-export { resolveAll, resolveOne, deriveMaturity, envFulfilled, satisfies, STATUS_RANK, loadRegistry };
-
-
+export { resolveAll, resolveOne, deriveMaturity, envFulfilled, satisfies, STATUS_RANK, loadRegistry, evalPrecondition, isPermissible, isApproved };
 
