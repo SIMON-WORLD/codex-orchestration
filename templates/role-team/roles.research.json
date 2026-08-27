@@ -54,8 +54,8 @@
         "skill": "MixtapeTools — causal inference",
         "repo": "scunning1975/MixtapeTools",
         "url": "https://github.com/scunning1975/MixtapeTools",
-        "note": "应用经济学因果推断/AER 风格；优先加载 MixtapeTools 相应 skill。",
-        "steps": ["明确识别策略与潜在结果框架，说明处理变量/对照/机制", "做诊断（平衡性、自相关/面板、多重共线性、Hausman、过度识别等）", "基准回归：渐进加入控制与固定效应（M1→M6 风格）", "按需选因果方法（DiD / RDD / IV / 合成控制 / 匹配等）", "稳健性（替换样本/聚类/安慰剂/敏感性、bacondecomp、honestdid、rwolf、oster）", "显著性检验并做多重检验校正，报告标准误/置信区间", "解读系数方向、大小与经济含义，点明识别假设与威胁"]
+        "note": "应用经济学因果推断/AER 风格；优先加载 MixtapeTools 相应 skill。用现成命令/包快速出结果，不要自行重实现计量方法（复杂方法先查标准实现）。",
+        "steps": ["原则：用现成命令/包（reghdfe/csdid/rdrobust/esttab 等）快速产出，勿自行重实现计量方法", "明确识别策略与潜在结果框架，说明处理变量/对照/机制", "做诊断（平衡性、自相关/面板、多重共线性、Hausman、过度识别等）", "基准回归：渐进加入控制与固定效应（M1→M6 风格）", "按需选因果方法（DiD / RDD / IV / 合成控制 / 匹配等）", "稳健性（替换样本/聚类/安慰剂/敏感性、bacondecomp、honestdid、rwolf、oster）", "显著性检验并做多重检验校正，报告标准误/置信区间", "解读系数方向、大小与经济含义，点明识别假设与威胁"]
       }
     },
     {
