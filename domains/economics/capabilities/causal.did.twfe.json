@@ -1,0 +1,68 @@
+{
+  "id": "economics.causal.did.twfe",
+  "domain": "economics",
+  "description": "Two-way fixed-effects difference-in-differences",
+  "risk_level": "high",
+  "methodology": {
+    "references": [
+      {
+        "name": "Goodman-Bacon 2021",
+        "url": "https://..."
+      }
+    ],
+    "note": "TWFE with treatment timing"
+  },
+  "implementations": [
+    {
+      "id": "did.twfe.python.pyfixest",
+      "kind": "tool",
+      "name": "pyfixest::feols",
+      "runtime": "python",
+      "verification_status": "experimental",
+      "environment_requirements": {
+        "runtime": "python",
+        "packages": {
+          "pyfixest": ">=0.60"
+        }
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    },
+    {
+      "id": "did.twfe.stata.reghdfe",
+      "kind": "tool",
+      "name": "reghdfe",
+      "runtime": "stata",
+      "verification_status": "reference",
+      "environment_requirements": {
+        "runtime": "stata"
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    }
+  ],
+  "scientific_preconditions": [
+    {
+      "kind": "machine",
+      "field": "design.panel",
+      "required_value": "unit_time",
+      "on_missing": "needs_decision",
+      "on_mismatch": "blocked"
+    },
+    {
+      "kind": "manual",
+      "label": "comparison_group_support_satisfied"
+    }
+  ],
+  "decision_requirements": [
+    "treatment_definition",
+    "clustering_level",
+    "sample_exclusion",
+    "estimator_choice"
+  ],
+  "fallback_policy": "hard_stop"
+}

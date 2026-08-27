@@ -1,0 +1,13 @@
+{
+  "domain": "economics",
+  "note": "Capability registry (resolver 读取本目录所有 *.json 除 index.json；按 id 合并)",
+  "capability_files": [
+    "literature.search.json",
+    "data.validation.json",
+    "regression.panel_fe.json",
+    "causal.did.twfe.json",
+    "causal.did.staggered.json",
+    "causal.iv.json",
+    "stat.testing.multcomp.json"
+  ]
+}

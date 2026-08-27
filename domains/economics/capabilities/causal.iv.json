@@ -1,0 +1,65 @@
+{
+  "id": "economics.causal.iv",
+  "domain": "economics",
+  "description": "Instrumental variables / 2SLS with diagnostics",
+  "risk_level": "high",
+  "methodology": {
+    "references": [
+      {
+        "name": "Weak-IV (Olea-Pflueger 2013)",
+        "url": "https://..."
+      }
+    ],
+    "note": "first-stage + exclusion"
+  },
+  "implementations": [
+    {
+      "id": "causal.iv.python.linearmodels",
+      "kind": "tool",
+      "name": "linearmodels IV2SLS",
+      "runtime": "python",
+      "verification_status": "experimental",
+      "environment_requirements": {
+        "runtime": "python",
+        "packages": {
+          "linearmodels": ">=7.0"
+        }
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    },
+    {
+      "id": "causal.iv.stata.ivreg2",
+      "kind": "tool",
+      "name": "ivreg2",
+      "runtime": "stata",
+      "verification_status": "reference",
+      "environment_requirements": {
+        "runtime": "stata"
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    }
+  ],
+  "scientific_preconditions": [
+    {
+      "kind": "manual",
+      "label": "instrument_exclusion_argued"
+    },
+    {
+      "kind": "manual",
+      "label": "instrument_relevance_strong"
+    }
+  ],
+  "decision_requirements": [
+    "instrument",
+    "exclusion_restriction",
+    "clustering_level",
+    "sample_exclusion"
+  ],
+  "fallback_policy": "hard_stop"
+}

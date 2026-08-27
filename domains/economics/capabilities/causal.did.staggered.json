@@ -1,0 +1,79 @@
+{
+  "id": "economics.causal.did.staggered",
+  "domain": "economics",
+  "description": "Heterogeneous-treatment staggered DiD (CS / Sun-Abraham / Borusyak / de Chaisemartin)",
+  "risk_level": "high",
+  "methodology": {
+    "references": [
+      {
+        "name": "Callaway & Sant'Anna 2021",
+        "url": "https://..."
+      },
+      {
+        "name": "Sun & Abraham 2021",
+        "url": "https://..."
+      }
+    ],
+    "note": "report >=2 estimators"
+  },
+  "implementations": [
+    {
+      "id": "did.stag.python.csdid",
+      "kind": "tool",
+      "name": "csdid",
+      "runtime": "python",
+      "verification_status": "experimental",
+      "environment_requirements": {
+        "runtime": "python",
+        "packages": {
+          "csdid": ">=0.4"
+        }
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    },
+    {
+      "id": "did.stag.r.did",
+      "kind": "tool",
+      "name": "did::att_gt",
+      "runtime": "r",
+      "verification_status": "reference",
+      "environment_requirements": {
+        "runtime": "r"
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    }
+  ],
+  "scientific_preconditions": [
+    {
+      "kind": "machine",
+      "field": "design.treatment_timing",
+      "required_value": "staggered",
+      "on_missing": "needs_decision",
+      "on_mismatch": "blocked"
+    },
+    {
+      "kind": "machine",
+      "field": "design.comparison_group",
+      "required_value": "never_or_not_yet_treated",
+      "on_missing": "needs_decision",
+      "on_mismatch": "blocked"
+    },
+    {
+      "kind": "manual",
+      "label": "treatment_consistency_confirmed"
+    }
+  ],
+  "decision_requirements": [
+    "treatment_definition",
+    "clustering_level",
+    "sample_exclusion",
+    "estimator_choice"
+  ],
+  "fallback_policy": "hard_stop"
+}

@@ -1,0 +1,78 @@
+{
+  "id": "economics.regression.panel_fe",
+  "domain": "economics",
+  "description": "Two-way (unit+time) fixed-effects panel regression with cluster-robust SEs",
+  "risk_level": "high",
+  "methodology": {
+    "references": [
+      {
+        "name": "AER conventions / DIME",
+        "url": "https://github.com/JonasWeinert/EconAgentSkills"
+      }
+    ],
+    "note": "FE + cluster-robust"
+  },
+  "implementations": [
+    {
+      "id": "panel.fe.python.linearmodels",
+      "kind": "tool",
+      "name": "linearmodels PanelOLS",
+      "runtime": "python",
+      "verification_status": "experimental",
+      "environment_requirements": {
+        "runtime": "python",
+        "packages": {
+          "linearmodels": ">=7.0"
+        }
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    },
+    {
+      "id": "panel.fe.stata.reghdfe",
+      "kind": "tool",
+      "name": "reghdfe",
+      "runtime": "stata",
+      "verification_status": "reference",
+      "environment_requirements": {
+        "runtime": "stata"
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    },
+    {
+      "id": "panel.fe.r.fixest",
+      "kind": "tool",
+      "name": "fixest::feols",
+      "runtime": "r",
+      "verification_status": "reference",
+      "environment_requirements": {
+        "runtime": "r"
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    }
+  ],
+  "scientific_preconditions": [
+    {
+      "kind": "machine",
+      "field": "design.panel",
+      "required_value": "unit_time",
+      "on_missing": "needs_decision",
+      "on_mismatch": "blocked"
+    }
+  ],
+  "decision_requirements": [
+    "clustering_level",
+    "control_set",
+    "fixed_effects",
+    "sample_exclusion"
+  ],
+  "fallback_policy": "hard_stop"
+}

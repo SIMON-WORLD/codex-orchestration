@@ -1,0 +1,36 @@
+{
+  "id": "economics.literature.search",
+  "domain": "economics",
+  "description": "Multi-source literature search, dedupe, screen, source verification",
+  "risk_level": "low",
+  "methodology": {
+    "references": [
+      {
+        "name": "nature-literature-pipeline / academic-deep-research",
+        "url": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills"
+      }
+    ],
+    "note": "retrieval rigor source"
+  },
+  "implementations": [
+    {
+      "id": "litsearch.workflow.nature",
+      "kind": "workflow",
+      "name": "nature-literature-pipeline",
+      "runtime": "any",
+      "verification_status": "reference",
+      "environment_requirements": {
+        "runtime": "any"
+      },
+      "verification": {
+        "evidence": null,
+        "benchmark_ref": null
+      }
+    }
+  ],
+  "scientific_preconditions": [],
+  "decision_requirements": [
+    "search_scope"
+  ],
+  "fallback_policy": "recorded"
+}

@@ -30,6 +30,11 @@ jobs:
           node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.json --out role-team-out/_gen.json
           node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --out role-team-out/_res.json
           node -e "const g=require('./role-team-out/_gen.json'); const r=require('./role-team-out/_res.json'); if(g.meta.compatibility_mode) throw new Error('通用 roles.json 不应有 compatibility_mode'); if(r.meta.compatibility_mode!=='legacy_v1_2') throw new Error('roles.research.json 应标记 legacy_v1_2'); console.log('OK: generic=no-compat; research=legacy_v1_2')"
+      - name: Run Capability Resolver fixture spec
+        run: node tests/resolver.spec.mjs
+      - name: Guard against fabricated verified in real registry
+        run: |
+          node -e "const fs=require('fs'); const dir='domains/economics/capabilities'; for(const f of fs.readdirSync(dir)){ if(!f.endsWith('.json')||f==='index.json') continue; const c=JSON.parse(fs.readFileSync(dir+'/'+f,'utf8')); for(const i of c.implementations||[]){ if(i.verification_status==='verified') throw new Error(f+' 有虚标 verified，真实 registry 不得在无 benchmark evidence 下标 verified'); } } console.log('OK real registry no fabricated verified')"
       - name: Validate research role schema
         run: node scripts/scaffold_role_team.mjs --roles templates/role-team/roles.research.json --dry-run
       - name: No secrets in tracked files
@@ -38,6 +43,7 @@ jobs:
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
 
 
 

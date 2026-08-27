@@ -1,0 +1,41 @@
+{
+  "study_id": "example_study_20260827",
+  "domain": "economics",
+  "execution_context": {
+    "mode": "production",
+    "allow_experimental": false,
+    "preferred_runtimes": ["stata", "r", "python"]
+  },
+  "selected_capabilities": {
+    "literature_search": ["economics.literature.search"],
+    "data": ["economics.data.validation"],
+    "empirical": ["economics.regression.panel_fe", "economics.causal.did.staggered"],
+    "review": ["economics.stat.testing.multcomp"]
+  },
+  "decisions": {
+    "treatment_definition": "firm mandate post (staggered)",
+    "clustering_level": "firm",
+    "sample_exclusion": "age 16-65; employed; drop key missing",
+    "estimator_choice": "cs",
+    "control_set": "industry x time",
+    "fixed_effects": "worker + time",
+    "instrument": "mandate",
+    "exclusion_restriction": "argued",
+    "family_definition": "m1-m6a",
+    "correction_method": "holm",
+    "search_scope": "2020-2026",
+    "variable_definition": "objective output_count"
+  },
+  "preconditions": {
+    "design.panel": "unit_time",
+    "design.treatment_timing": "staggered",
+    "design.comparison_group": "never_or_not_yet_treated"
+  },
+  "manual_validations": {
+    "sample_flow_defined": true,
+    "comparison_group_support_satisfied": true,
+    "treatment_consistency_confirmed": true,
+    "instrument_exclusion_argued": true,
+    "instrument_relevance_strong": true
+  }
+}

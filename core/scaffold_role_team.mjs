@@ -5,7 +5,7 @@
 // 不硬编码任何领域字面量（如具体输出规范、具体方法、具体软件等）。
 // 输入: --roles <roles.json> （必填）
 //       --domain <name>      （可选：加载 domains/<name>/manifest.json 以提供 output_profiles / toolchain / 输出规范）
-//       --output-profile <id>（可选：从 manifest.output_profiles 选择要注入的 profile，如 aer / zh_classic）
+//       --output-profile <id>（可选：从 manifest.output_profiles 选择要注入的 profile，如 <某 profile id>）
 //       --question "<...>"   （可选）
 //       --inject <json>      （可选：预填上游输出，用于自包含预览/测试）
 //       --out <path>         （可选：写 JSON，默认 role-team-out/plan.json；--dry-run 只打印不写）
@@ -14,6 +14,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveAll, loadRegistry } from "./resolve_capabilities.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -245,6 +246,17 @@ for (const r of roles) {
   };
 }
 
+let preflight = null;
+if (arg("study")) {
+  try {
+    const study = JSON.parse(readFileSync(arg("study"), "utf8"));
+    const regDir = `domains/${study.domain || domain}/capabilities`;
+    const env = arg("env") ? JSON.parse(readFileSync(arg("env"), "utf8")) : {};
+    const pctx = { mode: study.execution_context?.mode || "production", allow_experimental: !!study.execution_context?.allow_experimental, preferred_runtimes: study.execution_context?.preferred_runtimes || [] };
+    preflight = resolveAll(study, loadRegistry(regDir), env, pctx);
+  } catch (e) { throw new Error(`preflight 失败：${e.message}`); }
+}
+
 const out = {
   meta: {
     source: rolesFile,
@@ -260,7 +272,9 @@ const out = {
   },
   stages: stages.map((ids, idx) => ({ stage: idx + 1, roles: ids })),
   roles: rolePlan,
+  ...(preflight ? { preflight } : {}),
 };
+
 
 console.log(`角色团队阶段顺序（共 ${stages.length} 个阶段）：`);
 stages.forEach((ids, i) => {
@@ -281,4 +295,6 @@ if (!hasFlag("dry-run")) {
 } else {
   console.log("\n--dry-run：未写文件。可用 --out 指定输出路径。");
 }
+
+
 
