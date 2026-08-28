@@ -24,17 +24,55 @@
     "is_canonical_definition": false,
     "df_adjustment": {
       "num_effects": 2,
-      "_determine_df_adjustment": "returns True (debias) for two-way FE; does NOT treat entity FE nested in cluster as redundant",
-      "tested_configs_value_se": {
-        "default": 0.010565288935,
-        "auto_df=False": 0.010565288935,
-        "count_effects=False": 0.009760951068,
-        "debiased=False": 0.010503321897,
-        "debiased=False,group_debias=True": 0.011043760029
+      "_determine_df_adjustment": "returns True (debias) for two-way FE; auto_df counts ALL FE (entity+time) in extra_df",
+      "diag_matrix": {
+        "A_default": {
+          "config": {},
+          "value_se": 0.010565288935392969,
+          "capital_se": 0.04670288962356007
+        },
+        "B_auto_df_false_count_effects_true": {
+          "config": {
+            "auto_df": false,
+            "count_effects": true
+          },
+          "value_se": 0.010565288935392969,
+          "capital_se": 0.04670288962356007
+        },
+        "C_auto_df_false_count_effects_false": {
+          "config": {
+            "auto_df": false,
+            "count_effects": false
+          },
+          "value_se": 0.009760951067962407,
+          "capital_se": 0.04314738793568672
+        },
+        "D_debiased_false": {
+          "config": {
+            "debiased": false
+          },
+          "value_se": 0.010503321896893385,
+          "capital_se": 0.0464289700197478
+        },
+        "E_default_group_debias_true": {
+          "config": {
+            "group_debias": true
+          },
+          "value_se": 0.01110891552047251,
+          "capital_se": 0.0491059410265701
+        },
+        "F_auto_df_false_count_effects_false_group_debias_true": {
+          "config": {
+            "auto_df": false,
+            "count_effects": false,
+            "group_debias": true
+          },
+          "value_se": 0.010263191236561026,
+          "capital_se": 0.0453674944847848
+        }
       },
-      "note": "no documented linearmodels config reproduces the reghdfe/fixest nested-in-cluster DoF convention; default value_se 0.0105653 vs AER 0.0108244 (~2.4%)"
-    },
-    "note": "canonical run uses cov_type=clustered, cluster_entity=True"
+      "note": "linearmodels two-way FE auto_df counts all absorbed FE into extra_df, which raises the covariance scale; reghdfe/fixest do NOT double-count nested-in-cluster firm FE and also apply a cluster small-sample correction. The ~2.4% SE gap is the net of these corrections. No public PanelOLS config reproduces the reghdfe/fixest canonical SE -> DEFINITION_DIFFERENCE."
+    }
   },
   "native_default": {
     "cov_type": "unadjusted",

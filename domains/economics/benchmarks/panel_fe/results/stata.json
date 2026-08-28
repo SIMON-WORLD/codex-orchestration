@@ -32,7 +32,7 @@
       "vce": "cluster",
       "clustvar": "firm"
     },
-    "note": "firm FE nested in cluster(firm) is redundant for DoF (e_df_a_nested = number of firm levels)"
+    "note": "firm FE nested in cluster(firm) is redundant for DoF (e_df_a_nested); cluster small-sample correction applied"
   },
   "native_default": {
     "cov_type": "reghdfe_default",

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // P7 panel_fe benchmark runner wrapper (Stata reghdfe).
-// Deletes stale stata_raw.txt before running; refuses to read an old/interim raw.
-// Records real e() DoF evidence and runtime provenance (version unknown => "unknown").
+// Deletes stale stata_raw.txt; requires this run to both succeed AND produce a
+// fresh raw output. Records real e() DoF evidence + runtime provenance.
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -14,12 +14,16 @@ const OUT = join(root, "domains/economics/benchmarks/panel_fe/results/stata.json
 const DO = join(here, "run_stata.do");
 
 export function requireFreshStataOutput(procStatusOk, rawExistsAfter) {
-  if (!rawExistsAfter) throw new Error("Stata did not produce a fresh raw output (stale output rejected); statusOk=" + procStatusOk);
+  if (procStatusOk !== true || rawExistsAfter !== true) {
+    throw new Error(`Stata fresh-run gate failed (procStatusOk=${procStatusOk}, rawExistsAfter=${rawExistsAfter})`);
+  }
 }
 export function buildStataResultFromRaw(rawText, man) {
   const kv = {};
   for (const line of rawText.split(/\r?\n/)) { const m = line.match(/^([^=]+)=(.+)$/); if (m) kv[m[1].trim()] = m[2].trim(); }
-  const num = (v) => Number(kv[v]);
+  const num = (v) => { const x = Number(kv[v]); return Number.isFinite(x) ? x : null; };
+  const required = ["n", "cluster_count", "b_value", "b_capital", "se_value", "se_capital", "default_se_value", "default_se_capital", "e_df_a_nested"];
+  for (const k of required) if (num(k) === null) throw new Error(`Stata raw output incomplete (missing/non-numeric '${k}')`);
   const infCfg = {
     clustering: "one-way cluster=firm",
     estimator: "reghdfe (absorbed firm+year FE)",
@@ -33,7 +37,7 @@ export function buildStataResultFromRaw(rawText, man) {
       df_a_nested: kv.e_df_a_nested, dofmethod: kv.e_dofmethod,
       vce: kv.e_vce, clustvar: kv.e_clustvar,
     },
-    note: "firm FE nested in cluster(firm) is redundant for DoF (e_df_a_nested = number of firm levels)",
+    note: "firm FE nested in cluster(firm) is redundant for DoF (e_df_a_nested); cluster small-sample correction applied",
   };
   return {
     implementation_id: "panel.fe.stata.reghdfe",
@@ -48,7 +52,7 @@ export function buildStataResultFromRaw(rawText, man) {
     std_errors: { value: num("se_value"), capital: num("se_capital") },
     inference_configuration: infCfg,
     native_default: {
-      cov_type: kv.e_vce === "cluster" ? "reghdfe_default" : "reghdfe_default",
+      cov_type: "reghdfe_default",
       coefficients: { value: num("b_value"), capital: num("b_capital") },
       std_errors: { value: num("default_se_value"), capital: num("default_se_capital") },
       n: num("n"),
@@ -67,4 +71,3 @@ if (isMain) {
   writeFileSync(OUT, JSON.stringify(result, null, 2) + "\n", "utf8");
   console.log(JSON.stringify(result, null, 2));
 }
-
