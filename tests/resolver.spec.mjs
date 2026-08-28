@@ -44,6 +44,10 @@ r = run("f.deprecated"); check("10 deprecated never selected", r.resolution === 
 r = run("f.high.verified.multi", { preferred_runtimes: ["r", "python"], env: envPython("3.12") }); check("11 preferred runtime unavailable -> next", r.resolution === "resolved" && r.runtime === "python", `got=${r.resolution}/${r.runtime}`);
 r = run("f.machine.block", { preconditions: { "design.panel": "not_unit_time" } }); check("12 machine precondition mismatch -> blocked", r.resolution === "blocked", `got=${r.resolution}`);
 r = run("f.manual.missing", { manual_validations: {} }); check("13 manual validation missing -> needs_decision", r.resolution === "needs_decision", `got=${r.resolution}`);
+// --- P2.2+ 三态手工科学验证（Core resolver 语义，与 Director 层一致） ---
+r = run("f.manual.missing", { manual_validations: { comparison_group_support_satisfied: true } }); check("13b manual validation = true -> precondition passes", r.resolution === "resolved", `got=${r.resolution}`);
+r = run("f.manual.missing", { manual_validations: { comparison_group_support_satisfied: false } }); check("13c manual validation = false -> blocked", r.resolution === "blocked" && r.reason === "manual_scientific_validation_failed", `got=${r.resolution}/${r.reason}`);
+r = run("f.manual.missing", { manual_validations: { comparison_group_support_satisfied: false } }); check("13d false is not converted back to needs_decision", r.resolution === "blocked" && r.reason !== "needs_decision", `got=${r.resolution}/${r.reason}`);
 
 // --- P2.1 新增回归 ---
 r = run("f.low.workflow.missing", { env: envWorkflow(false) }); check("14 workflow missing -> not selectable (blocked)", r.resolution === "blocked" && !r.selected_implementation, `got=${r.resolution} sel=${r.selected_implementation?.id}`);
@@ -79,5 +83,6 @@ r = run("f.medium.skill", { env: { resources: { skills: {} } } });
 check("25 E 无 resource -> needs_decision（非 resolved）", r.resolution === "needs_decision", `got=${r.resolution}`);
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
 
 

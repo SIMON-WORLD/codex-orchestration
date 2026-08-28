@@ -120,7 +120,9 @@ function evalPrecondition(prec, study) {
   }
   if (prec.kind === "manual") {
     const confirmed = study.manual_validations?.[prec.label];
-    return confirmed === true ? { status: "ok" } : { status: "needs_decision", reason: "manual_scientific_validation_required" };
+    if (confirmed === true) return { status: "ok" };
+    if (confirmed === false) return { status: "blocked", reason: "manual_scientific_validation_failed" };
+    return { status: "needs_decision", reason: "manual_scientific_validation_required" };
   }
   return { status: "invalid", reason: "scientific_precondition_malformed" };
 }
@@ -195,8 +197,8 @@ function resolveOne(capId, cap, study, env, ctx) {
   for (const prec of cap.scientific_preconditions || []) {
     const r = evalPrecondition(prec, study);
     if (r.status === "invalid") return { resolution: "blocked", reason: "scientific_precondition_malformed", capability: capId, maturity: deriveMaturity(cap) };
-    if (r.status === "blocked") return { resolution: "blocked", reason: "scientific_precondition_mismatch", field: prec.field, capability: capId, maturity: deriveMaturity(cap) };
-    if (r.status === "needs_decision") return { resolution: "needs_decision", reason: "manual_scientific_validation_required", field: prec.label, capability: capId, maturity: deriveMaturity(cap) };
+    if (r.status === "blocked") return { resolution: "blocked", reason: r.reason || "scientific_precondition_mismatch", field: prec.field || prec.label, capability: capId, maturity: deriveMaturity(cap) };
+    if (r.status === "needs_decision") return { resolution: "needs_decision", reason: r.reason || "decision_missing", field: prec.field || prec.label, capability: capId, maturity: deriveMaturity(cap) };
   }
   const missingDecisions = (cap.decision_requirements || []).filter((d) => { const v = study.decisions?.[d]; return v === undefined || v === null || v === ""; });
   if (missingDecisions.length > 0) return { resolution: "needs_decision", reason: "decision_missing", items: missingDecisions, capability: capId, maturity: deriveMaturity(cap) };
@@ -304,6 +306,7 @@ function mergeOverlay(env, overlay) {
   return out;
 }
 export { resolveAll, resolveOne, deriveMaturity, envFulfilled, satisfies, STATUS_RANK, loadRegistry, evalPrecondition, isPermissible, isApproved, resolveInstances, findInstance, bestInstance, mergeOverlay };
+
 
 
 

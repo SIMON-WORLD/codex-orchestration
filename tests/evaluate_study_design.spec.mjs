@@ -6,6 +6,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { evaluateStudyDesign, evaluateIfValid } from "../domains/economics/evaluate_study_design.mjs";
 import { loadRegistry } from "../domains/economics/validate_study_design.mjs";
+import { resolveAll } from "../core/resolve_capabilities.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const registry = loadRegistry();
@@ -96,5 +97,21 @@ ok("I4. resolved-false is not classified as blocked here", i4.status === "ready"
 const i5 = evaluateStudyDesign(example, registry);
 ok("I5. existing example remains ready", i5.status === "ready" && i5.unresolved_decisions.length === 0, `status=${i5.status}`);
 
+
+// X1/X2: 跨层回归 —— Director 看到 manual false 视为已决(ready)，Core resolver 归类为 blocked(manual_scientific_validation_failed)
+const fixtureRegistry = JSON.parse(readFileSync(join(root, "tests/fixtures/capabilities.json"), "utf8"));
+const baseEnv = JSON.parse(readFileSync(join(root, "tests/fixtures/env.json"), "utf8"));
+const crossStudy = {
+  study_id: "x", domain: "fixture",
+  execution_context: { mode: "production", allow_experimental: false, preferred_runtimes: [], approved_overrides: [] },
+  selected_capabilities: { role: ["f.manual.missing"] },
+  decisions: {}, preconditions: {}, manual_validations: { comparison_group_support_satisfied: false },
+};
+const dirStatus = evaluateStudyDesign(crossStudy, fixtureRegistry);
+const resCross = resolveAll(crossStudy, fixtureRegistry, baseEnv, { mode: "production", allow_experimental: false, preferred_runtimes: [], approved_overrides: [] });
+const capCross = resCross.capabilities["f.manual.missing"];
+ok("X1. Director sees explicit manual false as resolved (ready)", dirStatus.status === "ready" && dirStatus.unresolved_decisions.length === 0, `dir=${dirStatus.status}`);
+ok("X2. Core resolver classifies failed manual precondition as blocked", capCross.resolution === "blocked" && capCross.reason === "manual_scientific_validation_failed", `res=${capCross.resolution}/${capCross.reason}`);
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
