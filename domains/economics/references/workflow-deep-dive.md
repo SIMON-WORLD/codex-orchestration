@@ -1,228 +1,177 @@
 # Economics Research Workflow — Deep Dive into Mature Real Projects
 
-> **范围**：基于 7 个公开、高质量的**真实经济学科研项目 / 复现工作流**，拆解「真实研究项目如何运转」，并与现有 `domains/economics/roles.json` 对照。
-> **配套机器可读文件**：本目录下 `workflow-cases.json`（7 条案例，含 `case_id` / `repository` / `directory_structure` / `entry_point` / `data_stages` / … / `adopt` / `not_generalize`）。本文档是对该目录的解读与跨案例综合。
-> **定位**：本轮只做研究与设计建议，**不修改** 现有 roles / capabilities / policies / artifacts / benchmarks。
+> **范围**：基于公开、高质量的**经济学科研项目 / 复现/工作流**拆解「真实研究项目如何运转」，并与现有 `domains/economics/roles.json` 对照。
+> **配套机器可读文件**：本目录 `workflow-cases.json`（7 条案例，每条含 `evidence_class` 区分 `real_project_observed` / `institutional_standard` / `workflow_template` / `tool`）。本文档是对该目录的解释、证据强度评估与跨项目综合。
+> **定位**：只做研究与设计建议，**不修改** 现有 roles / capabilities / policies / artifacts / benchmarks。
 
 ---
 
-## 0. 阅读约定：三类「证据来源」
+## 0. 阅读约定：三类「证据来源」+ 证据强度
 
-本研究严格区分三类结论来源。凡下文标注：
+本研究严格区分三类来源，并对每一条「阶段结论」给出**证据强度**：
 
-- **institutional standard（机构标准）**：某权威机构（AEA Data Editor / SSDE / World Bank DIME / PRISMA）公开发布的规范，可直接引用。
-- **real-project observed practice（真实项目观察）**：某个已完成的真实研究项目**实际怎么做**，我们从仓库结构与脚本里读到并归纳。
-- **our engineering abstraction（我们的工程抽象）**：为了落到本仓库 schema / resolver / role / policy 上，我们**自行设计**的字段、状态机或角色边界；没有外部来源逐字背书，仅由上述两类实践**派生**。
+- **real-project observed practice（真实项目观察）**：某个**真实已发表/正规研究项目仓库**，我们实际读到的结构与脚本。**只有 3 个**：`case-dime-niger-asp`、`case-euro-scm`、`case-learning-poverty`。
+- **institutional standard（机构标准）**：AEA Data Editor / SSDE / World Bank DIME / PRISMA 等机构发布的规范。在 source-map 中用 `src-*` 标识，**不冒充 workflow case**。
+- **workflow / template precedent（工作流/模板先例）**：可复用的工作流/模板（`case-aea-replication-template`、`case-ssde-readme`、`case-ietoolkit`、`case-journal-skills`）。它们**不是真实论文项目**，不能单独作为「真实项目共同阶段」的证据。
 
-> 案例引用用 `case_id`（对应 `workflow-cases.json`）。
+> **重要**：`case-journal-skills` 属于 **workflow/template precedent**（期刊级 skill 库 + `00_master.do` 骨架），**不是**真实论文项目。它只能证明「某一阶段在期刊投稿工作流中是合理拆分」，**不能**证明「文献 / referee / rebuttal 是真实论文项目的共同阶段」。
 
 ---
 
-## 1. 深入拆解的真实案例（7 个）
+## 1. 案例清单与证据分类
 
-| case_id | 项目 / 机构 | 类型 | 为什么选它 |
+| case_id | 项目 / 来源 | `evidence_class` | 是否真实论文项目 |
 |---|---|---|---|
-| `case-aea-replication-template` | AEA Data Editor replication template | institutional standard + 复现工作流 | 复现包运行与组装的标准模板，含通用 runner、config.do、AI 复现 skill |
-| `case-dime-niger-asp` | World Bank DIME 真实已发表论文复现 | real-project observed practice | 真实多轮次影响评估；master do 编排 + reviewer 开关 + 分包安装 |
-| `case-euro-scm` | Adopting the Euro (SCM, EJPE) | real-project observed practice | 真实论文复现；folder-by-function；Master.do 作为「控制面板」+ 稳健性块 |
-| `case-learning-poverty` | World Bank EduAnalytics Learning Poverty | real-project observed practice + institutional | 真实世界银行项目；编号任务目录 + master run_all + Git 分支/QA 工作流 |
-| `case-ssde-readme` | Social Science Data Editors Template README | institutional standard | 复现包 README 的标准结构（DCAS / 计算需求 / 数据准备与分离说明） |
-| `case-ietoolkit` | World Bank DIME ietoolkit（`iefolder`） | institutional standard + 工具 | 用命令自动生成项目目录树 + master do-file，并把 master 保持更新 |
-| `case-journal-skills` | Awesome-Journal-Skills（每刊 workflow skills） | real-project observed practice | 把整个稿件生命周期拆成「router + 阶段 skill」；含 one-click `00_master.do` 骨架 |
+| `case-dime-niger-asp` | World Bank DIME 真实已发表论文复现（Nature 2022） | `real_project_observed` | ✅ 是 |
+| `case-euro-scm` | Adopting the Euro (SCM, EJPE) 复现 | `real_project_observed` | ✅ 是 |
+| `case-learning-poverty` | World Bank EduAnalytics Learning Poverty | `real_project_observed` | ✅ 是（正规项目仓库） |
+| `case-aea-replication-template` | AEA Data Editor replication template | `institutional_standard`, `workflow_template` | ❌ 模板 |
+| `case-ssde-readme` | Social Science Data Editors Template README | `institutional_standard`, `workflow_template` | ❌ 模板 |
+| `case-ietoolkit` | World Bank DIME ietoolkit（`iefolder`） | `institutional_standard`, `tool` | ❌ 工具 |
+| `case-journal-skills` | Awesome-Journal-Skills（每刊 workflow skills） | `workflow_template` | ❌ 模板/工作流库 |
 
-> 这些案例覆盖了：复现包标准（AEA/SSDE）、真实论文复现（niger-asp / euro-scm）、真实机构项目（LearningPoverty）、项目脚手架工具（ietoolkit）、以及期刊级工作流 skill 库（journal-skills）。
-
----
-
-## 2. A. 多数成熟项目共同存在的 workflow stages
-
-综合 7 个案例，真实经济学科研项目几乎都包含以下 **10 个阶段**：
-
-| 阶段 | 证据案例 | 说明 |
-|---|---|---|
-| 0. **项目脚手架 / 环境** | `case-ietoolkit`（iefolder）、`case-aea-replication-template`（config.do / devcontainer）、`case-learning-poverty`（profile + run_all）、`case-journal-skills`（00_master.do 的 root/raw/clean 全局量 + 依赖安装块） | 生成目录树、设置全局路径、声明软件/包依赖、固定 seed/version |
-| 1. **问题与设计** | `case-journal-skills`（aejmac-topic-selection、aejmac-identification）、`case-euro-scm`（Master.do 里的 outcome/covariates/donor 控制面板） | 定研究问题、识别策略、关键设定 |
-| 2. **文献** | `case-journal-skills`（aejmac-literature-positioning） | 检索、定位贡献、写文献段（在分析仓库中较少见，主要出现在稿件工作流） |
-| 3. **数据准备** | `case-euro-scm`（0_Data_Management）、`case-niger-asp`（数据清理/合并）、`case-learning-poverty`（01_data）、`case-dime-standards` | raw → clean → analysis data；变量构造 |
-| 4. **描述 / 平衡 / 检验** | `case-niger-asp`（07_balance_and_attrition）、`case-journal-skills`（02_descriptive）、`case-ietoolkit`（iebaltab） | 描述统计、平衡表、attrition、变量字典 |
-| 5. **核心估计 / 识别** | `case-euro-scm`（1_SCM）、`case-journal-skills`（03_did/04_iv/05_rdd/06_dml）、`case-niger-asp`（06 regs） | SCM / DID / IV / RDD / DML 等估计 |
-| 6. **稳健性 / 变体** | `case-euro-scm`（in-time placebo、leave-one-out、alternative outcome）、`case-journal-skills`（08_robustness）、`case-niger-asp`（MHT/HTE） | 参数化重跑，placebo / leave-one-out / 替代 outcome |
-| 7. **表格 / 图生成** | `case-euro-scm`（4_ComparisonTables、5_Graphs）、`case-journal-skills`（09_tables）、`case-niger-asp`（report_tables/graphs/stats） | 由估计输出渲染最终表格与图；按报告类型分目录 |
-| 8. **稿件整合** | `case-journal-skills`（aejmac-writing-style、aejmac-submission）、`case-euro-scm`（Text/ 目录）、`case-niger-asp`（注释「复现 Table SI.X / Figure X」） | 明确哪张表/图进入哪一节；写作与投稿 |
-| 9. **复现包 + 复现门禁** | `case-aea-replication-template`（REPLICATION.md）、`case-ssde-readme`（DCAS/计算需求）、`case-learning-poverty`（QA 分支） | 组装 README + run_all + 存缴；预发布复现检查 |
-| 10. **审查 / 审稿** | `case-journal-skills`（aejmac-referee-strategy、aejmac-rebuttal）、`case-aea-replication-template`（Action Items） | 对抗性审稿、回复信 |
-
-> 结论：**单一入口（master/run_all）+ 编号分阶段脚本 + 按函数分目录 + 输出按报告类型归档** 是 cross-case 最稳定的共同模式。
+**结论**：能代表「真实论文项目如何运转」的**真实仓库只有 3 个**（niger-asp / euro-scm / learning-poverty）。其余 4 个是机构标准、模板或工作流库，用来支撑「某阶段被推荐/被标准化」，但**不计入**真实项目观察计数。
 
 ---
 
-## 3. B. 常见 artifact handoff
+## 2. 各候选 stage 的证据强度评级
 
-跨案例一致的**机器可读产物交接链**：
+> 记 R = 真实项目数量（共 3）。「真实项目」仅指上述 3 个。`institutional` = 机构标准来源（`src-*`）；`workflow` = 模板/工作流先例（`case-*` 中的非真实项目）。
+
+| # | 候选 stage | 真实项目 R | institutional / template | workflow / template | 强度 | observed vs proposed |
+|---|---|---|---|---|---|---|
+| 0 | 项目脚手架 / 环境 | **3/3** `niger-asp`(01_PROGRAMS+globals+master) `euro-scm`(Paths.do+Master.do) `lp`(profile+run_all) | `src-dime-data-handbook`、`src-dime-standards`、`src-aea-replication-template`(config.do/devcontainer) | `case-ietoolkit`(iefolder)、`case-journal-skills`(00_master.do) | **strong** | **observed common pattern** |
+| 1 | 问题与识别设计 | **2/3** `euro-scm`(Master.do 控制面板) `niger-asp`(master 注释规格) `lp`(弱) | — | `case-journal-skills`(topic/identification) | **moderate** | 以「控制面板/globals」形式存在，非独立管线 stage → **half observed / half proposed** |
+| 2 | 文献（检索/核验/综述） | **0/3** | `src-prisma`、`src-openalex`、`src-crossref` | `case-journal-skills`(literature-positioning) | 真实项目 **weak**；机构 **strong** | **NOT observed** in analysis repos → **proposed**（机构/工作流） |
+| 3 | 数据准备 | **3/3** `niger-asp`(清除/合并) `euro-scm`(0_Data_Management) `lp`(01_data) | `src-dime-data-handbook`、`src-dime-standards` | — | **strong** | **observed common pattern** |
+| 4 | 描述 / 平衡 / 校验 | **3/3** `niger-asp`(07_balance_and_attrition) `euro-scm`(3/4) `lp`(描述表) | `src-dime-data-handbook`(variable dict)、`case-ietoolkit`(iebaltab) | — | **strong** | **observed common pattern** |
+| 5 | 核心估计 / 识别 | **3/3** `niger-asp`(06 regs) `euro-scm`(1_SCM) `lp`(02_simulation) | `src-fixest`、`src-reghdfe`、`src-did-r`、`src-ivreg2` 等 | `case-journal-skills`(03..06) | **strong** | **observed common pattern** |
+| 6 | 稳健性 / 变体 | **2/3** `niger-asp`(MHT/HTE) `euro-scm`(placebo/leave-one-out/alt outcome) `lp`(弱) | — | `case-journal-skills`(08_robustness) | **moderate-strong** | observed but **not universal** |
+| 7 | 表格 / 图生成 | **3/3** `niger-asp`(report_tables/graphs) `euro-scm`(4/5→Output) `lp`(03_export_tables) | `src-aea-style`(presentation) | `case-journal-skills`(09_tables) | **strong** | **observed common pattern** |
+| 8 | 稿件整合（exhibit→section 映射） | **3/3** `niger-asp`(注释「Table SI.X/Figure X」) `euro-scm`(Text/+注释) `lp`(05_working_paper) | `src-aea-style` | `case-journal-skills`(writing-style/submission) | **strong**（映射）/ **moderate**（实际组装） | observed 为「exhibit→section 映射」；**实际写作**是工作流层 |
+| 9 | 复现包 + 复现门禁 | **3/3** 全部即复现包；`niger-asp`(reviewer toggle) `lp`(QA 分支) | `src-aea-data-editor`、`src-ssde-template-readme`、`src-aea-replication-template`、`src-dime-standards`(Pillar3) | `case-journal-skills`(replication-package) | **strong** | observed 为「复现包本身」；**正式预发布复现门禁**是机构要求 |
+| 10 | 审查 / referee / rebuttal | **0/3** | `src-aea-data-editor`(report/action items) | `case-journal-skills`(referee-strategy, rebuttal) | 真实项目 **weak**；机构 **strong** | **NOT observed** in analysis repos → **proposed**（机构/工作流） |
+
+> **关键修正**：文献（#2）与 referee（#10）在真实论文分析仓库中**不出现**，只能由机构标准（PRISMA、AEA Data Editor）与工作流/模板先例（journal-skills）支撑。**不得**把它们写成「真实项目共同阶段」。同理，`setup`/`脚手架` 是强 observed（3/3）。
+
+---
+
+## 3. A. 真正跨多个真实项目稳定出现的 workflow backbone
+
+基于**真实项目**（niger-asp / euro-scm / learning-poverty），稳定出现的**observed backbone**：
 
 ```
-raw data ──(data stage)──▶ analysis dataset (data/clean)
-   └─(变量字典/数据说明)──▶ 变量字典 / data dictionary
-analysis dataset ──(estimation)──▶ 估计输出（系数/SE/N，e.g., .dta/.rdata/JSON）
-   └─(diagnostics)──▶ 平衡表 / attrition / MHT / placebos
-估计输出 ──(aggregation)──▶ 汇总对象（doppelganger/聚合表）
-   └─(render)──▶ tables / figures（output/tables, output/figures）
-tables + figures ──(manuscript)──▶ 稿件（Text/）
-稿件 + code + data ──(replication)──▶ 复现包（README + run_all + 存缴）
-   └─(reproducibility gate)──▶ 复现检查报告 / REPLICATION.md / 计算需求
+setup/脚手架（master或run_all + globals + 包安装）      R=3 strong
+→ 数据准备（raw→clean→analysis data）                  R=3 strong
+→ 描述/平衡/校验（描述统计、平衡表、attrition、变量字典） R=3 strong
+→ 核心估计/识别（DID/SDM/SCM/DML…）                     R=3 strong
+→ 稳健性/变体（placebo、leave-one-out、替代outcome、MHT） R=2 moderate-strong
+→ 表格/图生成（输出按报告类型归档）                      R=3 strong
+→ 复现包本身（仓库即复现包）+ reviewer/QA 可复现开关       R=3 strong
 ```
 
-- **`case-euro-scm`**：`0_Data_Management -> estimate -> 2_Aggregation -> 4_ComparisonTables -> 5_Graphs`，`Output/{Figures,Tables}`，`Text/` 承接收稿。
-- **`case-niger-asp`**：`Output/NER/{report_tables, report_graphs, report_stats}`；脚本注释指明每张表/图。
-- **`case-learning-poverty`**：`01_data -> 02_simulation -> 03_export_tables -> 05_working_paper`，每任务 `0xx_run.do`。
-- **`case-ssde-readme`**：把「数据来源 / 计算需求 / 数据准备与分析步骤」作为 README 法定章节。
-
-> 关键：**「机器事实」是估计输出与数据说明；「表格/图」是它们的渲染视图，不应成为第二套事实来源**——这与我们 P4 的 `model_registry → estimates → replication_stamp` 精神一致。
+**一个不容忽视的细节**：真实仓库里「exhibit→section 映射」有明确注释（如 niger-asp「复现 Table SI.X」、euro-scm「Figure 1/Table A.2」），但**写作本身**不在分析仓库内；文献与 referee 也基本不出现。因此真实观察得到的 backbone **止于「复现包」**，不包含写作、文献、审稿这些稿件事务。
 
 ---
 
-## 4. C. 常见 human decision points
+## 4. B. institutional standards 强制/推荐但真实 repo 不一定显式出现
 
-真实项目中**必须由人判断**的点（`case_id` 标注）：
+以下阶段在**机构标准**中强制/推荐，但**真实仓库**不一定显式提供（R=0 或很弱）：
 
-1. **规格设定**：选 outcome / covariates / treatment 日期 / donor pool / 模型形式。`case-euro-scm`（Master.do 控制面板）、`case-journal-skills`（「let the question pick the tool」）。
-2. **是否有 master 文件**：存在就用作者自己的入口，不存在才自己建；分开脚手架与作者代码。`case-aea-replication-template`。
-3. **受限数据接入**：是否有 confidential / restricted data，如何接入、是否公开代码子集。`case-aea-replication-template`、`case-learning-poverty`。
-4. **reviewer vs 全量运行**：是否用 reviewer 开关降采样/降 bootstrap 重复数。`case-niger-asp`（`reviewer`、`hpc_switch` 5 vs 3000）。
-5. **稳健性变体**：跑哪些 placebo / leave-one-out / 替代 outcome。`case-euro-scm`、`case-journal-skills`。
-6. **样本排除**：如 euro-scm 的 Luxembourg、niger-asp 的 consent/attrition。`case-euro-scm`、`case-niger-asp`。
-7. **方法分支**：实证 vs 理论（定量）分支。`case-journal-skills`（aejmac-identification vs aejmac-theory-model）。
-8. **权限 / 许可 / 保密**：数据再分发权、license、confidentiality。`case-ssde-readme`。
-9. **解释 / ad-hoc 计算**：euro-scm 的 Figure 4 / Table A.4 是「ad-hoc computations」。`case-euro-scm`。
-10. **稿件事务**：期刊风格、投稿系统、R&R 回复。`case-journal-skills`。
-
-> 结论：**科学规格（identify/spec/sample）、数据权限、是否跑全量** 是真实项目中无法完全程序化的点；这些恰好对应我们 resolver 的 `needs_decision / decision gate`。
-
----
-
-## 5. D. 哪些阶段适合独立 Role
-
-依据「是否承担独立责任 + 是否被打断/被授权 + 是否有稳定输入输出」判断，**证据充分可作为 Role**：
-
-| Role | 证据 | 理由 |
+| 阶段 | 机构来源 | 为什么真实仓库常缺 |
 |---|---|---|
-| `data` | `case-euro-scm`(0_Data_Management)、`case-niger-asp`(data)、`case-learning-poverty`(01_data)、`case-ietoolkit`、`case-ssde-readme`(variable dictionary) | 数据获取/清洗/校验/文档是清晰职责，且常需授权（样本排除、变量构造、attrition）。Niger-asp 与 LearningPoverty 都是独立数据阶段。 |
-| `empirical` | `case-euro-scm`(1..2)、`case-journal-skills`(03..08)、`case-niger-asp`(06 regs) | 估计 + 诊断 + 稳健性，典型独立职责。 |
-| `replication` / `review` | `case-aea-replication-template`(复现运行)、`case-ssde-readme`(README/DCAS)、`case-learning-poverty`(QA 分支)、`case-journal-skills`(aejmac-replication-package) | **跨案例最强的「复现门禁」阶段**，应作为一级职责（不只是 review 的角色内细节）。 |
-| `writing` | `case-journal-skills`(aejmac-writing-style、aejmac-submission)、`case-euro-scm`(Text/) | 稿件整合 + 风格，是独立阶段。 |
-| `literature_search/review` | `case-journal-skills`(aejmac-literature-positioning) + PRISMA/OpenAlex/Crossref | 检索/定位/核验是独立阶段（主要出现在稿件工作流，非分析仓库）。 |
+| 文献检索 / 引用核验 / 综述 | `src-prisma`、`src-openalex`、`src-crossref` | 分析仓库只存 code+data，不含检索流程；文献属稿件事务 |
+| 正式复现门禁 / DCAS README | `src-aea-data-editor`、`src-ssde-template-readme` | 真实仓库有 README，但常不满足按 DCAS 的完整结构；正式预发布复现检查由 Data Editor 执行 |
+| 数据权利 / License / 保密披露 | `src-ssde-template-readme` | 真实仓库偶有 LICENSE、`case-ssde-readme` 的「权限盒」结构化披露少见 |
+| 审稿 / referee / rebuttal | `src-aea-data-editor`(report/action items) | 属投稿事务，分析仓库不含 |
+| 计算需求（软件/包版本+硬件+wall-clock） | `src-ssde-template-readme`、`case-aea-replication-template` | 真实仓库常见「路径需改」说明，但「硬件+运行时」完整声明较少 |
 
-> **关键发现**：真实项目把「**复现包/复现门禁**」作为一级职责（AEA Data Editor 预发布检查、SSDE README、LearningPoverty QA 分支）。我们当前把它**折叠进 `review` 角色**相对薄弱，建议在 v1 中将其**提升为独立 Role 或至少独立 Capability + 强 gate**。
+> 说明：这些是**机构标准要求存在**，但**不构成**「真实项目共同出现的 observed stage」。它们应归为「institutional + engineering」支撑，而非 observed practice。
 
 ---
 
-## 6. E. 哪些只是 Capability，不应做 Role
+## 5. C. 为完整 Economics Research Workflow 我们主动补上的工程阶段
 
-以下在真实项目中只是**可被参数化/可切换的步骤**，不应做成独立 Role（`case_id` 标注）：
+这些是**我们为了把机构标准/内部纪律落到本仓库而主动补齐**的工程抽象（非观察所得，也非某来源逐字背书）：
 
-| 议题 | 证据 | 为什么是 Capability 而非 Role |
+| 工程阶段 / 机制 | 来源派生 | 说明 |
 |---|---|---|
-| 具体方法实现（SCM / DID / IV / RDD / DML / panel FE） | `case-euro-scm`(1_SCM)、`case-journal-skills`(03_did/04_iv/05_rdd/06_dml)、`case-niger-asp`(06 regs) | 由 `empirical` role 通过 globals/参数切换；属于方法 Capability。 |
-| 稳健性 / placebo / leave-one-out | `case-euro-scm`(robustness blocks)、`case-journal-skills`(08_robustness) | 参数化重跑估计管线，属 Capability。 |
-| 表格 / 图渲染 | `case-euro-scm`(4/5/9)、`case-journal-skills`(09_tables)、`case-niger-asp`(report_tables/graphs) | 由估计输出驱动的渲染步骤，属 Capability（`.presentation` / `.render`）。 |
-| 包安装 / 环境准备 | `case-niger-asp`(01_PROGRAMS)、`case-journal-skills`(ssc install block)、`case-aea-replication-template`(config.do) | 机械性环境 provisioning，属 Capability / policy。 |
-| 项目脚手架 | `case-ietoolkit`(iefolder)、`case-learning-poverty`(profile/run_all) | 可程序化生成目录树 + master，属 Capability（`environment.setup`）。 |
-| 摘要/写作风格细节 | `case-journal-skills`(aejmac-writing-style) | 是 writing role 的 Capability/policy，不单独立 role。 |
-
-> 结论：**方法、稳健性、渲染、环境、脚手架** 都是 Capability；**data / empirical / replication(review) / writing** 才是 Role。
+| `setup` 脚手架显式化 | `src-ietoolkit`(iefolder)、`case-learning-poverty`(profile/run_all)、`case-aea-replication-template`(config.do) | 把真实仓库隐式的「目录树+globals+master」变成我们 scaffold 生成的显式契约 |
+| `decision gate`（识别/规格/样本） | `case-euro-scm`(Master.do 控制面板)、`case-journal-skills`(question picks tool) | 机器可读的 needs_decision/blocked 门禁 |
+| `risk_level` / `verification_status` / `dispatch_allowed` / `approved_overrides` | 工程抽象 | 我们的 resolver/policy 字段，无来源逐字背书 |
+| `replicability_check` / `replication_stamp` 机器验证 | `case-aea-replication-template`(findings 由代码产生)、`case-ssde-readme`(DCAS) | 我们 P4 的 builder/validator 工程 |
+| `literature_search` / `literature_review` 独立 role | `src-prisma`、`case-journal-skills` | 把稿件事务的文献阶段拆成 role（机构/工作流派生，非真实仓储出现） |
 
 ---
 
-## 7. F. 当前 `domains/economics/roles.json` 与真实 workflow 的差异
+## 6. D. 当前 roles.json 哪些确实需要调整，哪些暂时不应动
 
-当前 roles：`literature_search, literature_review, data, empirical, visualize, writing, review`。
+### 6.1 需要调整（有依据）
 
-| 差异点 | 真实表现 | 建议 |
+| Role / 现状 | 依据 | 建议 |
 |---|---|---|
-| 缺少「复现包/复现门禁」一级职责 | AEA/SSDE/LearningPoverty 都把复现包 + 预发布检查作为明确阶段 | 在 `review` 内提升为独立 Capability + 强 gate，或新增 `replication` role |
-| 缺少「项目脚手架/环境」 | iefolder、LearningPoverty profile/run_all、AEA config.do、journal-skills 00_master.do | 作为 `environment` Capability + policy，不单独立 role |
-| `visualize` 角色依据偏弱 | 图生成只是 `09_tables.do` 渲染步骤；无权威「图表规范」来源 | 可保留 role 但必须**严格只消费上游 artifacts**（当前已如此），或降级为 `.presentation` Capability |
-| `data` / `empirical` 依据充分 | 所有真实项目都有独立数据与估计阶段 | 保持，按 evidence 强化 `data.validation` / 诊断 |
-| `review` 范围过宽 | 「对抗性审稿」与「复现检查」应分开 | 复现检查是机器 gate；对抗性审稿是人类判断 |
-| `writing` 依据中等 | journal-skills 支持风格/整合；claim-traceability 属工程抽象 | 保持 role，但 style 层与科学层分离 |
+| `data` | 强 observed（3/3）+ 机构 | **保留**；可强化 `data.validation` 契约（变量字典/sample_flow/decision_log） |
+| `empirical` | 强 observed（3/3）+ 工具来源 | **保留**；方法由 selected_capability 决定 |
+| `review` | 机构强（AEA/SSDE）+ observed 复现包 | **拆开**：「复现门禁」（机器 gate）与「对抗性审稿」（人类判断）。但二者是否各自独立 Role 是工程选择（见 §7） |
+| `visualize` | 弱（图生成本质是渲染 step，无权威「图表规范」来源） | **暂不动**（研究期）；但标示它作为独立 role 依据偏弱，未来可降为 `.presentation` capability |
+
+### 6.2 暂时不应动（研究期 / 弱依据）
+
+- **不要**新增独立 `replication` Role（仅工程候选，见 §7）。
+- **不要**新增独立 `setup` Role（脚手架是 capability+policy，非 role）。
+- **不要**新增 `literature` 相关独立 Role 之外的结构——`literature_search`/`literature_review` 保留（机构/工作流支撑），但理解它们是**engineering-level**，**非真实仓库观察所得**。
+- **不要**删除 `writing` / `review` / `visualize`——本轮不实现，只做依据标注。
 
 ---
 
-## 8. G. 当前七阶段 lifecycle 是否需要调整
+## 7. E. 推荐的 Economics Workflow v1 候选结构
 
-上一版 source-map 给出的 7 阶段生命周期（问题设计/文献/数据/实证/呈现/写作投稿/审查复现）总体成立，但依据 deep-dive 建议**做两处调整**：
+### 7.1 结构（候选，engineering 设计）
 
-1. **在开头增加「Phase 0 项目脚手架/环境」**（`case-ietoolkit`、`case-learning-poverty`、`case-aea-replication-template`、`case-journal-skills`）。因为真实项目几乎都先有「目录树 + 全局路径 + 依赖 + seed/version 固定」这一层，它是后续可复现性的地基。
-2. **把「复现包 + 复现门禁」从「审查与复现」中提升为独立阶段**（`case-ssde-readme`、`case-aea-replication-template`、`case-learning-poverty`）。它不是「审稿人看稿」，而是**发布前必须通过的机器/结构化复现检查**。
-
-调整后的推荐生命周期（9 阶段）：
+以 **observed backbone 为骨架**，叠加**机构标准阶段**与**工程机制**：
 
 ```
-0 setup/脚手架        (globals + folder tree + env + seed/version)        [capability + policy]
-1 问题与设计           (question + identification + selected_capabilities) [decision gate]
-2 文献                 (search/review/citation verify)                     [role: literature_*]
-3 数据                 (acquire/clean/validate/document)                   [role: data]
-4 实证                 (estimation + diagnostics)                         [role: empirical]
-5 呈现                 (tables/figures render, strict from artifacts)      [capability, weak role]
-6 写作与投稿           (manuscript assembly + style)                       [role: writing]
-7 复现包 + 复现门禁     (README/DCAS + run_all + deposit + reproducibility check) [role: replication/review]
-8 审查 / 审稿          (adversarial reviewer + response)                   [role: review]
+[observed backbone]  setup → data → 描述/平衡/校验 → 估计/识别 → 表格/图 → 复现包
+[institutional added]        文献检索/核验 ──(稿件事务)── 写作 ── 复现门禁 ── 审查/referee
+[engineering mechanism]      decision gate / risk_status / dispatch_allowed / approved_overrides
 ```
 
-> 说明：`呈现` 可保留为弱 role 或降级为 capability；`复现门禁` 建议独立，以匹配 AEA/SSDE 真实实践。
+### 7.2 Role / Capability / gate 三选一（复现门禁为例）
 
----
+**关键**：证据强力支持「**replication 是独立责任，应有独立 gate / artifact / validation**」，但「**是否独立 Agent Role**」是**我们的工程抽象**，两种设计都成立：
 
-## 9. H. 推荐的 Economics Research Workflow v1 架构
-
-### 9.1 Role（证据支撑排序）
-
-| Role | 支撑 | 主要职责 |
+| 方案 | 说明 | 改动幅度 |
 |---|---|---|
-| `data` | strong | 数据获取/清洗/校验/文档；产出 `data_manifest`/`variable_dictionary`/`sample_flow`/`descriptive_facts`/`decision_log` |
-| `empirical` | strong | 估计 + 诊断；产出 `model_registry`/`estimates`/`diagnostics`；方法由 selected_capability 决定 |
-| `replication`（或 `review` 下的强 Capability） | strong | 复现包组装（README/DCAS）+ run_all 复现 + 预发布复现门禁 |
-| `writing` | medium | 稿件整合 + 风格；claim-traceability 属工程抽象 |
-| `literature_search` / `literature_review` | medium | 检索/筛选/核验/综述（journal-skills + PRISMA） |
-| `review` | medium | 对抗性审稿（人类判断）+ 复现检查（机器 gate 分离） |
-| `visualize`（weak，可降级为 Capability） | weak | 图/表渲染，严格消费上游 artifacts |
+| **A. 独立 `replication` Role** | 承担 README/DCAS + run_all 复现 + 复现门禁，独立派发 | 较大 |
+| **B. `review` 下的强 Capability + gate** | `review` 内新增 `replication.provenance` / `replicability_check` 强 gate，复用 review 的派发 | 最小（推荐） |
 
-### 9.2 Capability（证据支撑）
+> 推荐 **B（最小改动）**：复现责任在 `review` 角色内，由独立的 capability + 强 gate 承担；不对现有 `roles.json` 增加新角色。等 Phase 后有足够 evidence 再评估是否升级为独立 Role。
 
-| Capability | 证据 |
-|---|---|
-| `environment.setup` / `project.scaffold` | `case-ietoolkit`、`case-learning-poverty`、`case-aea-replication-template` |
-| `economics.data.validation` | `case-dime-standards`、`case-ssde-readme`、`case-ietoolkit` |
-| `economics.regression.panel_fe` / `economics.causal.did/iv/rdd` / `economics.causal.scm` | `case-euro-scm`(SCM)、`case-journal-skills`(did/iv/rdd)、`case-niger-asp`(regs) |
-| `economics.stat.multcomp` / `economics.robustness` | `case-niger-asp`(MHT/HTE)、`case-journal-skills`(08_robustness)、`case-euro-scm`(placebo) |
-| `economics.presentation.tables_figures` | `case-euro-scm`(4/5)、`case-journal-skills`(09_tables)、`case-niger-asp`(report_*) |
-| `economics.replication.provenance` | `case-ssde-readme`(DCAS)、`case-aea-replication-template`(REPLICATION.md) |
-| `economics.literature.search` / `.verify` | `case-journal-skills`(literature-positioning)、OpenAlex/Crossref |
+### 7.3 推荐 Role / Capability（候选）
 
-### 9.3 关键设计原则
+- **Role（强 observed/institutional）**：`data`、`empirical`；以及 `writing`、`review`（机构/工作流）。
+- **Role（机构/工作流，非真实仓储观察）**：`literature_search`、`literature_review`。
+- **Capability（而非 Role）**：`environment.setup`/`project.scaffold`、`economics.data.validation`、`economics.regression.*`、`economics.causal.*`、`economics.robustness`、`economics.presentation.tables_figures`、`economics.replication.provenance`、`economics.literature.search/.verify`。
+- **gate（而非 Role）**：复现门禁（`replicability_check`）、decision gate。
 
-1. **单一入口 master/run_all**，编号分阶段脚本（`case-euro-scm`、`case-journal-skills`、`case-learning-poverty`）。
-2. **文件夹按函数分**，输出按报告类型归档（`case-euro-scm` `Text/Data/Code/Output`；`case-niger-asp` `report_tables/graphs/stats`）。
-3. **规格集中在「控制面板」**（Master.do globals / study design），科学规格是 human decision / decision gate（`case-euro-scm`、`case-journal-skills`）。
-4. **复现包 + 复现门禁是独立强 gate**：README/DCAS、run_all、软件版本+硬件+运行时、seed/缓存/降规模开关（`case-ssde-readme`、`case-aea-replication-template`、`case-learning-poverty`）。
-5. **reviewer / 降规模运行模式**用于快速复现检查（`case-niger-asp` `reviewer`/`hpc_switch`、`case-journal-skills` reduced-scale switch）。
-6. **replication_stamp 由确定性 builder 生成，不由 LLM 手写**（承接 P4；与 `case-aea-replication-template`「findings 由代码产生」一致）。
+> 注：`data` / `empirical` 的 role 证据最强；`setup`/`visualize`/`replication` 更多是 capability/gate 而非 role。
 
 ---
 
-## 10. 三类来源识别总结
+## 8. 三类来源识别总结（修正版）
 
-- **institutional standard**：AEA Data & Code Availability Policy（`case-aea-replication-template`、`case-journal-skills`）、SSDE Template README（`case-ssde-readme`）、DIME Research Standards / Data Handbook（`case-ietoolkit`、`case-dime-niger-asp`）。
-- **real-project observed practice**：`case-dime-niger-asp`（reviewer toggle、report_* 输出）、`case-euro-scm`（Master.do 控制面板 + 稳健性块 + ad-hoc 计算）、`case-learning-poverty`（编号任务 + QA 分支 + 贡献约定）、`case-journal-skills`（router + 阶段 skill + 00_master.do）。
-- **our engineering abstraction**：`risk_level`（low/medium/high）、`verification_status`（reference/experimental/tested/verified）、`dispatch_allowed`、`decision gate`、`approved_overrides`、`capability_scope`/`selected_capabilities`、role 定义本身。这些没有来源逐字背书，是对上述实践的工程化落地。
+- **real-project observed practice**：`case-dime-niger-asp`、`case-euro-scm`、`case-learning-poverty`（真实仓库，支撑 observed backbone：setup/data/balance/estimation/tables/复现包）。
+- **institutional standard**：`src-dime-data-handbook`、`src-dime-standards`、`src-aea-data-editor`、`src-ssde-template-readme`、`src-aea-replication-template`、`src-prisma`、`src-aea-style`、以及实证工具 `src-fixest` / `src-reghdfe` / `src-did-r` 等（支撑机构标准阶段：复现门禁、DCAS、文献标准、审稿）。
+- **workflow / template precedent**：`case-aea-replication-template`、`case-ssde-readme`、`case-ietoolkit`、`case-journal-skills`（支撑「某阶段可拆分/可模板化」，**不**代表真实项目出现）。
+- **our engineering abstraction**：`risk_level`、`verification_status`、`dispatch_allowed`、`decision gate`、`approved_overrides`、`capability_scope`/`selected_capabilities`、role 定义本身、以及「replication 是否独立 Role」的取舍。
 
 ---
 
-## 11. 结论
+## 9. 结论
 
-- **真实经济学科研项目最稳定的共同模式**：单一入口 master/run_all + 编号分阶段脚本 + 按函数分目录 + 输出按报告类型归档 + 独立复现门禁。
-- **当前 roles/lifecycle 需要调整**：① 增加 `setup`（脚手架/环境）阶段；② 把「复现包 + 复现门禁」从 review 中提升为一级职责；③ `visualize` 依据偏弱，建议作为 `.presentation` capability（或严格限制的弱 role）。
-- **推荐的 Economics Workflow v1**：`setup → 设计 → 文献 → 数据 → 实证 → 呈现 → 写作投稿 → 复现包/复现门禁 → 审查`；Role = data / empirical / replication(review) / writing / literature_*；Capability = 方法/稳健性/渲染/环境/复现 provenance/文献验证。
-- **所有推荐均引用至少一个真实案例**，并区分 institutional standard / real-project observed practice / our engineering abstraction。
+- **真正跨多个真实项目稳定出现的 observed backbone**：`setup → 数据准备 → 描述/平衡/校验 → 估计/识别 → 表格/图生成 → 复现包`（+ reviewer/QA 复现开关）。文献、referee、正式复现门禁**不属于**真实仓库观察，而是机构/工作流支撑。
+- **当前 roles/lifecycle 需调整**：① `visualize` 依据偏弱（可降为 presentation capability）；② `review` 中区分「复现门禁」与「对抗性审稿」；③ 是否新增独立 `replication` Role 是**工程候选**，推荐先 `review` 内强 gate（方案 B）。
+- **推荐的 Economics Workflow v1 候选结构**：observed backbone + institutional-added（文献/写作/审稿）+ engineering mechanism；Role = data / empirical / writing / review (+ literature_*)；replication/setup/visualize 以 capability+gate 承接。
+- **所有「observed」结论仅引用 3 个真实仓库；机构/工作流结论用 `src-*` / `case-*`(template) 区分标注。**
 
 > 本文件**不修改**任何现有 roles / capabilities / policies / artifacts / benchmarks；仅作为后续设计的证据基础。

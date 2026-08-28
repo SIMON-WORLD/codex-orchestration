@@ -23,7 +23,11 @@
       "human_decisions": "Decide whether a master file already exists vs must be built; whether data are restricted and how to wire them; which packages to install; reconciling any numeric mismatch with manuscript; keeping builder scaffolding separate from author code",
       "automatable": "detecting a master file (grep), installing declared SSC packages, running in batch mode, capturing stdout/log tail, recording numeric findings, checklist-fill",
       "adopt": "(1) generic runner that resolves the main entry point by extension; (2) config.do pattern for env-dependent path/scenario + declared dependencies; (3) 'use the author's own master, don't replace it'; (4) 'don't wrap do in cap — stop at first failure'; (5) sentinel at the end to distinguish completed vs killed run",
-      "not_generalize": "AEA-specific Manuscript Central (MC) numbers, openICPSR deposit mechanics, editorial triage channels, jiraticket/bitbucket-pipelines references"
+      "not_generalize": "AEA-specific Manuscript Central (MC) numbers, openICPSR deposit mechanics, editorial triage channels, jiraticket/bitbucket-pipelines references",
+      "evidence_class": [
+        "institutional_standard",
+        "workflow_template"
+      ]
     },
     {
       "case_id": "case-dime-niger-asp",
@@ -44,7 +48,10 @@
       "human_decisions": "Set reviewer=1 and edit first two paths; choose HPC_switch on/off (full bootstrap vs reduced); comment/uncomment sections to run; verify restricted data access",
       "automatable": "package detection/install (ssc/net per 01_PROGRAMS), master invokes sections, globals per country/phase, output folder creation",
       "adopt": "(1) reviewer/reproducibility switch that reduces heavy computation (bootstrap reps) for a check run; (2) separate 01_PROGRAMS package-install stage; (3) numbered stage scripts with headers naming the table/figure; (4) global path branching by user; (5) documented runtime per heavy step",
-      "not_generalize": "Niger/Burkina/Senegal country-phase hardcoding, Dropbox data paths, specific survey/round names, mhtreg version workaround (Stata 15 vs 16 compiled mata)"
+      "not_generalize": "Niger/Burkina/Senegal country-phase hardcoding, Dropbox data paths, specific survey/round names, mhtreg version workaround (Stata 15 vs 16 compiled mata)",
+      "evidence_class": [
+        "real_project_observed"
+      ]
     },
     {
       "case_id": "case-euro-scm",
@@ -65,7 +72,10 @@
       "human_decisions": "Choose outcome/covariates/treatment dates/donor list; whether to include Luxembourg (excluded for some outcomes); whether to run placebo/leave-one-out; sample end year; ad-hoc computations (Figure 4, Table A.4) done outside code",
       "automatable": "Given globals, the numerical pipeline (data mgmt -> SCM -> aggregation -> tables -> graphs) is deterministic; robustness blocks are parameterized re-runs",
       "adopt": "(1) Master.do as a declarative 'control panel' of globals (outcome/covariates/treatment/donor); (2) folder-by-function (Text/Data/Code/Output); (3) Paths.do as the single per-machine path file; (4) commented robustness blocks that re-run the same pipeline with different settings; (5) cross-language split (Stata core + R for placebo)",
-      "not_generalize": "Synthetic-control-specific treatment-date and donor-pool globals; specific country codes; Dropbox username paths; MATLAB placeholders; ad-hoc computations left outside the pipeline"
+      "not_generalize": "Synthetic-control-specific treatment-date and donor-pool globals; specific country codes; Dropbox username paths; MATLAB placeholders; ad-hoc computations left outside the pipeline",
+      "evidence_class": [
+        "real_project_observed"
+      ]
     },
     {
       "case_id": "case-learning-poverty",
@@ -86,7 +96,10 @@
       "human_decisions": "Which data sources/aggregation rules; restricted data access; whether to run simulation vs data-only; branch strategy and PR review by maintainers; documentation edits on a separate branch",
       "automatable": "Numbered task orchestration (run_all), data flowcharts from repo structure, table/figure export, dataset documentation tables",
       "adopt": "(1) numbered task folders each with its own run.do; (2) master run_all that asserts a project profile is loaded; (3) documentation folder with technical note + repo structure + data flowcharts + dataset tables; (4) a dedicated 'replicable QA branch' tested before milestone; (5) explicit contribution conventions (commit prefixes, squashed merge, micro-commit)",
-      "not_generalize": "Education/learning-poverty-specific measure; GLAD/UNESCO data sources; maintainer-specific push access; wb-gov branch naming (dnm / do_not_merge)"
+      "not_generalize": "Education/learning-poverty-specific measure; GLAD/UNESCO data sources; maintainer-specific push access; wb-gov branch naming (dnm / do_not_merge)",
+      "evidence_class": [
+        "real_project_observed"
+      ]
     },
     {
       "case_id": "case-ssde-readme",
@@ -107,7 +120,11 @@
       "human_decisions": "Choose licenses; certify distribution rights; select which data sources and their availability; decide confidentiality/redistribution; whether own-lab/experiment/survey provenance description applies",
       "automatable": "Filling the structured sections (data table, availability checkboxes, computational requirements) once the facts are known; checking that README maps each exhibit to a program",
       "adopt": "(1) README schema with Data Availability & Provenance + per-source details; (2) computational requirements (software/package versions, hardware, wall-clock) as a first-class section; (3) separate data-preparation vs analysis instructions; (4) data-rights/license disclosure; (5) 'minimal automated scripts, no manual interventions unless unavoidable' principle",
-      "not_generalize": "SSDE/AA-style journal endorsement list; legal/non-legal license guidance that is jurisdiction-specific; the exact checkbox wording for specific journals"
+      "not_generalize": "SSDE/AA-style journal endorsement list; legal/non-legal license guidance that is jurisdiction-specific; the exact checkbox wording for specific journals",
+      "evidence_class": [
+        "institutional_standard",
+        "workflow_template"
+      ]
     },
     {
       "case_id": "case-ietoolkit",
@@ -128,7 +145,11 @@
       "human_decisions": "Choose project/round/unit-of-observation/sampling structure; decide encrypted vs public folders; when to add new rounds/units",
       "automatable": "Folder creation, master do-file generation/update, globals wiring, placeholder gitkeep via iegitaddmd",
       "adopt": "(1) a scaffold command that generates a project/task folder tree + a master runner and keeps it updated; (2) deterministic globals for paths (Data/Output/etc.); (3) a standard Do-file header (ieboilstart) that encodes reproducibility collaboration settings; (4) explicit encrypted vs public folder separation for PII/restricted data",
-      "not_generalize": "Impact-evaluation survey-round structure (DataWork/Encrypted), DIME-specific unit-of-observation folders, the exact folder names"
+      "not_generalize": "Impact-evaluation survey-round structure (DataWork/Encrypted), DIME-specific unit-of-observation folders, the exact folder names",
+      "evidence_class": [
+        "institutional_standard",
+        "tool"
+      ]
     },
     {
       "case_id": "case-journal-skills",
@@ -149,7 +170,11 @@
       "human_decisions": "Choose which branch (empirical vs quantitative/theory); when to lock the question before method; whether to run placebo/robustness variants; how to respond to R&R; model/spec selection",
       "automatable": "The 00_master.do chain (clean->desc->did/iv/rdd/dml->mechanism->robustness->tables) given fixed spec; package install block; seed pinning; checklist fill; router dispatch by symptom",
       "adopt": "(1) 'router' skill that maps a current-symptom/bottleneck to the next stage-skill (the model for our orchestrator); (2) one-click 00_master.do skeleton with numbered pipeline and a sentinel message; (3) decompose the lifecycle into stage-skills each with checklist + anti-patterns; (4) journal-specific reproducibility skill encoding DCAP (pin versions, seeds, reduced-scale switch, cached intermediates)",
-      "not_generalize": "Per-journal formatting/submission specifics (AEA system, membership fees, JEL codes), per-journal abstract-length rules, macro-specific DSGE/HANK solver scope"
+      "not_generalize": "Per-journal formatting/submission specifics (AEA system, membership fees, JEL codes), per-journal abstract-length rules, macro-specific DSGE/HANK solver scope",
+      "evidence_class": [
+        "workflow_template"
+      ]
     }
-  ]
+  ],
+  "note_evidence_class": "evidence_class 字段区分证据来源：real_project_observed=真实已发表/正规项目仓库（端到端管线）；institutional_standard=权威机构标准；workflow_template=可复用工作流/模板先例；tool=工具。"
 }
