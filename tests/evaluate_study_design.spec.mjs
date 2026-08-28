@@ -71,5 +71,30 @@ ok("H. invalid structure -> evaluation skipped (ok=false)", h.ok === false && Ar
 const h2 = evaluateIfValid(example, registry);
 ok("H2. valid structure -> evaluation runs", h2.ok === true && h2.result?.status === "ready");
 
+// I. manual scientific validation 三态语义
+// I1. missing manual validation -> needs_decision (unresolved scientific validation)
+const i1Study = clone(example); delete i1Study.manual_validations.sample_flow_defined;
+const i1 = evaluateStudyDesign(i1Study, registry);
+ok("I1. missing manual validation -> needs_decision", i1.status === "needs_decision" && hasUnresolved(i1, "economics.data.validation", "sample_flow_defined"), `status=${i1.status}`);
+
+// I2. manual validation = true -> no unresolved item (resolved & satisfied)
+const i2Study = clone(example); i2Study.manual_validations.sample_flow_defined = true;
+const i2 = evaluateStudyDesign(i2Study, registry);
+ok("I2. manual validation = true -> no unresolved item", i2.status === "ready" && !hasUnresolved(i2, "economics.data.validation", "sample_flow_defined"), `status=${i2.status}`);
+
+// I3. manual validation = false -> resolved but NOT satisfied -> NOT needs_decision
+const i3Study = clone(example); i3Study.manual_validations.sample_flow_defined = false;
+const i3 = evaluateStudyDesign(i3Study, registry);
+ok("I3. manual validation = false -> no unresolved item (not needs_decision)", i3.status === "ready" && !hasUnresolved(i3, "economics.data.validation", "sample_flow_defined"), `status=${i3.status}`);
+
+// I4. evaluator does not classify resolved-false as blocked (status is only ready|needs_decision)
+const i4 = evaluateStudyDesign(i3Study, registry);
+const blockedInState = /blocked/i.test(JSON.stringify(i4));
+ok("I4. resolved-false is not classified as blocked here", i4.status === "ready" && !blockedInState, `status=${i4.status}`);
+
+// I5. existing example remains ready
+const i5 = evaluateStudyDesign(example, registry);
+ok("I5. existing example remains ready", i5.status === "ready" && i5.unresolved_decisions.length === 0, `status=${i5.status}`);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);

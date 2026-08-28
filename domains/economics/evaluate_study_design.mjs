@@ -48,7 +48,10 @@ function unresolvedForCapability(capId, cap, study) {
     } else if (pc.kind === "manual") {
       const label = pc.label;
       if (!label) continue;
-      if (manual[label] !== true) {
+      const v = manual[label];
+      // 三态：true = resolved & satisfied；false = resolved but NOT satisfied（留给下游 resolver/precondition
+      // 决定 blocked 等，Director 不判）；missing/undefined/null/其它 = 未决科学验证 -> needs_decision。
+      if (v !== true && v !== false) {
         out.push({ capability: capId, kind: "manual_validation", field: label });
       }
     }
@@ -113,4 +116,5 @@ if (isMain) {
 }
 
 export { evaluateStudyDesign, unresolvedForCapability, evaluateIfValid, validateThenEvaluate };
+
 
