@@ -58,6 +58,8 @@ jobs:
         run: node domains/economics/evaluate_study_design.mjs --study domains/economics/study_design.example.json
       - name: Run study_design evaluator spec
         run: node tests/evaluate_study_design.spec.mjs
+      - name: Run presentation capability contract spec
+        run: node tests/presentation.spec.mjs
       - name: Guard against fabricated verified in real registry
         run: |
           node -e "const fs=require('fs'); const dir='domains/economics/capabilities'; for(const f of fs.readdirSync(dir)){ if(!f.endsWith('.json')||f==='index.json') continue; const c=JSON.parse(fs.readFileSync(dir+'/'+f,'utf8')); for(const i of c.implementations||[]){ if(i.verification_status==='verified') throw new Error(f+' 有虚标 verified，真实 registry 不得在无 benchmark evidence 下标 verified'); } } console.log('OK real registry no fabricated verified')"

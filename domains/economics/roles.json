@@ -149,7 +149,8 @@
       "capability_scope": [
         "economics.regression.*",
         "economics.causal.*",
-        "economics.stat.*"
+        "economics.stat.*",
+        "economics.presentation.*"
       ],
       "depends_on": [
         "data"
