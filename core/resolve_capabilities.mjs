@@ -237,6 +237,8 @@ function resolveOne(capId, cap, study, env, ctx) {
   }
   if (risk === "medium" && ctx.mode === "production") {
     if (envOK.length > 0) return { resolution: "needs_decision", reason: "medium_approval_required", items: envOK.map((i) => i.id), capability: capId, maturity: deriveMaturity(cap) };
+    // 没有可用实现：若 fallback_policy=hard_stop，则没有可批准的对象，不能“等待批准”，直接 blocked。
+    if (cap.fallback_policy === "hard_stop") return { resolution: "blocked", reason: "no_available_implementation_hard_stop", capability: capId, maturity: deriveMaturity(cap) };
     return { resolution: "needs_decision", reason: "no_implementation_approval_required", capability: capId, maturity: deriveMaturity(cap) };
   }
   if (risk === "high" && ctx.mode === "test") {
@@ -306,6 +308,7 @@ function mergeOverlay(env, overlay) {
   return out;
 }
 export { resolveAll, resolveOne, deriveMaturity, envFulfilled, satisfies, STATUS_RANK, loadRegistry, evalPrecondition, isPermissible, isApproved, resolveInstances, findInstance, bestInstance, mergeOverlay };
+
 
 
 

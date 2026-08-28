@@ -38,6 +38,9 @@ r = run("f.high.verified.decision", { decisions: {} }); check("4 high/verified +
 r = run("f.high.verified.notenv", { env: envNoPy() }); check("5 high/verified but env missing -> blocked", r.resolution === "blocked", `got=${r.resolution}`);
 r = run("f.medium.tested"); check("6 medium/production/tested -> resolved", r.resolution === "resolved", `got=${r.resolution}`);
 r = run("f.medium.experimental"); check("7 medium/experimental -> needs_decision", r.resolution === "needs_decision", `got=${r.resolution}`);
+// --- medium hard_stop 语义（无可用实现 vs 可用但需批准） ---
+r = run("f.medium.hardstop"); check("7b medium/hard_stop/no impl -> blocked", r.resolution === "blocked" && r.reason === "no_available_implementation_hard_stop", `got=${r.resolution}/${r.reason}`);
+r = run("f.medium.experimental"); check("7c medium/available experimental awaiting approval -> needs_decision/medium_approval_required", r.resolution === "needs_decision" && r.reason === "medium_approval_required", `got=${r.resolution}/${r.reason}`);
 r = run("f.low.allow", { env: {} }); check("8 low/missing + fallback allowed -> resolved+fallback_recorded", r.resolution === "resolved" && r.fallback_recorded === true, `got=${r.resolution}`);
 r = run("f.low.nofallback", { env: {} }); check("9 low/missing + no fallback -> blocked", r.resolution === "blocked", `got=${r.resolution}`);
 r = run("f.deprecated"); check("10 deprecated never selected", r.resolution === "resolved" && r.selected_implementation?.id === "v", `got=${r.resolution} sel=${r.selected_implementation?.id}`);
@@ -80,9 +83,11 @@ check("24 D overlay 提供 skill -> resolved", r.resolution === "resolved", `got
 
 // E. 无 overlay / 无真实 resource -> 仍 unavailable，不产生假阳性
 r = run("f.medium.skill", { env: { resources: { skills: {} } } });
-check("25 E 无 resource -> needs_decision（非 resolved）", r.resolution === "needs_decision", `got=${r.resolution}`);
+check("25 E 无 resource + hard_stop -> blocked（非 resolved）", r.resolution === "blocked" && r.reason === "no_available_implementation_hard_stop", `got=${r.resolution}/${r.reason}`);
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
+
 
 
 

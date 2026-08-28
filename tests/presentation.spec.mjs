@@ -47,7 +47,8 @@ ok("7 study_design.example selected capabilities unchanged (no presentation)", !
 const study = { study_id: "t", domain: "economics", execution_context: { mode: "production", allow_experimental: false, preferred_runtimes: [], approved_overrides: [] }, selected_capabilities: { empirical: ["economics.presentation.tables_figures"] }, decisions: {}, preconditions: {}, manual_validations: {} };
 const res = resolveAll(study, registry, {}, { mode: "production", allow_experimental: false, preferred_runtimes: [], approved_overrides: [] });
 const capRes = res.capabilities["economics.presentation.tables_figures"];
-ok("8 production resolver does not silently mark reference-only medium capability production-ready", capRes.resolution !== "resolved" && capRes.resolution === "needs_decision", `got=${capRes.resolution}`);
+ok("8 production resolver blocks reference-only medium hard_stop capability (no available impl)", capRes.resolution === "blocked" && capRes.reason === "no_available_implementation_hard_stop", `got=${capRes.resolution}/${capRes.reason}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
