@@ -1,0 +1,13 @@
+{
+  "artifact_id": "DIAG_ISSUE5",
+  "artifact_type": "diagnostics",
+  "schema_version": "1.0",
+  "producer_role": "empirical",
+  "producer_task_id": "task_issue5",
+  "created_at": "fixed",
+  "inputs": [
+    "MODEL_REG_ISSUE5"
+  ],
+  "code_ref": "domains/economics/benchmarks/issue5/build_bundle.mjs",
+  "diagnostics": []
+}

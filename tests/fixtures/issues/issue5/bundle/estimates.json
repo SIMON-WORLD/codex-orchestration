@@ -1,0 +1,25 @@
+{
+  "artifact_id": "ESTIMATES_ISSUE5",
+  "artifact_type": "estimates",
+  "schema_version": "1.0",
+  "producer_role": "empirical",
+  "producer_task_id": "task_issue5",
+  "created_at": "fixed",
+  "inputs": [
+    "MODEL_REG_ISSUE5"
+  ],
+  "code_ref": "domains/economics/benchmarks/issue5/build_bundle.mjs",
+  "estimates": [
+    {
+      "estimate_id": "EST_ISSUE5",
+      "model_id": "MODEL_ISSUE5",
+      "term": "panel_attrition",
+      "estimate": 0.04,
+      "std_error": 0.08,
+      "ci_lower": -0.04,
+      "ci_upper": 0.12,
+      "p_value": 0.62,
+      "n": 24
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildReplicationStamp } from "./build_replication_stamp.mjs";
-import { canonicalJson, hashCanonicalJsonFile, hashRawFile, CANONICAL_HASH_MODE } from "./artifact_hash.mjs";
+import { canonicalJson, hashCanonicalJsonFile, hashRawFile, hashTextFile, CANONICAL_HASH_MODE, CANONICAL_TEXT_HASH_MODE } from "./artifact_hash.mjs";
 import { validateMultipleTesting } from "./multiple_testing_contract.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -87,7 +87,28 @@ export function validateArtifacts(bundle, paths) {
   }
   const ids = new Set([dm.artifact_id, vd.artifact_id, sf.artifact_id, desc.artifact_id, mr.artifact_id, es.artifact_id, dg.artifact_id]);
   for (const obj of [dm, vd, sf, desc, mr, es, dg]) for (const r of obj.inputs || []) if (!ids.has(r)) errs.push(`refs: ${obj.artifact_id} 引用不存在的 ${r}`);
-  if (am && Array.isArray(am.artifacts)) {
+    // source-data freshness（仅当 data_manifest 声明了真实 source data + hash）
+  if (dm && paths?.data_manifest) {
+    if (typeof dm.dataset_sha256 === "string" && dm.dataset_sha256.length > 0) {
+      if (!dm.dataset_hash_mode) errs.push("data_manifest: 声明 dataset_sha256 但缺 dataset_hash_mode");
+      if (!dm.data_path) errs.push("data_manifest: 声明 dataset_sha256 但缺 data_path");
+      if (dm.dataset_hash_mode && dm.data_path) {
+        const bundleDir = dirname(paths.data_manifest);
+        const dataAbs = isAbsolute(dm.data_path) ? dm.data_path : join(bundleDir, dm.data_path);
+        let actual;
+        try {
+          if (dm.dataset_hash_mode === CANONICAL_HASH_MODE) actual = hashCanonicalJsonFile(dataAbs);
+          else if (dm.dataset_hash_mode === "raw_file_sha256") actual = hashRawFile(dataAbs);
+          else if (dm.dataset_hash_mode === CANONICAL_TEXT_HASH_MODE) actual = hashTextFile(dataAbs);
+          else errs.push(`data_manifest: 未知 dataset_hash_mode ${dm.dataset_hash_mode}`);
+        } catch {
+          errs.push(`data_manifest: source data 文件不存在 (${dataAbs})`);
+        }
+        if (actual && actual !== dm.dataset_sha256) errs.push("data_manifest: source data 与 dataset_sha256 不一致（source 改变或未重建）");
+      }
+    }
+  }
+if (am && Array.isArray(am.artifacts)) {
     for (const a of am.artifacts) {
       const stub = String(a.path || "").replace(".json", "");
       const p = paths?.[stub];

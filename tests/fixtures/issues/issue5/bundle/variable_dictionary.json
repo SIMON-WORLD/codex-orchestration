@@ -1,0 +1,29 @@
+{
+  "artifact_id": "VAR_DICT_ISSUE5",
+  "artifact_type": "variable_dictionary",
+  "schema_version": "1.0",
+  "producer_role": "data",
+  "producer_task_id": "task_issue5",
+  "created_at": "fixed",
+  "inputs": [
+    "DATA_MANIFEST_ISSUE5"
+  ],
+  "code_ref": "domains/economics/benchmarks/issue5/build_bundle.mjs",
+  "variables": [
+    {
+      "name": "id",
+      "definition": "panel unit id",
+      "type": "integer"
+    },
+    {
+      "name": "period",
+      "definition": "time period",
+      "type": "integer"
+    },
+    {
+      "name": "panel_attrition",
+      "definition": "1 if attrited, 0 otherwise",
+      "type": "binary"
+    }
+  ]
+}

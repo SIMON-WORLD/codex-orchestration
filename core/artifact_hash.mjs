@@ -29,3 +29,10 @@ export function hashCanonicalJsonFile(path) {
 export function hashRawFile(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
+export const CANONICAL_TEXT_HASH_MODE = "text_file_sha256_lf";
+export function normalizeLf(text) {
+  return String(text).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+export function hashTextFile(path) {
+  return createHash("sha256").update(normalizeLf(readFileSync(path, "utf8")), "utf8").digest("hex");
+}

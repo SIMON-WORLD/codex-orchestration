@@ -1,0 +1,19 @@
+{
+  "artifact_id": "DATA_MANIFEST_ISSUE5",
+  "artifact_type": "data_manifest",
+  "schema_version": "1.0",
+  "producer_role": "data",
+  "producer_task_id": "task_issue5",
+  "created_at": "fixed",
+  "inputs": [],
+  "code_ref": "domains/economics/benchmarks/issue5/build_bundle.mjs",
+  "data_ref": "panel.csv",
+  "dataset_id": "DATASET_ISSUE5",
+  "data_path": "panel.csv",
+  "observation_count": 24,
+  "variable_count": 3,
+  "dataset_hash_mode": "text_file_sha256_lf",
+  "dataset_sha256": "93164192d8d3a1220b4baf8cb6e46acf19b2b8890eb3a8dbf835870fab6877de",
+  "source_refs": [],
+  "parent_dataset_refs": []
+}

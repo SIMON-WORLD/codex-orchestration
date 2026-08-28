@@ -1,0 +1,21 @@
+{
+  "artifact_id": "SAMPLE_FLOW_ISSUE5",
+  "artifact_type": "sample_flow",
+  "schema_version": "1.0",
+  "producer_role": "data",
+  "producer_task_id": "task_issue5",
+  "created_at": "fixed",
+  "inputs": [
+    "DATA_MANIFEST_ISSUE5"
+  ],
+  "code_ref": "domains/economics/benchmarks/issue5/build_bundle.mjs",
+  "steps": [
+    {
+      "step_id": "STEP_FULL",
+      "n_before": 24,
+      "n_removed": 0,
+      "n_after": 24,
+      "reason": "full sample (24 rows)"
+    }
+  ]
+}

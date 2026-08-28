@@ -1,0 +1,32 @@
+{
+  "artifact_id": "DESC_FACTS_ISSUE5",
+  "artifact_type": "descriptive_facts",
+  "schema_version": "1.0",
+  "producer_role": "data",
+  "producer_task_id": "task_issue5",
+  "created_at": "fixed",
+  "inputs": [
+    "DATA_MANIFEST_ISSUE5"
+  ],
+  "code_ref": "domains/economics/benchmarks/issue5/compute_panel_attrition_facts.mjs",
+  "facts": [
+    {
+      "fact_id": "FACT_PANEL_ATTRITION_RATE",
+      "name": "panel_attrition_rate",
+      "value": 0.041666666666666664,
+      "unit": "share",
+      "sample_id": "DATASET_ISSUE5",
+      "source_data_ref": "panel.csv",
+      "computation_ref": "domains/economics/benchmarks/issue5/compute_panel_attrition_facts.mjs"
+    },
+    {
+      "fact_id": "FACT_PANEL_ATTRITION_COUNT",
+      "name": "panel_attrition_count",
+      "value": 1,
+      "unit": "count",
+      "sample_id": "DATASET_ISSUE5",
+      "source_data_ref": "panel.csv",
+      "computation_ref": "domains/economics/benchmarks/issue5/compute_panel_attrition_facts.mjs"
+    }
+  ]
+}

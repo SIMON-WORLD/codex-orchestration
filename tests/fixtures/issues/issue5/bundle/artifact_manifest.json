@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "artifacts": [
+    {
+      "path": "data_manifest.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "328323ba23f02f26c70759f5db40ea7fa599f2f1813984d32475a0f8e6722a19"
+    },
+    {
+      "path": "variable_dictionary.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "68eeaaf668d1358f1b161de649b4043cdc951e9d5a6a3d647600aa68855681a5"
+    },
+    {
+      "path": "sample_flow.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "8f633339fde112e0fa83544a6f8ad9da379b428f875350fc21aba3364cbbb8df"
+    },
+    {
+      "path": "descriptive_facts.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "ac223056ac399f3228901963c2bb78407d8d5d9b37bbfcfe487da575d0e7407c"
+    },
+    {
+      "path": "model_registry.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "552404d06f93883b676c34eb1a089a5b1622de0562e09b948f7c29c614b691e4"
+    },
+    {
+      "path": "estimates.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "9dd6a5f7ee7026862d8e00f6576f15dd599c59fb8ec70b8731ef4282ee77eb70"
+    },
+    {
+      "path": "diagnostics.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "0e7c30eaca3a01a538d32f951e9d6d2c0ae2ba5a9fff285d91fb162cdd92915e"
+    },
+    {
+      "path": "replication_stamp.json",
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "34018b3d8c535c11f2e359bce7583c13b1dfaaf8106002d8373daa6d2b1a08b0"
+    }
+  ]
+}
