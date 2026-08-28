@@ -69,3 +69,5 @@ jobs:
 
 
 
+      - name: Run docs consistency spec
+        run: node tests/docs_consistency.spec.mjs
