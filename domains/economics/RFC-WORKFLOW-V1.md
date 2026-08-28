@@ -9,6 +9,8 @@
 >
 > Real-project observed evidence is limited to **3** repos: `case-dime-niger-asp`, `case-euro-scm`, `case-learning-poverty`.
 
+> **RFC path**: `domains/economics/RFC-WORKFLOW-V1.md` (this file). Canonical Director identifier: `economics_director`.
+
 ---
 
 ## 0. Abstract
@@ -19,17 +21,18 @@ Two structural decisions are made up-front because they shape everything else:
 
 - **`visualize` becomes a Capability, not a Role** (a presentation capability), because real projects render tables/figures as a numbered step in the analysis pipeline, not as an independent agent with its own authority (see §2.3, §3).
 - **Replication stays a Capability + strong gate under `review`**, **not** a new Role (evidence-based; see §2.4, §6). This is an **E4** engineering choice but rests on strong **E1** institutional support and **E2** observed practice that replication is a responsibility with its own artifact/validation.
+- **`economics_director` is a domain-level scientific controller, NOT a worker Role.** It is not added to `roles.json`. See §4.
 
 ---
 
 ## 1. Research Lifecycle
 
-The full Economics Research Workflow is a 10-stage lifecycle. Each stage is labelled **observed practice (E2)**, **institutional requirement (E1)**, or **engineering abstraction (E4)**. "Observed" only means it appears in the 3 real repositories.
+The full Economics Research Workflow is an **11-stage lifecycle** (stages 0–10). Each stage is labelled **observed practice (E2)**, **institutional requirement (E1)**, or **engineering abstraction (E4)**. "Observed" only means it appears in the 3 real repositories.
 
 | # | Stage | Label(s) | Evidence (case-* / src-*) |
 |---|---|---|---|
 | 0 | **Project Setup / Scaffold** | E2 (observed) + E1 + E4 | **E2**: all 3 repos — `case-dime-niger-asp`(`01_PROGRAMS`+globals+`00_master_ner.do`), `case-euro-scm`(`Paths.do`+`Master.do`), `case-learning-poverty`(`profile`+`run_all`). **E1**: `src-dime-data-handbook`, `src-dime-standards`. **E3**: `case-ietoolkit`(`iefolder`), `case-journal-skills`(`00_master.do`). **E4**: our `core/scaffold_role_team.mjs`. |
-| 1 | **Study Design / Research Question** | E4 + E2 | **E2**: `case-euro-scm`(`Master.do` control panel), `case-dime-niger-asp`(spec in master comments). **E3**: `case-journal-skills`(`aejmac-topic-selection`, `aejmac-identification`). **E4**: `study_design.json` + decision gate. |
+| 1 | **Study Design / Research Question** | E4 + E2 | **E2**: `case-euro-scm`(`Master.do` control panel), `case-dime-niger-asp`(spec in master comments). **E3**: `case-journal-skills`(`aejmac-topic-selection`, `aejmac-identification`). **E4**: `study_design` + decision gate (the Director's contract). |
 | 2 | **Literature** (search / verify / review) | E1 + E4 | **E1**: `src-prisma`, `src-openalex`, `src-crossref`. **E3**: `case-journal-skills`(`aejmac-literature-positioning`). **E4**: our search/review roles. **Not observed**: 0/3 real repos. |
 | 3 | **Data Preparation** | E2 + E1 | **E2**: `case-euro-scm`(`0_Data_Management_Annual`), `case-dime-niger-asp`(cleaning/merge), `case-learning-poverty`(`01_data`). **E1**: `src-dime-data-handbook`, `src-dime-standards`. |
 | 4 | **Description / Balance / Validation** | E2 + E1 | **E2**: `case-dime-niger-asp`(`07_balance_and_attrition`), `case-euro-scm`(`3/4_*`), `case-learning-poverty`(descriptive tables). **E1**: `src-dime-data-handbook`(variable dictionary). **E3**: `case-ietoolkit`(`iebaltab`). |
@@ -46,28 +49,28 @@ The full Economics Research Workflow is a 10-stage lifecycle. Each stage is labe
 
 ## 2. Role Model
 
-### 2.1 v1 Role set (decision)
+### 2.1 v1 worker Role set (decision)
 
-**v1 Role set = 7 roles**: `economics_director`, `literature_search`, `literature_review`, `data`, `empirical`, `writing`, `review`.
+The **worker Role set = 6 roles**: `literature_search`, `literature_review`, `data`, `empirical`, `writing`, `review`.
 
 - **Kept** (strong E2/E1): `data`, `empirical`.
 - **Kept** (E1/E3, engineering-level, **not** observed in real repos): `literature_search`, `literature_review`, `writing`, `review`.
-- **Added**: `economics_director` (the domain's scientific decision owner; §4).
 - **Demoted**: `visualize` → **presentation capability** (no longer a Role).
 
-### 2.2 Per-Role specification
+> **`economics_director` is NOT a worker Role.** It is a separate **domain-level scientific controller** whose contract is `study_design`. It is **not** in `roles.json` and is **not** dispatched as a worker. See §4.
+
+### 2.2 Per-Role specification (worker roles only)
 
 | Role | Responsibility | Authority / human decisions | Inputs | Outputs | Capability scope | Dispatch boundary |
 |---|---|---|---|---|---|---|
-| **economics_director** | Define the study design; select capabilities; own identification/spec/sample/estimator decisions; set robustness requirements; route interpretation/review. | Decides (must not improvise): research design, identification strategy, sample exclusions, estimator/capability selection, robustness set, review routing. | research_question, domain policies, preferred output profile. | `study_design` (selected_capabilities, decisions, preconditions, manual_validations, execution_context). | *routing only* (decides `selected_capabilities`, does not execute). | Blocks downstream until `study_design` is `resolved`; emits decision-gate requests. |
-| **literature_search** | Multi-source retrieval, dedupe, screening, citation-metadata verification. | `keyword_strings`; never fabricate citations. | research_question (or director `search_scope`). | `literature_search_log`. | `economics.literature.*`. | Dispatch after design; no downstream dependency. |
+| **literature_search** | Multi-source retrieval, dedupe, screening, citation-metadata verification. | `keyword_strings`; never fabricate citations. | research_question (or Director `search_scope`). | `literature_search_log`. | `economics.literature.*`. | Dispatch after design; no downstream dependency. |
 | **literature_review** | Synthesize a structured, cited review; tag evidence grading. | `organizing_framework`; no invented claims. | research_question, `literature_search_log`. | `literature_review`. | `economics.literature.*` (review/verify). | Depends on `literature_search`. |
 | **data** | Build/clean/validate/document the analysis dataset. | `validation_rules`; **escalate** unit_of_analysis, treatment_definition, sample_exclusion, material_variable_definition_changes. | research_question, `study_design`. | `data_manifest`, `variable_dictionary`, `sample_flow`, `descriptive_facts`, `decision_log`, `data_summary` (presentation layer). | `economics.data.*`. | Depends on `study_design`; feeds `empirical`. |
 | **empirical** | Execute the approved design; run diagnostics; produce structured outputs; render tables/figures via the presentation capability. | **escalate** identification_strategy, treatment_definition, clustering_level, sample_exclusion, material_specification_changes. | research_question, `study_design`, `data_summary`, `decision_log`, `data_manifest`. | `model_registry`, `estimates`, `diagnostics`, `empirical_results`, `tables/figures` (via `economics.presentation.*`). | `economics.regression.*`, `economics.causal.*`, `economics.stat.*`, `economics.presentation.*`. | Depends on `data`; feeds `writing`. |
 | **writing** | Assemble manuscript per output profile; keep every claim traceable (evidence ledger). | `section_order`; no invented results/citations. | research_question, `literature_review`, `data_summary`, `empirical_results`, `tables/figures`. | `manuscript` (+ claim ledger). | `economics.writing.*` (style/presentation). | Depends on `literature_*`, `data`, `empirical`. |
 | **review** | (a) adversarial review (human judgment); (b) **replication gate** (machine robustness). | `review_priority`; no rubber-stamping. | `manuscript`, upstream artifacts. | `review_report`, `replicability_check`, `replication_stamp` (deterministic). | `economics.stat.*`, `economics.replication.*`. | Depends on `writing`; emits gate results. |
 
-**Upstream/downstream**: `economics_director` → (design) → `literature_*` ∥ `data` → `empirical` → `writing` → `review`. The Director is upstream of all; `review` (replication gate) is the final machine gate before publish/revision routing.
+**Upstream/downstream (worker chain)**: `literature_*` ∥ `data` → `empirical` → `writing` → `review`. The **Economics Research Director** sits **above** this worker chain (§4); it is a domain-level scientific controller, not a worker role, and is not part of the dispatch chain.
 
 ### 2.3 Decision: `visualize` → presentation Capability
 
@@ -84,7 +87,7 @@ Rationale:
 **Decision**: Keep replication as a **Capability + strong gate under `review`**; do **not** add a `replication` Role in v1.
 
 Rationale:
-- **E1** (strong): `src-aea-data-editor` mandates a pre-publication reproducibility check and a DCAS README (`src-ssde-template-readme`). This is a **responsibility with its own artifact/validation** — not a separate agent necessarily.
+- **E1** (strong): `src-aea-data-editor` mandates a pre-publication reproducibility check and a DCAS README (`src-ssde-template-readme`). This is a **responsibility with its own artifact/validation** — not necessarily a separate agent.
 - **E2**: all 3 real repos *are* replication packages; `case-dime-niger-asp` has a reviewer switch, `case-learning-poverty` has a QA branch — but none uses a distinct "replication agent".
 - **E4** (the choice): whether to have an independent Agent Role is **our** engineering decision. Two viable designs:
   - **A. Independent `replication` Role**: heavier change, separate dispatch.
@@ -114,17 +117,17 @@ Role and Capability are kept **separate**: Roles carry responsibility/authority 
 
 ## 4. Economics Research Director vs Core Coordinator
 
-The Domain Pack needs a **scientific decision owner** distinct from the domain-agnostic **Core Coordinator**.
+The Domain Pack needs a **scientific decision owner** distinct from the domain-agnostic **Core Coordinator**. The Director is a **domain-level scientific controller**, **not** a worker Role.
 
-| | **Core Coordinator** (domain-agnostic) | **Economics Research Director** (domain scientific) |
+| | **Core Coordinator** (domain-agnostic) | **Economics Research Director** (domain scientific controller) |
 |---|---|---|
 | Owns | Orchestration mechanics: plan/DAG, dispatch, env probe, resolver execution, artifact checks, thread creation. | Scientific decisions: research design, identification/specification, sample decisions, estimator/capability selection, robustness requirements, interpretation/review routing. |
 | Scope | Any domain. | `domains/economics`. |
-| Uses | `core/scaffold_role_team.mjs`, `core/resolve_capabilities.mjs`, `core/validate_artifacts.mjs`, `core/build_replication_stamp.mjs`. | `study_design.json`, `selected_capabilities`, decision gates. |
+| Uses | `core/scaffold_role_team.mjs`, `core/resolve_capabilities.mjs`, `core/validate_artifacts.mjs`, `core/build_replication_stamp.mjs`. | `study_design` (the contract), `selected_capabilities`, decision gates. |
 | Never decides | Identification, estimator choice, sample meaning. | Orchestration mechanics (does not dispatch/run code). **Decides before dispatch; cannot improvise.** |
 | Output | Enforced plan; DAG; blocked/needs_decision/ready. | `study_design` with `decisions`, `preconditions`, `manual_validations`, `execution_context`. |
 
-**Boundary**: The Director produces a `study_design` that the Coordinator then executes. If any scientific decision is not fixed (e.g. identification strategy, clustering level, treatment definition, sample exclusion, robustness set), the Director **must** surface `needs_decision` — the Coordinator and workers **must not** infer it. This is the single most important separation: **scientific decisions are gated at the Director; orchestration mechanics are delegated to the Coordinator.**
+**Boundary**: The Director produces a `study_design` (its **only contract**) that the Coordinator then executes. If any scientific decision is not fixed (e.g. identification strategy, clustering level, treatment definition, sample exclusion, robustness set), the Director **must** surface `needs_decision` — the Coordinator and workers **must not** infer it. The Director is **not added to `roles.json`**; it is a domain-level controller represented by the `study_design` schema.
 
 ---
 
@@ -173,7 +176,12 @@ These scientific points **must** stop at `needs_decision` (Director / user) rath
 | Interpretation / review routing | how results are framed & which review path | Director | **E1** `src-aea-data-editor`; **E3** `case-journal-skills` referee strategy. |
 | Data rights / restricted data / licensing | rights/license | Director / user | **E1** `src-ssde-template-readme` (rights, license, confidentiality). |
 
-These map to `needs_decision` (not `blocked`) when a decision is simply not yet fixed, and to `blocked` only when a machine-checkable precondition is violated (e.g. comparison-group support unsatisfied). This mirrors the resolver's `needs_decision` vs `blocked` from `core/resolve_capabilities.mjs`.
+**Semantics** (mirrors `core/resolve_capabilities.mjs`):
+- **`needs_decision`** — an **unresolved scientific choice** (identification strategy, clustering level, treatment definition, sample exclusion, robustness set, instrument exclusion argument not yet settled). Agent must not improvise; the Director/user must decide.
+- **`blocked`** — a **failed machine-enforceable admission or precondition**. Two cases:
+  1. **High-risk + production** with **no verified eligible implementation** → **`blocked`**. Director approval / override **must NOT** bypass `verified_only` admission; the Director may only de-scope to a verified capability, never admit a `tested`/`experimental` implementation for high-risk production.
+  2. A machine-checkable precondition violation (e.g. `design.comparison_group` unsatisfied for staggered DID, or version/environment requirement unsatisfied) → **`blocked`**.
+- `needs_decision` is **not** used for failed admission; it is reserved for unresolved science. `blocked` is **not** a "choose to override" path either.
 
 ---
 
@@ -183,8 +191,8 @@ How a real study moves through the system:
 
 ```
 Coordinator (core, domain-agnostic)
-  → Econ Research Director (scientific design + gates)
-  → Roles (responsible units)
+  → Economics Research Director (domain-level scientific controller; contract = study_design)
+  → worker Roles (responsible units)
   → Capabilities (method/verification, resolved to an implementation)
   → Implementations (any runtime: Stata/R/Python)  — chosen by resolver from env snapshot + policy
   → Artifacts (single source of truth)
@@ -194,13 +202,13 @@ Coordinator (core, domain-agnostic)
 **Concrete end-to-end example — "staggered firm mandate" panel:**
 
 1. **Coordinator** gets `research_question` = "effect of a staggered firm mandate on output". It is domain-agnostic; it routes to the economics pack.
-2. **Econ Director** produces `study_design`: `selected_capabilities = { economics.regression.panel_fe, economics.causal.did.staggered, economics.stat.testing.multcomp }`; `decisions = { treatment_definition: firm mandate post (staggered), clustering_level: firm, sample_exclusion: age 16-65/employed/drop key missing, estimator_choice: cs, control_set: industry x time, fixed_effects: worker+time, family_definition: m1-m6a, correction_method: holm }`; `preconditions = { design.panel: unit_time, design.treatment_timing: staggered, design.comparison_group: never_or_not_yet_treated }`; `execution_context = { mode: production, allow_experimental: false, preferred_runtimes: [stata,r,python] }`.
-3. **Core Coordinator** runs **preflight** (env probe + resolver). It inspects `runtime_instances` / resources; checks each `selected_capability`:
-   - `panel_fe` high-risk, `production` → requires `verified`. Registry only has `tested` (fixest/reghdfe) and `experimental` (linearmodels). **No verified implementation → `blocked`** (per strict v1.3 policy). BUT `case-euro-scm`/`case-dime-niger-asp` are observed; the Director must decide whether to route to a verified path or accept the gate. For this RFC the default is: `blocked` unless the Director approves an override. (Approval can never bypass HIGH+production `verified_only`.)
-4. **Director decision gate**: For a production high-risk study without a verified implementation, the system surfaces `needs_decision` (or `blocked`) — it does **not** dispatch an `empirical` run against an experimental linearmodels implementation silently. The Director either (a) restricts the design to a verified capability, or (b) defers.
-5. Once the design resolves to an allowed capability, the Coordinator dispatches the **Roles**:
+2. **Economics Research Director** produces `study_design`: `selected_capabilities = { economics.regression.panel_fe, economics.causal.did.staggered, economics.stat.testing.multcomp }`; `decisions = { treatment_definition: firm mandate post (staggered), clustering_level: firm, sample_exclusion: age 16-65/employed/drop key missing, estimator_choice: cs, control_set: industry x time, fixed_effects: worker+time, family_definition: m1-m6a, correction_method: holm }`; `preconditions = { design.panel: unit_time, design.treatment_timing: staggered, design.comparison_group: never_or_not_yet_treated }`; `execution_context = { mode: production, allow_experimental: false, preferred_runtimes: [stata,r,python] }`.
+3. **Core Coordinator** runs **preflight** (env probe + resolver). It inspects `runtime_instances` / resources; checks each `selected_capability` for machine-enforceable admission:
+   - `panel_fe` is **high-risk** and `execution_context.mode = production` → admission requires a **`verified`** eligible implementation. The registry only has `tested` (fixest/reghdfe) and `experimental` (linearmodels) for this capability. **No `verified` eligible implementation → `blocked`** (strict v1.3 policy). The Director's approval / override **cannot** make a `tested`/`experimental` implementation admissible for high-risk production; it can only **de-scope** the design to a capability that has a `verified` implementation, or the study is blocked.
+4. **Preflight result**: because `panel_fe` is `blocked` (failed machine-enforceable admission), the Coordinator does **not** dispatch an `empirical` run against an experimental linearmodels implementation. This is a **`blocked`**, not a `needs_decision` (the scientific choices are already fixed in `study_design`; the blocking cause is the missing `verified` implementation). The Director may revise the design (e.g. restrict to a `verified` capability), which re-runs preflight.
+5. Once the design resolves to allowed capability set, the Coordinator dispatches the **worker Roles**:
    - `literature_search` → `literature_search_log`; `literature_review` → `literature_review`.
-   - `data` → `data_manifest`/`variable_dictionary`/`sample_flow`/`descriptive_facts`/`decision_log` (escalating sample_exclusion/treatment_definition if UOS shifts).
+   - `data` → `data_manifest`/`variable_dictionary`/`sample_flow`/`descriptive_facts`/`decision_log` (escalating sample_exclusion/treatment_definition if UOS shifts; those are `needs_decision`).
    - `empirical` → resolves `panel_fe`/`did.staggered` implementations via `core/resolve_capabilities.mjs` (picks runtime by env + policy + verification status); produces `model_registry`/`estimates`/`diagnostics`; invokes `economics.presentation.tables_figures` to render tables/figures.
    - `writing` → `manuscript` + claim ledger (each claim references an artifact).
    - `review` → adversarial review (human) **and** **replication gate**: runs `core/build_replication_stamp.mjs` from the artifacts (deterministic), then `core/validate_artifacts.mjs`. A mismatch (e.g. a figure number not in `estimates`, or a hand-edited stamp) → **machine FAIL**.
@@ -215,19 +223,21 @@ This shows the clean separation: **Director owns science; Coordinator owns mecha
 No migration is implemented in this task. The plan is:
 
 ### 8.1 Stays unchanged
-- `core/` domain-agnostic modules: `scaffold_role_team.mjs`, `resolve_capabilities.mjs`, `build_replication_stamp.mjs`, `validate_artifacts.mjs`, `validate_capability_schema.mjs`, `validate_role_scope.mjs`, `artifact_hash.mjs`, `multiple_testing_contract.mjs`.
+- **Core stays domain-agnostic.** `core/` modules (`scaffold_role_team.mjs`, `resolve_capabilities.mjs`, `build_replication_stamp.mjs`, `validate_artifacts.mjs`, `validate_capability_schema.mjs`, `validate_role_scope.mjs`, `artifact_hash.mjs`, `multiple_testing_contract.mjs`) are **domain-agnostic** today. This is a *boundary* statement, not a freeze: **generic orchestration / validation mechanisms may be extended**, but any such extension must remain domain-agnostic.
+  - **Any future table/figure artifact validation added to Core must be generic reference/provenance validation** (e.g. "this rendered figure references artifact id X"), **not** Economics-specific presentation logic.
+  - **Economics-specific scientific semantics (specification, identification, sample meaning, estimator selection, presentation rules) must remain under `domains/economics`**, never in Core.
 - Capability registry files (7 existing) — **unchanged**; new ones are additive.
 - `data/`, `docs/03`, `capture/emit`, `docs/06` (referenced by tests).
 - Legacy v1.2 path (`templates/role-team/roles.research.json`, `meta.toolchain`/`meta.journal` compat mapping) — **kept**.
 
 ### 8.2 Modified
-- `domains/economics/roles.json`: add `economics_director` role; remove/re-scope `visualize` (→ presentation capability, no Role); split `review` responsibility into `adversarial_review` + `replication_gate` (both under `review`); add `economics.presentation.*` to `empirical` capability_scope; give `literature_review` a `capability_scope` of `economics.literature.*`.
-- `domains/economics/study_design.example.json`: add `economic_director` routing fields; keep `execution_context`/`selected_capabilities`/`decisions`/`preconditions`/`manual_validations`.
+- `domains/economics/roles.json`: **do NOT add `economics_director`**. Instead: remove/re-scope `visualize` (→ presentation capability, no Role); split `review` responsibility into `adversarial_review` + `replication_gate` (both under `review`); add `economics.presentation.*` to `empirical` capability_scope; give `literature_review` a `capability_scope` of `economics.literature.*`.
+- `domains/economics/study_design.example.json`: add `economics_director` (or `director`) routing fields; keep `execution_context`/`selected_capabilities`/`decisions`/`preconditions`/`manual_validations`.
 
 ### 8.3 Added
 - New capability files: `economics.literature.verify`, `economics.robustness.honestdid` (or `.sensitivity`), `economics.presentation.tables_figures`, `economics.replication.provenance`, `economics.replication.stamp` (if not already present); registration in `capabilities/index.json`.
-- A `economics_director` role definition (schema + policy). The Director needs a lightweight schema (`study_design` is the contract) — a new `domains/economics/study_design.schema.json`.
-- `domains/economics/references/RFC-WORKFLOW-V1.md` (this RFC).
+- A **`study_design.schema.json`** under `domains/economics/` — this is the **Director's contract** (NOT a `roles.json` entry). The Director is a domain-level controller, not a worker Role.
+- `domains/economics/RFC-WORKFLOW-V1.md` (this file, the current RFC).
 
 ### 8.4 Deprecated (tentative / future)
 - `visualize` role in `roles.json` (→ presentation capability). Marked deprecated, not removed in this task.
@@ -238,15 +248,16 @@ No migration is implemented in this task. The plan is:
 
 ## 9. Build Order (next-phase implementation sequence)
 
-1. **Role/schema**: Add `economics_director`; `study_design.schema.json`; update `roles.json` (add Director, re-scope `visualize`, split `review`), update `validate_role_scope.mjs` expectations. *(E4)*
-2. **Capability additions**: `economics.literature.verify`, `economics.robustness.*`, `economics.presentation.tables_figures`, `economics.replication.provenance`; register in `index.json`; update `schema.spec.mjs`. *(E1/E2)*
-3. **Director preflight hook**: Wire the Director's `study_design` into the resolver/preflight path so `needs_decision` surfaces for any unresolved scientific decision (identification/clustering/treatment/sample/estimator). *(E4)*
-4. **Presentational capability + artifact binding**: Implement `economics.presentation.tables_figures` so it consumes only `model_registry`/`estimates`/`diagnostics`/`data_manifest`; extend `validate_artifacts.mjs` to check figure/table ↔ artifact references. *(E4 + E1)*
-5. **Replication gate in `review`**: Add `economics.replication.provenance`; confirm `replication_stamp` is built deterministically and validated. *(E1)*
-6. **Role/capability tests + docs**: Update `role_scope.spec.mjs`, `resolver.spec.mjs`, `docs_consistency.spec.mjs`, `skills/codex-role-team/SKILL.md` (Director boundary, presentation capability, review split). *(E4)*
-7. **Compatibility + regression**: Keep v1.2 legacy path green; add fixtures for Director gate (design decision missing → `needs_decision`), presentation-capability artifact binding, replication gate FAIL. *(E4)*
+1. **Director contract / schema**: Add `domains/economics/study_design.schema.json` (the Director's contract); add a controller note to the SKILL / docs. **Do NOT add `economics_director` to `roles.json`** (it is not a worker Role). *(E4)*
+2. **Worker Role/schema update**: update `roles.json` (re-scope `visualize`, split `review`, add `economics.presentation.*` to `empirical`), update `validate_role_scope.mjs` expectations. *(E4)*
+3. **Capability additions**: `economics.literature.verify`, `economics.robustness.*`, `economics.presentation.tables_figures`, `economics.replication.provenance`; register in `index.json`; update `schema.spec.mjs`. *(E1/E2)*
+4. **Director preflight hook**: Wire the Director's `study_design` into the resolver/preflight path so unresolved scientific choices surface `needs_decision`, and machine-enforceable admission failures surface `blocked` (no verified implementation for high-risk production, precondition mismatch). *(E4)*
+5. **Presentational capability + artifact binding**: Implement `economics.presentation.tables_figures` so it consumes only `model_registry`/`estimates`/`diagnostics`/`data_manifest`; extend the **generic** `validate_artifacts.mjs` for artifact-reference/provenance checks (figure/table ↔ artifact id), keeping it domain-agnostic. *(E4 + E1)*
+6. **Replication gate in `review`**: Add `economics.replication.provenance`; confirm `replication_stamp` is built deterministically and validated. *(E1)*
+7. **Role/capability tests + docs**: Update `role_scope.spec.mjs`, `resolver.spec.mjs`, `docs_consistency.spec.mjs`, `skills/codex-role-team/SKILL.md` (Director boundary, presentation capability, review split, blocked/needs_decision). *(E4)*
+8. **Compatibility + regression**: Keep v1.2 legacy path green; add fixtures for Director gate (unresolved scientific choice → `needs_decision`; high-risk production no-verified → `blocked`; precondition mismatch → `blocked`), presentation-capability artifact binding, replication gate FAIL. *(E4)*
 
-> **Ordering rationale**: Schema/roles first (stabilize the model), then capabilities (the method units), then the Director gate (so scientific decisions are enforced before dispatch), then presentation + replication gates (the machine-truth enforcement), then tests/docs/compat.
+> **Ordering rationale**: Director contract/schema first (stabilize the scientific-control boundary), then worker roles, then capabilities, then the preflight gate (so scientific decisions and admission are enforced before dispatch), then presentation + replication gates (the machine-truth enforcement), then tests/docs/compat.
 
 ---
 
@@ -255,7 +266,7 @@ No migration is implemented in this task. The plan is:
 - **Institutional standard (E1)**: research lifecycle stages 2/9/10, DCAS README, pre-publication replication check, data/variable-dictionary discipline, presentation style, causal method benchmarks (`src-fixest`/`reghdfe`/`did`/`ivreg2`/`rdrobust`/`honestdid`).
 - **Real-project observed (E2)**: lifecycle stages 0/3/4/5/7/9 (setup, data, balance/validation, estimation, tables/figures, replication package); `visualize` as a render step not a role; Master.do control-panel approach.
 - **Workflow/template precedent (E3)**: journal-skills stage decomposition + `00_master.do`; AEA/SSDE/ietoolkit templates; literature-positioning/referee/rebuttal as a workflow split.
-- **Our engineering abstraction (E4)**: `economics_director` as a distinct scientific decision owner; `visualize`→capability; `replication` as capability+gate under `review` (not a new Role); `risk_level`/`verification_status`/`dispatch_allowed`/`approved_overrides`/decision gate; the lifecycle *superset* framing.
+- **Our engineering abstraction (E4)**: `economics_director` as a **domain-level scientific controller (not a worker Role)**; `visualize`→capability; `replication` as capability+gate under `review` (not a new Role); strict `blocked` (no verified → high-risk production admission failure) vs `needs_decision` (unresolved science); `risk_level`/`verification_status`/`dispatch_allowed`; the lifecycle *superset* framing; Core domain-agnostic boundary.
 
 ---
 
