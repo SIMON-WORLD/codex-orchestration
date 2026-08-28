@@ -17,11 +17,19 @@
   "inference_configuration": {
     "clustering": "one-way cluster=firm",
     "estimator": "fixest::feols (absorbed firm+year FE)",
-    "finite_sample_correction": "AER/Stata-style cluster-robust (matches Stata vce(cluster))",
+    "finite_sample_correction": "AER/Stata-style cluster-robust",
     "absorbed_fe_dof": "firm + year absorbed via fixef",
     "covariance_definition": "fixest clustered (cluster=~firm)",
     "covariance_family": "aes_cluster",
-    "note": "fixest clustered SE matches Stata reghdfe exactly"
+    "is_canonical_definition": true,
+    "ssc": {
+      "K.adj": true,
+      "K.fixef": "nonnested",
+      "G.adj": true,
+      "G.df": "min",
+      "K.exact": false
+    },
+    "note": "explicit ssc() frozen; fixest clustered SE == Stata reghdfe"
   },
   "native_default": {
     "cov_type": "standard (iid, no cluster)",

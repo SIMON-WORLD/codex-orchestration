@@ -9,12 +9,21 @@
     "hash_mode": "text_file_sha256_lf",
     "n": 200,
     "firms": 10,
-    "years": [1935, 1954]
+    "years": [
+      1935,
+      1954
+    ]
   },
   "specification": {
     "outcome": "invest",
-    "regressors": ["value", "capital"],
-    "fixed_effects": ["firm", "year"],
+    "regressors": [
+      "value",
+      "capital"
+    ],
+    "fixed_effects": [
+      "firm",
+      "year"
+    ],
     "cluster": "firm",
     "model": "invest_it = b1*value_it + b2*capital_it + firm FE + year FE + error_it",
     "estimator": "within (absorbed) two-way fixed effects"
@@ -44,5 +53,12 @@
       "verification_status": "reference"
     }
   ],
-  "note": "Cannot write verified/tested: benchmark is a frozen real-dataset cross-engine check, not yet a verified gate."
+  "note": "Cannot write verified/tested: benchmark is a frozen real-dataset cross-engine check, not yet a verified gate.",
+  "canonical_inference": {
+    "covariance_family": "aes_cluster",
+    "definition": "one-way cluster-robust at firm, Stata/reghdfe nested-in-cluster DoF convention",
+    "nested_firm_in_cluster": true,
+    "canonical_reference_engine": "panel.fe.stata.reghdfe",
+    "note": "Firm FE nested within cluster(firm) is redundant for DoF; fixest ssc() frozen, linearmodels does not reproduce (different DoF)"
+  }
 }

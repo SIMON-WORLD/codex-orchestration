@@ -1,5 +1,4 @@
-# P7 panel_fe benchmark runner (fixest::feols).
-# Reads the frozen benchmark CSV + manifest; writes a machine-readable JSON.
+# P7 panel_fe benchmark runner (fixest::feols) - explicit ssc, records SSC values.
 suppressPackageStartupMessages(library(fixest))
 suppressPackageStartupMessages(library(jsonlite))
 
@@ -13,7 +12,9 @@ man <- fromJSON(MAN, simplifyVector = FALSE)
 
 df <- read.csv(CSV)
 
-m <- feols(invest ~ value + capital | firm + year, cluster = ~firm, data = df)
+# Explicit, frozen small-sample-covariance (SSC) convention matching Stata reghdfe.
+SSC <- ssc(K.adj = TRUE, K.fixef = "nonnested", G.adj = TRUE, G.df = "min", K.exact = FALSE)
+m <- feols(invest ~ value + capital | firm + year, cluster = ~firm, data = df, ssc = SSC)
 cv <- coef(m); sv <- se(m)
 coefficients <- as.list(cv); names(coefficients) <- names(cv)
 std_errors <- as.list(sv); names(std_errors) <- names(sv)
@@ -35,11 +36,13 @@ result <- list(
   inference_configuration = list(
     clustering = "one-way cluster=firm",
     estimator = "fixest::feols (absorbed firm+year FE)",
-    finite_sample_correction = "AER/Stata-style cluster-robust (matches Stata vce(cluster))",
+    finite_sample_correction = "AER/Stata-style cluster-robust",
     absorbed_fe_dof = "firm + year absorbed via fixef",
     covariance_definition = "fixest clustered (cluster=~firm)",
     covariance_family = "aes_cluster",
-    note = "fixest clustered SE matches Stata reghdfe exactly"
+    is_canonical_definition = TRUE,
+    ssc = list(K.adj = TRUE, K.fixef = "nonnested", G.adj = TRUE, G.df = "min", K.exact = FALSE),
+    note = "explicit ssc() frozen; fixest clustered SE == Stata reghdfe"
   ),
   native_default = list(
     cov_type = "standard (iid, no cluster)",

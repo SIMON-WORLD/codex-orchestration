@@ -54,6 +54,19 @@ result = {
         "finite_sample_correction": "linearmodels clustered default",
         "absorbed_fe_dof": "entity_effects + time_effects absorbed",
         "covariance_definition": "cluster-robust (cov_type=clustered, cluster_entity=True)",        "covariance_family": "linearmodels_clustered",
+        "is_canonical_definition": False,
+        "df_adjustment": {
+          "num_effects": 2,
+          "_determine_df_adjustment": "returns True (debias) for two-way FE; does NOT treat entity FE nested in cluster as redundant",
+          "tested_configs_value_se": {
+            "default": 0.010565288935,
+            "auto_df=False": 0.010565288935,
+            "count_effects=False": 0.009760951068,
+            "debiased=False": 0.010503321897,
+            "debiased=False,group_debias=True": 0.011043760029
+          },
+          "note": "no documented linearmodels config reproduces the reghdfe/fixest nested-in-cluster DoF convention; default value_se 0.0105653 vs AER 0.0108244 (~2.4%)"
+        },
         "note": "canonical run uses cov_type=clustered, cluster_entity=True",
     },
     "native_default": native_default(),
@@ -63,5 +76,8 @@ os.makedirs(os.path.dirname(out), exist_ok=True)
 with open(out, "w") as f:
     json.dump(result, f, indent=2)
 print(json.dumps(result, indent=2))
+
+
+
 
 

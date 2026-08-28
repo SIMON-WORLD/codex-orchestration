@@ -1,7 +1,8 @@
 {
   "implementation_id": "panel.fe.stata.reghdfe",
-  "runtime_version": "StataNow19",
-  "package_version": "reghdfe",
+  "runtime_version": "19.5",
+  "package_version": "unknown",
+  "package_version_evidence": "Stata e(version)='.' ; reghdfe does not expose a reliable version via e() (ado file present)",
   "benchmark_id": "grunfeld_twfe_cluster",
   "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
   "n": 200,
@@ -18,12 +19,23 @@
     "clustering": "one-way cluster=firm",
     "estimator": "reghdfe (absorbed firm+year FE)",
     "finite_sample_correction": "AER/Stata vce(cluster) cluster-robust",
-    "absorbed_fe_dof": "firm + year absorbed (reghdfe)",
+    "absorbed_fe_dof": "firm + year absorbed; firm FE nested within cluster(firm) treated as redundant",
     "covariance_definition": "reghdfe vce(cluster firm)",
     "covariance_family": "aes_cluster",
-    "note": "reghdfe clustered SE matches fixest exactly"
+    "is_canonical_definition": true,
+    "stata_dof_evidence": {
+      "df_m": "2",
+      "df_r": "9",
+      "df_a": "19",
+      "df_a_nested": "10",
+      "dofmethod": "pairwise clusters continuous",
+      "vce": "cluster",
+      "clustvar": "firm"
+    },
+    "note": "firm FE nested in cluster(firm) is redundant for DoF (e_df_a_nested = number of firm levels)"
   },
   "native_default": {
+    "cov_type": "reghdfe_default",
     "coefficients": {
       "value": 0.11771585508260658,
       "capital": 0.35791627307342766
