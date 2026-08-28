@@ -7,6 +7,7 @@ import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildReplicationStamp } from "./build_replication_stamp.mjs";
 import { canonicalJson, hashCanonicalJsonFile, hashRawFile, CANONICAL_HASH_MODE } from "./artifact_hash.mjs";
+import { validateMultipleTesting } from "./multiple_testing_contract.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function arg(name) { const i = process.argv.indexOf("--" + name); return i >= 0 ? process.argv[i + 1] : undefined; }
@@ -21,8 +22,9 @@ const REQUIRED = {
   estimates: ["artifact_id", "artifact_type", "schema_version", "producer_role", "producer_task_id", "estimates"],
   diagnostics: ["artifact_id", "artifact_type", "schema_version", "producer_role", "producer_task_id", "diagnostics"],
   replication_stamp: ["schema_version", "model_count", "estimate_count", "model_ids", "estimate_ids", "models", "source_hashes", "source_hash_mode"],
+  multiple_testing: ["artifact_id", "artifact_type", "families"],
 };
-const EXPECTED_TYPE = { data_manifest: "data_manifest", variable_dictionary: "variable_dictionary", sample_flow: "sample_flow", descriptive_facts: "descriptive_facts", model_registry: "model_registry", estimates: "estimates", diagnostics: "diagnostics" };
+export const EXPECTED_TYPE = { data_manifest: "data_manifest", variable_dictionary: "variable_dictionary", sample_flow: "sample_flow", descriptive_facts: "descriptive_facts", model_registry: "model_registry", estimates: "estimates", diagnostics: "diagnostics", multiple_testing: "multiple_testing" };
 const MODEL_REQUIRED = ["model_id", "capability_id", "implementation_id", "runtime", "sample_id", "outcome", "n", "code_ref", "result_ref"];
 const ESTIMATE_REQUIRED = ["estimate_id", "model_id", "term", "estimate", "std_error", "ci_lower", "ci_upper", "p_value", "n"];
 const VARIABLE_REQUIRED = ["name", "definition"];
@@ -99,6 +101,8 @@ export function validateArtifacts(bundle, paths) {
     }
   }
   for (const d of dg.diagnostics) if (d.model_id && !modelMap.has(d.model_id)) errs.push(`diagnostics: ${d.diagnostic_id} 指向不存在 model ${d.model_id}`);
+  // multiple-testing family completeness（estimate 声明的 family 必须全员覆盖）
+  if (bundle.multiple_testing) errs.push(...validateMultipleTesting(es.estimates, bundle.multiple_testing));
   if (paths?.model_registry && paths?.estimates) {
     const sourceHashes = { model_registry: hashCanonicalJsonFile(paths.model_registry), estimates: hashCanonicalJsonFile(paths.estimates) };
     if (paths.diagnostics) sourceHashes.diagnostics = hashCanonicalJsonFile(paths.diagnostics);
@@ -113,7 +117,7 @@ if (isMain) {
   const bundleDir = arg("bundle");
   if (!bundleDir) { console.error("用法：node core/validate_artifacts.mjs --bundle <dir>"); process.exit(2); }
   const dir = isAbsolute(bundleDir) ? bundleDir : join(root, bundleDir);
-  const files = ["data_manifest.json", "variable_dictionary.json", "sample_flow.json", "descriptive_facts.json", "model_registry.json", "estimates.json", "diagnostics.json", "replication_stamp.json", "artifact_manifest.json"];
+  const files = ["data_manifest.json", "variable_dictionary.json", "sample_flow.json", "descriptive_facts.json", "model_registry.json", "estimates.json", "diagnostics.json", "replication_stamp.json", "artifact_manifest.json", "multiple_testing.json"];
   const bundle = { paths: {} };
   for (const name of files) {
     const full = `${dir}/${name}`;
@@ -126,3 +130,5 @@ if (isMain) {
   if (errs.length) { console.error("validate_artifacts FAIL："); for (const e of errs) console.error("  - " + e); process.exit(1); }
   console.log("OK: artifacts 一致（valid）");
 }
+
+

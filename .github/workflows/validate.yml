@@ -36,6 +36,12 @@ jobs:
         run: node tests/schema.spec.mjs
       - name: Validate role pack schema
         run: node core/validate_role_scope.mjs
+      - name: Run Issue #5 adversarial regression
+        run: node tests/regression.issue5.spec.mjs
+      - name: Run Issue #6 adversarial regression
+        run: node tests/regression.issue6.spec.mjs
+      - name: Run schema consistency spec
+        run: node tests/schema_consistency.spec.mjs
       - name: Validate valid artifact bundle
         run: node core/validate_artifacts.mjs --bundle tests/fixtures/artifacts/valid
       - name: Run artifact / provenance spec
@@ -55,6 +61,7 @@ jobs:
             echo "::error::发现疑似敏感文件入库。"
             exit 1
           fi
+
 
 
 

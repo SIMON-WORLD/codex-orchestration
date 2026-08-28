@@ -1,0 +1,5 @@
+{ "$schema":"https://json-schema.org/draft/2020-12/schema", "$id":"artifact.multiple_testing.schema.json", "title":"multiple_testing（顶层，oneOf 按 artifact_type）", "type":"object", "$defs":{
+ "common":{ "type":"object", "required":["artifact_id","artifact_type"], "properties":{ "artifact_id":{"type":"string"}, "artifact_type":{"type":"string"}, "schema_version":{"type":"string"}, "producer_role":{"type":"string"}, "producer_task_id":{"type":"string"} } },
+ "multiple_testing":{ "type":"object", "allOf":[{"$ref":"#/$defs/common"}], "properties":{ "artifact_type":{"const":"multiple_testing"}, "families":{"type":"array","items":{"type":"object","required":["family_id","member_estimate_ids","adjusted_results"],"properties":{ "family_id":{"type":"string"}, "method":{"type":"string"}, "member_estimate_ids":{"type":"array","items":{"type":"string"}}, "adjusted_results":{"type":"array","items":{"type":"object","required":["estimate_id"],"properties":{"estimate_id":{"type":"string"},"adjusted_p_value":{"type":"number"}}}} }}} }, "required":["artifact_type","families"] }
+},
+ "oneOf":[ {"$ref":"#/$defs/multiple_testing"} ] }
