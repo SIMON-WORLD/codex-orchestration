@@ -1,0 +1,388 @@
+{
+  "source_map_version": "1.0",
+  "schema_version": "1.0",
+  "generated_for": "domains/economics (research workflow upstream sources)",
+  "note": "区分：'source 明确支持' vs '我们的工程抽象'。每项给出 URL / 可用做法 / 不应照搬 / 可支持的 Role/Capability/Policy/Artifact。",
+  "sources": [
+    {
+      "source_id": "src-dime-data-handbook",
+      "name": "World Bank DIME Analytics Data Handbook",
+      "url": "https://worldbank.github.io/dime-data-handbook/",
+      "source_type": "handbook",
+      "authority": "World Bank DIME Analytics",
+      "maturity": "high",
+      "phases": ["data management", "reproducibility", "documentation", "research lifecycle"],
+      "adopt": [
+        "master do-file / one-entry-point pipeline",
+        "project folder structure (data_raw / data_working / data_final / code / output)",
+        "data documentation + variable dictionary",
+        "reproducibility workflow (logging, versioning, checksums)",
+        "data publication standards"
+      ],
+      "not_copy": [
+        "development-project-specific templates/field-work assumptions",
+        "World Bank internal naming conventions"
+      ],
+      "supports": {
+        "roles": ["data", "empirical", "review"],
+        "capabilities": ["economics.data.validation"],
+        "policies": ["sample handling / data hygiene", "decision_log"],
+        "artifacts": ["data_manifest", "variable_dictionary", "sample_flow", "descriptive_facts", "decision_log"]
+      },
+      "evidence": "DIME Data Handbook resources page links DIME Analytics Research Standards; published as World Bank 'Development Research in Practice' text."
+    },
+    {
+      "source_id": "src-dime-standards",
+      "name": "World Bank DIME Research Standards",
+      "url": "https://github.com/worldbank/dime-standards",
+      "source_type": "institutional_standard",
+      "authority": "World Bank DIME Analytics",
+      "maturity": "high",
+      "phases": ["research ethics", "transparency", "reproducibility", "data security", "data publication"],
+      "adopt": [
+        "Pillar 3 - Research Reproducibility guidelines",
+        "reproducibility checklists (data/code availability, master scripts, logs)",
+        "data publication / microdata catalog checklist"
+      ],
+      "not_copy": [
+        "DIME-specific procurement / administrative processes"
+      ],
+      "supports": {
+        "roles": ["data", "review"],
+        "capabilities": ["economics.data.validation"],
+        "policies": ["reproducibility / DCAS"],
+        "artifacts": ["replicability_check", "decision_log"]
+      },
+      "evidence": "dime-standards README; Pillar 3 - Research Reproducibility directory under dime-research-standards."
+    },
+    {
+      "source_id": "src-aea-data-editor",
+      "name": "AEA Data Editor / Data & Code Availability Policy",
+      "url": "https://aeadataeditor.github.io/",
+      "source_type": "institutional_standard",
+      "authority": "American Economic Association Data Editor",
+      "maturity": "high",
+      "phases": ["replication package", "submission", "review", "reproducibility check", "deposit"],
+      "adopt": [
+        "Data and Code Availability Policy (DCAF)",
+        "replication to local / remote packages",
+        "pre-publication reproducibility check",
+        "openICPSR AEA Data and Code Repository"
+      ],
+      "not_copy": [
+        "journal-specific manuscript limits / word-count rules (per-journal)",
+        "AEA editorial triage procedures out of scope"
+      ],
+      "supports": {
+        "roles": ["review", "writing"],
+        "capabilities": [],
+        "policies": ["reproducibility / DCAS", "output_profile"],
+        "artifacts": ["replicability_check", "replication_stamp"]
+      },
+      "evidence": "aeadataeditor.github.io; Report of the AEA Data Editor; AEA Data & Code Availability Policy."
+    },
+    {
+      "source_id": "src-ssde-template-readme",
+      "name": "Social Science Data Editors Template README",
+      "url": "https://social-science-data-editors.github.io/template_README/",
+      "source_type": "institutional_standard",
+      "authority": "Social Science Data Editors",
+      "maturity": "high",
+      "phases": ["data/code documentation", "replication package"],
+      "adopt": ["README schema for replication packages", "mapping programs to outputs", "requirements/data availability"],
+      "not_copy": ["specific editorial templates unrelated to our artifact schema"],
+      "supports": {
+        "roles": ["review", "data"],
+        "capabilities": [],
+        "policies": ["reproducibility / DCAS"],
+        "artifacts": ["replicability_check", "data_manifest", "replication_stamp"]
+      },
+      "evidence": "Template README used by AEA replication packages; links from aea-de-guidance."
+    },
+    {
+      "source_id": "src-aea-replication-template",
+      "name": "AEA Data Editor replication-template-development",
+      "url": "https://github.com/AEADataEditor/replication-template-development",
+      "source_type": "replication_repo",
+      "authority": "AEA Data Editor",
+      "maturity": "medium",
+      "phases": ["replication package construction", "provenance"],
+      "adopt": ["README structure", "program-to-output mapping", "replication checklist"],
+      "not_copy": ["AEA-specific file naming / journal tools"],
+      "supports": {
+        "roles": ["review"],
+        "capabilities": [],
+        "policies": ["reproducibility / DCAS"],
+        "artifacts": ["replicability_check", "replication_stamp"]
+      },
+      "evidence": "REPLICATION.md instructions; mapping each program/line to outputs."
+    },
+    {
+      "source_id": "src-fixest",
+      "name": "fixest (R) - Fast Fixed-Effects Estimations",
+      "url": "https://github.com/lrberge/fixest",
+      "source_type": "method",
+      "authority": "Laurent Berge et al.",
+      "maturity": "high",
+      "phases": ["FE regression", "DiD / event study", "clustering / small-sample", "IV"],
+      "adopt": [
+        "feols / feglm with fixef absorption",
+        "cluster-robust SE + explicit ssc() small-sample control",
+        "sunab (Sun & Abraham) staggered event-study aggregation",
+        "dof semantics recorded in our panel_fe benchmark"
+      ],
+      "not_copy": ["styling/plotting defaults", "Mata/C internals"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.regression.panel_fe", "economics.causal.did.twfe", "economics.causal.did.staggered"],
+        "policies": ["cluster definition", "FE specification"],
+        "artifacts": ["model_registry", "estimates", "diagnostics"]
+      },
+      "evidence": "CRAN fixest docs; github.com/lrberge/fixest (verified). Our Grunfeld+synthetic benchmarks confirm fixest canonical SE matches an independent reference."
+    },
+    {
+      "source_id": "src-reghdfe",
+      "name": "reghdfe / ivreghdfe (Stata)",
+      "url": "https://github.com/sergiocorreia/reghdfe",
+      "source_type": "method",
+      "authority": "Sergio Correia",
+      "maturity": "high",
+      "phases": ["multi-way FE", "cluster-robust", "IV/GMM", "DoF accounting"],
+      "adopt": [
+        "absorb multi-way FE",
+        "vce(cluster) with nested-in-cluster DoF",
+        "e() evidence captured for provenance",
+        "ivreghdfe for IV with FE"
+      ],
+      "not_copy": ["Stata-only aesthetics / license", "Correia-specific implementation internals"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.regression.panel_fe", "economics.causal.iv"],
+        "policies": ["cluster definition", "FE specification", "nested DoF"],
+        "artifacts": ["model_registry", "estimates", "diagnostics"]
+      },
+      "evidence": "github.com/sergiocorreia/reghdfe (verified); our panel_fe benchmark uses real e(df_a_nested)=10 evidence (AER nested-in-cluster convention)."
+    },
+    {
+      "source_id": "src-did-r",
+      "name": "did (R) - Callaway & Sant'Anna (2021)",
+      "url": "https://github.com/bcallaway11/did",
+      "source_type": "method",
+      "authority": "Brantly Callaway, Pedro H. C. Sant'Anna",
+      "maturity": "high",
+      "phases": ["staggered DiD", "group-time ATT", "event study", "pre-trend"],
+      "adopt": [
+        "CS2021 group-time ATTs",
+        "aggregation schemes (simple/group/event-time)",
+        "parallel-trends pre-test",
+        "balanced-panel composition guards"
+      ],
+      "not_copy": ["method-specific options not aligned to our estimand choices"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.causal.did.staggered"],
+        "policies": ["staggered treatment timing", "comparison-group support"],
+        "artifacts": ["estimates", "diagnostics"]
+      },
+      "evidence": "cran.r-project.org/web/packages/did; github.com/bcallaway11/did (verified). doi:10.1016/j.jeconom.2020.12.001."
+    },
+    {
+      "source_id": "src-csdid-stata",
+      "name": "csdid / drdid (Stata, Rios-Avila et al.)",
+      "url": "https://github.com/friosavila/csdid_drdid",
+      "source_type": "method",
+      "authority": "Fernando Rios-Avila et al.",
+      "maturity": "medium-high",
+      "phases": ["staggered DiD in Stata", "DRDID", "event study"],
+      "adopt": ["csdid / drdid for Stata", "estat event", "comparison-group pre-test"],
+      "not_copy": ["version-specific Stata module install details"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.causal.did.staggered"],
+        "policies": ["estimator choice (cs)"],
+        "artifacts": ["estimates", "diagnostics"]
+      },
+      "evidence": "github.com/friosavila/csdid_drdid (verified); friosavila/stpackages/csdid."
+    },
+    {
+      "source_id": "src-honestdid",
+      "name": "HonestDiD (Rambachan & Roth)",
+      "url": "https://github.com/asheshrambachan/HonestDiD",
+      "source_type": "method",
+      "authority": "Ashesh Rambachan, Jonathan Roth",
+      "maturity": "high",
+      "phases": ["sensitivity to parallel trends", "robust inference"],
+      "adopt": ["sensitivity analysis under bounded parallel-trends violations", "robust confidence sets"],
+      "not_copy": ["specific tuning constants / Mbar defaults as hard rules"],
+      "supports": {
+        "roles": ["empirical", "review"],
+        "capabilities": ["economics.causal.did.staggered"],
+        "policies": ["sensitivity / parallel-trends robustness"],
+        "artifacts": ["diagnostics"]
+      },
+      "evidence": "github.com/asheshrambachan/HonestDiD (verified); Rambachan & Roth (2021)."
+    },
+    {
+      "source_id": "src-rdrobust",
+      "name": "rdrobust / rdpackages",
+      "url": "https://github.com/rdpackages/rdrobust",
+      "source_type": "method",
+      "authority": "Calonico, Cattaneo, Titiunik et al.",
+      "maturity": "high",
+      "phases": ["RDD estimation/inference", "graphics"],
+      "adopt": ["local polynomial RD", "robust bias-corrected inference", "rdplot"],
+      "not_copy": ["RD-specific tuning not made a general gate"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.causal.rdd (future)"],
+        "policies": ["RD bandwidth / local polynomial"],
+        "artifacts": ["estimates", "diagnostics"]
+      },
+      "evidence": "github.com/rdpackages/rdrobust (verified); rdpackages.github.io."
+    },
+    {
+      "source_id": "src-ivreg2",
+      "name": "ivreg2 (Stata, Baum/Schaffer/Stillman)",
+      "url": "https://ideas.repec.org/c/boc/bocode/s456501.html",
+      "source_type": "method",
+      "authority": "Christopher F. Baum, Mark E. Schaffer, Steven Stillman",
+      "maturity": "high",
+      "phases": ["IV/2SLS/GMM", "weak-instrument diagnostics"],
+      "adopt": ["ivreg2 for IV/GMM", "Cragg-Donald / Kleibergen-Paap weak-IV tests"],
+      "not_copy": ["legacy interface details"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.causal.iv", "economics.causal.iv.weak_diagnostics"],
+        "policies": ["weak-instrument diagnostics"],
+        "artifacts": ["diagnostics"]
+      },
+      "evidence": "Baum, Schaffer, Stillman ivreg2 - SSC; verified via Statalist/SSC references."
+    },
+    {
+      "source_id": "src-linearmodels",
+      "name": "linearmodels (Python)",
+      "url": "https://github.com/bashtage/linearmodels",
+      "source_type": "method",
+      "authority": "Kevin Sheppard (bashtage)",
+      "maturity": "high",
+      "phases": ["panel FE", "IV/GMM", "panel covariance"],
+      "adopt": ["PanelOLS with entity/time effects", "cluster-robust cov type", "IV/GMM"],
+      "not_copy": ["default covariance small-sample behavior as an unqualified 'canonical' (documented definitional difference vs reghdfe/fixest)"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.regression.panel_fe", "economics.causal.iv"],
+        "policies": ["cluster definition / FE spec (documented definition difference)"],
+        "artifacts": ["model_registry", "estimates"]
+      },
+      "evidence": "github.com/bashtage/linearmodels (verified). Our panel_fe benchmark: linearmodels 7.0 clustered SE differs ~2.4% from reghdfe/fixest (different nested-in-cluster DoF) -> DEFINITION_DIFFERENCE."
+    },
+    {
+      "source_id": "src-pyfixest",
+      "name": "PyFixest (Python, fixest port)",
+      "url": "https://github.com/py-econometrics/pyfixest",
+      "source_type": "method",
+      "authority": "py-econometrics",
+      "maturity": "medium",
+      "phases": ["high-dimensional FE regression", "DiD"],
+      "adopt": ["fixest-syntax FE regression in Python", "feols / fepois / IV / DiD"],
+      "not_copy": ["fixest-specific internals"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.regression.panel_fe", "economics.causal.did.*"],
+        "policies": ["cluster / FE"],
+        "artifacts": ["model_registry", "estimates"]
+      },
+      "evidence": "github.com/py-econometrics/pyfixest (verified)."
+    },
+    {
+      "source_id": "src-prisma",
+      "name": "PRISMA 2020 systematic review statement",
+      "url": "https://www.prisma-statement.org/",
+      "source_type": "institutional_standard",
+      "authority": "PRISMA group",
+      "maturity": "high",
+      "phases": ["literature search", "screening", "selection", "systematic review reporting"],
+      "adopt": ["PRISMA-style search strategy + screening criteria", "flow diagram / screening log", "eligibility/main coding"],
+      "not_copy": ["clinical/medical reporting format to economics prose"],
+      "supports": {
+        "roles": ["literature_search", "literature_review"],
+        "capabilities": ["economics.literature.search"],
+        "policies": ["search_scope", "screening"],
+        "artifacts": ["literature_search_log", "literature_review"]
+      },
+      "evidence": "PRISMA 2020 statement (Page et al. 2021), prisma-statement.org."
+    },
+    {
+      "source_id": "src-openalex",
+      "name": "OpenAlex scholarly API",
+      "url": "https://developers.openalex.org/",
+      "source_type": "tool",
+      "authority": "OurResearch / OpenAlex",
+      "maturity": "high (canonical scholarly catalog)",
+      "phases": ["literature search", "citation metadata", "DOI/author/year verification"],
+      "adopt": ["works/sources/authors search", "citation metadata verification", "DOI/Crossref cross-check"],
+      "not_copy": ["API-specific result ordering as the single source of truth; needs dedupe"],
+      "supports": {
+        "roles": ["literature_search", "literature_review"],
+        "capabilities": ["economics.literature.search"],
+        "policies": ["citation verification"],
+        "artifacts": ["literature_search_log"]
+      },
+      "evidence": "developers.openalex.org; base URL api.openalex.org."
+    },
+    {
+      "source_id": "src-crossref",
+      "name": "Crossref REST API",
+      "url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+      "source_type": "tool",
+      "authority": "Crossref",
+      "maturity": "high",
+      "phases": ["DOI resolution", "bibliographic metadata"],
+      "adopt": ["DOI -> metadata resolution", "reference verification (volume/issue/pages)"],
+      "not_copy": ["Crossref as sole authority for full-text discovery"],
+      "supports": {
+        "roles": ["literature_review", "review"],
+        "capabilities": ["economics.literature.search"],
+        "policies": ["citation verification"],
+        "artifacts": ["literature_search_log", "replicability_check"]
+      },
+      "evidence": "api.crossref.org; Crossref REST API docs."
+    },
+    {
+      "source_id": "src-aea-style",
+      "name": "AEA journals data & code / publication style",
+      "url": "https://www.aeaweb.org/journals/policies/data-code",
+      "source_type": "institutional_standard",
+      "authority": "American Economic Association",
+      "maturity": "high",
+      "phases": ["manuscript style", "submission", "abstract length", "formatting"],
+      "adopt": ["AER/QJE/JPE-style abstract length & organization", "structured introduction/results/replication"],
+      "not_copy": ["journal-specific formatting as a hard gate; keep output_profile late-binding"],
+      "supports": {
+        "roles": ["writing", "review"],
+        "capabilities": [],
+        "policies": ["output_profile (journal-neutral scientific execution)"],
+        "artifacts": ["manuscript"]
+      },
+      "evidence": "AEA journals data & code policy page."
+    },
+    {
+      "source_id": "src-statsmodels",
+      "name": "statsmodels (Python)",
+      "url": "https://www.statsmodels.org/",
+      "source_type": "method",
+      "authority": "statsmodels project",
+      "maturity": "high",
+      "phases": ["OLS/GLM", "cluster-robust inference", "multiple testing"],
+      "adopt": ["OLS + clustered SE", "statsmodels multiple-testing (multipletests)"],
+      "not_copy": ["not a panel-FE within estimator; use linearmodels/pyfixest for FE"],
+      "supports": {
+        "roles": ["empirical"],
+        "capabilities": ["economics.regression.panel_fe (base OLS)", "economics.stat.testing.multcomp"],
+        "policies": ["multiple-testing correction"],
+        "artifacts": ["estimates", "diagnostics"]
+      },
+      "evidence": "statsmodels.org; used in multiple-testing contract benchmark."
+    }
+  ]
+}
