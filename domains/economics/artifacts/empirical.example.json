@@ -1,0 +1,1 @@
+{ "artifact_id":"MODEL_REG_EX", "artifact_type":"model_registry", "schema_version":"1.0", "producer_role":"empirical", "producer_task_id":"task_ex", "inputs":["DATA_MANIFEST_EX"], "code_ref":"model.py", "data_ref":"panel.csv", "models":[] }

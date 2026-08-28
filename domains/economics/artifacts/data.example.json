@@ -1,0 +1,1 @@
+{ "artifact_id":"DATA_MANIFEST_EX", "artifact_type":"data_manifest", "schema_version":"1.0", "producer_role":"data", "producer_task_id":"task_ex", "inputs":[], "code_ref":"prep.py", "data_ref":"panel.csv", "dataset_id":"DATASET_EX", "observation_count":57600, "variable_count":53, "dataset_sha256":null, "source_refs":[], "parent_dataset_refs":[] }

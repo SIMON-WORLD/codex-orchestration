@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "model_count": 1,
+  "estimate_count": 1,
+  "model_ids": [
+    "MODEL_001"
+  ],
+  "estimate_ids": [
+    "EST_001"
+  ],
+  "models": [
+    {
+      "model_id": "MODEL_001",
+      "n": 100,
+      "estimate_ids": [
+        "EST_001"
+      ],
+      "critical_estimates": [
+        {
+          "estimate_id": "EST_001",
+          "term": "x",
+          "estimate": 1.25,
+          "std_error": 0.2
+        }
+      ]
+    }
+  ],
+  "source_hashes": {
+    "model_registry": "d2923224bbd6a0934686ba4aca3bfca0415587db2a32d9b22b6a0435eab2504a",
+    "estimates": "3b1c91b33ec702ac6721e5f4579e07a9dba961b92690401e0cd56347c3bf1aab",
+    "diagnostics": "d121c1925efee9c3c6e97f15208d7970d15087bb87a65f62dbbd99a92ae6956d"
+  }
+}

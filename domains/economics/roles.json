@@ -12,7 +12,7 @@
         "verify citation metadata (DOI/author/journal/year)",
         "produce a structured search log and record sources"
       ],
-      "authority": { "may_decide": ["search_scope", "keyword_strings"], "must_escalate": [] },
+      "authority": { "may_decide": ["keyword_strings"], "must_escalate": [] },
       "inputs": ["research_question"],
       "outputs": ["literature_search_log"],
       "capability_scope": ["economics.literature.*"],
@@ -46,11 +46,11 @@
       "responsibility": [
         "build the analysis dataset from the agreed sources",
         "clean, validate, and construct variables per the approved data design",
-        "emit a data manifest, variable dictionary, sample-flow and decision log"
+        "emit structured machine-readable artifacts (data_manifest / variable_dictionary / sample_flow / descriptive_facts / decision_log) as the single source of truth; data_summary is only the presentation layer"
       ],
       "authority": { "may_decide": ["validation_rules"], "must_escalate": ["unit_of_analysis", "treatment_definition", "sample_exclusion", "material_variable_definition_changes"] },
       "inputs": ["research_question"],
-      "outputs": ["data_summary", "decision_log"],
+      "outputs": ["data_manifest", "variable_dictionary", "sample_flow", "descriptive_facts", "decision_log", "data_summary"],
       "capability_scope": ["economics.data.*"],
       "depends_on": [],
       "target": "project",
@@ -66,11 +66,11 @@
         "run diagnostics required by the selected capabilities",
         "produce structured empirical outputs (estimates, diagnostics, stamp)",
         "report deviations from the design",
-        "maintain decision and provenance records"
+        "maintain decision and provenance records; replication_stamp is produced by a deterministic builder (core/build_replication_stamp.mjs) from model_registry/estimates/diagnostics — never hand-written"
       ],
       "authority": { "may_decide": [], "must_escalate": ["identification_strategy", "treatment_definition", "clustering_level", "sample_exclusion", "material_specification_changes"] },
       "inputs": ["research_question", "data_summary", "decision_log"],
-      "outputs": ["empirical_results", "decision_log", "replication_stamp"],
+      "outputs": ["model_registry", "estimates", "diagnostics", "empirical_results", "decision_log"],
       "capability_scope": ["economics.regression.*", "economics.causal.*", "economics.stat.*"],
       "depends_on": ["data"],
       "target": "project",
@@ -132,3 +132,5 @@
     }
   ]
 }
+
+

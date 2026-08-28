@@ -68,9 +68,12 @@ check("9b 下游 visualize/writing/review 阻塞", eff9.visualize === "blocked" 
 const r11 = spawnSync(process.execPath, [join(root, "core/scaffold_role_team.mjs"), "--domain", "economics", "--roles", "domains/economics/roles.json", "--study", "domains/economics/study_design.example.json", "--out", join(root, "role-team-out/_p3_e2e.json")], { encoding: "utf8" });
 if (r11.status === 0) {
   const plan = JSON.parse(readFileSync(join(root, "role-team-out/_p3_e2e.json"), "utf8"));
-  check("11a v1.3 literature_search ready+dispatch", plan.roles.literature_search.resolution === "ready" && plan.roles.literature_search.dispatch === true);
-  check("11b v1.3 empirical blocked+no dispatch", plan.roles.empirical.resolution === "blocked" && plan.roles.empirical.dispatch === false);
-  check("11c v1.3 visualize blocked（依赖 empirical）", plan.roles.visualize.resolution === "blocked");
+  check("11a v1.3 literature_search ready+dispatch", plan.roles.literature_search.resolution === "ready" && plan.roles.literature_search.dispatch_allowed === true);
+  check("11b v1.3 empirical blocked+no dispatch", plan.roles.empirical.resolution === "blocked" && plan.roles.empirical.dispatch_allowed === false);
+  check("11c v1.3 visualize blocked（依赖 empirical）", plan.roles.visualize.resolution === "blocked");  const stageOf = (plan, id) => plan.stages.findIndex((s) => s.roles.includes(id));
+  // 12：DAG 分离 —— literature_review 虽 policy-ready(dispatch_allowed)，但 stage 晚于 literature_search，不会提前派发
+  check("12a literature_search 与 literature_review 均 dispatch_allowed", plan.roles.literature_search.dispatch_allowed === true && plan.roles.literature_review.dispatch_allowed === true);
+  check("12b literature_review stage 晚于 literature_search（不提前派发）", stageOf(plan, "literature_review") > stageOf(plan, "literature_search"), `ls=${stageOf(plan,"literature_search")} lr=${stageOf(plan,"literature_review")}`);
 } else {
   check("11 v1.3 scaffold exit 0", false, `status=${r11.status}`);
 }
@@ -80,6 +83,13 @@ check("10 legacy roles.research.json compat exit 0", r10.status === 0, `status=$
 const legacy = JSON.parse(readFileSync(join(root, "role-team-out/_legacy_check.json"), "utf8"));
 check("10b legacy 标记 legacy_v1_2", legacy.meta.compatibility_mode === "legacy_v1_2");
 
+// 13：literature_search authority 与 capability decision_requirement 不冲突
+const litRole = roles.find((r) => r.id === "literature_search");
+const litCap = registry["economics.literature.search"];
+check("13a literature_search.may_decide 不含 search_scope", !(litRole.authority.may_decide || []).includes("search_scope"));
+check("13b keyword_strings 保留在 may_decide", (litRole.authority.may_decide || []).includes("keyword_strings"));
+check("13c capability 的 decision_requirements 含 search_scope（由 study design 提供）", (litCap.decision_requirements || []).includes("search_scope"));
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
 

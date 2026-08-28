@@ -312,7 +312,7 @@ if (isV13Pack) {
   for (const r of roles) {
     const sel = study.selected_capabilities?.[r.id] || [];
     const upstreamSpec = buildUpstreamSpec(r, inject, byId);
-    rolePlan[r.id] = { id: r.id, name: r.name, target: r.target || "projectless", resolution: eff[r.id] || "ready", dispatch: (eff[r.id] || "ready") === "ready", selected_capabilities: sel, prompt: buildV13Prompt(r, sel, registry, preflight?.capabilities, ctx, question), expected_outputs: r.outputs || [], upstream_spec: upstreamSpec };
+    rolePlan[r.id] = { id: r.id, name: r.name, target: r.target || "projectless", resolution: eff[r.id] || "ready", dispatch_allowed: (eff[r.id] || "ready") === "ready", selected_capabilities: sel, prompt: buildV13Prompt(r, sel, registry, preflight?.capabilities, ctx, question), expected_outputs: r.outputs || [], upstream_spec: upstreamSpec };
   }
 } else {
   for (const r of roles) {
@@ -344,3 +344,4 @@ if (isV13Pack && eff) {
 
 const outPath = arg("out") || "role-team-out/plan.json";
 if (!hasFlag("dry-run")) { const abs = isAbsolute(outPath) ? outPath : join(root, outPath); mkdirSync(dirname(abs), { recursive: true }); writeFileSync(abs, JSON.stringify(out, null, 2) + "\n", "utf8"); console.log(`\n已写入 ${outPath}`); } else { console.log("\n--dry-run：未写文件。"); }
+
