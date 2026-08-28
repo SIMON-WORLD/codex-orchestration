@@ -1,0 +1,38 @@
+{
+  "implementation_id": "panel.fe.python.linearmodels",
+  "runtime_version": "3.14.3",
+  "package_version": "7.0",
+  "benchmark_id": "grunfeld_twfe_cluster",
+  "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+  "n": 200,
+  "cluster_count": 10,
+  "coefficients": {
+    "value": 0.11771585508260647,
+    "capital": 0.3579162730734277
+  },
+  "std_errors": {
+    "value": 0.010565288935392969,
+    "capital": 0.04670288962356007
+  },
+  "inference_configuration": {
+    "clustering": "one-way cluster=firm",
+    "estimator": "PanelOLS within (entity+time effects absorbed)",
+    "finite_sample_correction": "linearmodels clustered default",
+    "absorbed_fe_dof": "entity_effects + time_effects absorbed",
+    "covariance_definition": "cluster-robust (cov_type=clustered, cluster_entity=True)",
+    "covariance_family": "linearmodels_clustered",
+    "note": "canonical run uses cov_type=clustered, cluster_entity=True"
+  },
+  "native_default": {
+    "cov_type": "unadjusted",
+    "coefficients": {
+      "value": 0.11771585508260647,
+      "capital": 0.3579162730734277
+    },
+    "std_errors": {
+      "value": 0.013751283003648227,
+      "capital": 0.022719010882572513
+    },
+    "n": 200
+  }
+}

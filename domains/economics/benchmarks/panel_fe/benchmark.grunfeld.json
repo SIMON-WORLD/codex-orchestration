@@ -1,0 +1,48 @@
+{
+  "benchmark_id": "grunfeld_twfe_cluster",
+  "capability_id": "economics.regression.panel_fe",
+  "dataset": {
+    "name": "grunfeld",
+    "source": "R package plm, dataset Grunfeld (public, 10 firms, 1935-1954)",
+    "path": "grunfeld.csv",
+    "checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "hash_mode": "text_file_sha256_lf",
+    "n": 200,
+    "firms": 10,
+    "years": [1935, 1954]
+  },
+  "specification": {
+    "outcome": "invest",
+    "regressors": ["value", "capital"],
+    "fixed_effects": ["firm", "year"],
+    "cluster": "firm",
+    "model": "invest_it = b1*value_it + b2*capital_it + firm FE + year FE + error_it",
+    "estimator": "within (absorbed) two-way fixed effects"
+  },
+  "expected_sample": {
+    "n": 200,
+    "cluster_count": 10,
+    "dropped_observations": 0
+  },
+  "implementations": [
+    {
+      "implementation_id": "panel.fe.python.linearmodels",
+      "runtime": "python",
+      "tool": "linearmodels PanelOLS",
+      "verification_status": "experimental"
+    },
+    {
+      "implementation_id": "panel.fe.r.fixest",
+      "runtime": "r",
+      "tool": "fixest::feols",
+      "verification_status": "reference"
+    },
+    {
+      "implementation_id": "panel.fe.stata.reghdfe",
+      "runtime": "stata",
+      "tool": "reghdfe",
+      "verification_status": "reference"
+    }
+  ],
+  "note": "Cannot write verified/tested: benchmark is a frozen real-dataset cross-engine check, not yet a verified gate."
+}

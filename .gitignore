@@ -19,3 +19,7 @@ pypi_token.txt
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# P7 benchmark intermediates
+domains/economics/benchmarks/panel_fe/results/stata_raw.txt
+

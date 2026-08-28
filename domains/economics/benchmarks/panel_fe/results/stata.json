@@ -1,0 +1,37 @@
+{
+  "implementation_id": "panel.fe.stata.reghdfe",
+  "runtime_version": "StataNow19",
+  "package_version": "reghdfe",
+  "benchmark_id": "grunfeld_twfe_cluster",
+  "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+  "n": 200,
+  "cluster_count": 10,
+  "coefficients": {
+    "value": 0.11771585508260658,
+    "capital": 0.35791627307342766
+  },
+  "std_errors": {
+    "value": 0.01082442947686367,
+    "capital": 0.0478483965925891
+  },
+  "inference_configuration": {
+    "clustering": "one-way cluster=firm",
+    "estimator": "reghdfe (absorbed firm+year FE)",
+    "finite_sample_correction": "AER/Stata vce(cluster) cluster-robust",
+    "absorbed_fe_dof": "firm + year absorbed (reghdfe)",
+    "covariance_definition": "reghdfe vce(cluster firm)",
+    "covariance_family": "aes_cluster",
+    "note": "reghdfe clustered SE matches fixest exactly"
+  },
+  "native_default": {
+    "coefficients": {
+      "value": 0.11771585508260658,
+      "capital": 0.35791627307342766
+    },
+    "std_errors": {
+      "value": 0.013751283003648225,
+      "capital": 0.022719010882572516
+    },
+    "n": 200
+  }
+}
