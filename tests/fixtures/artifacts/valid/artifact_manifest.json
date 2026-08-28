@@ -3,35 +3,43 @@
   "artifacts": [
     {
       "path": "data_manifest.json",
-      "sha256": "8c172eb92d82ff6b8a529537e1f8df4251c0f41c60142fb8ad372ea99982d391"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "4753800f27b65df95697f3dabc81defe9569c91cb563e21721754261c5008c70"
     },
     {
       "path": "variable_dictionary.json",
-      "sha256": "562b9fd20cc55e983b09a312fd1c781986e47d8f6ac90d6d38477ce3402abdd1"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "ef7ea6ad3ee4643f24bf1613b12a6eaef95a303fafb403cd436c6013442ac736"
     },
     {
       "path": "sample_flow.json",
-      "sha256": "d0bc949b98ba7e2ec41004d342943ee4d5102d0f83a687ba0e3fc77e0153a473"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "60e25de2b9165d999979ad1b9aa36e4964ce85c6d39e84d6a58554429682bf45"
     },
     {
       "path": "descriptive_facts.json",
-      "sha256": "24466715dc54d8fc033c391979cabf89473ee85f107b3a6b218a446c218a0f0b"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "9962ea64e7095d19b70a0577bfdb92a23a095883926945c6c9f5ff71cc5202d0"
     },
     {
       "path": "model_registry.json",
-      "sha256": "d2923224bbd6a0934686ba4aca3bfca0415587db2a32d9b22b6a0435eab2504a"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "4f048fc2896fed8173cdbf131077d0188dadee5e660cd4a00987c7acfede6aff"
     },
     {
       "path": "estimates.json",
-      "sha256": "3b1c91b33ec702ac6721e5f4579e07a9dba961b92690401e0cd56347c3bf1aab"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "2fe07cfbfbfadd12f579fa637b21b70bdc6e63f13a233ef689926cf381f9c791"
     },
     {
       "path": "diagnostics.json",
-      "sha256": "d121c1925efee9c3c6e97f15208d7970d15087bb87a65f62dbbd99a92ae6956d"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "1ed9e8f1356f05fb162b059167dade23698c97fb0c116d3cc872b427bc9006a8"
     },
     {
       "path": "replication_stamp.json",
-      "sha256": "142b9d0ffa57fcaceeaf7c3de218b1e40456578078b1b4c9a4439cba60477c5d"
+      "hash_mode": "canonical_json_sha256_v1",
+      "sha256": "3fa324a378127852694310f8e973dcfcda8f1d0aee1debd05e227b6e1fcfcb54"
     }
   ]
 }

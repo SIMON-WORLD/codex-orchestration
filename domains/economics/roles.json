@@ -64,7 +64,7 @@
       "responsibility": [
         "execute the approved empirical design",
         "run diagnostics required by the selected capabilities",
-        "produce structured empirical outputs (estimates, diagnostics, stamp)",
+        "produce structured empirical outputs (model_registry, estimates, diagnostics)",
         "report deviations from the design",
         "maintain decision and provenance records; replication_stamp is produced by a deterministic builder (core/build_replication_stamp.mjs) from model_registry/estimates/diagnostics — never hand-written"
       ],
@@ -132,5 +132,6 @@
     }
   ]
 }
+
 
 

@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateArtifacts } from "../core/validate_artifacts.mjs";
 import { buildReplicationStamp } from "../core/build_replication_stamp.mjs";
+import { canonicalJson, hashCanonicalJsonObject } from "../core/artifact_hash.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const VALID = join(root, "tests/fixtures/artifacts/valid");
 const TMP = join(root, "role-team-out/artifact_tests");
@@ -90,10 +91,41 @@ const esD = JSON.parse(readFileSync(join(VALID, "estimates.json"), "utf8")).esti
 const h1 = { model_registry: "a", estimates: "b", diagnostics: "c" };
 const s1 = JSON.stringify(buildReplicationStamp(md, esD, h1));
 const s2 = JSON.stringify(buildReplicationStamp(md, esD, h1));
-check("11 builder 同输入两次 -> deterministic", s1 === s2);
+check("11 builder 同输入两次 -> deterministic", s1 === s2);// --- P4.1: canonical hash 跨平台 / 契约 ---
+// 12 LF vs CRLF -> same hash
+const obj = { a: 1, b: 2 };
+check("12 LF vs CRLF 同 JSON -> 同 hash", hashCanonicalJsonObject(JSON.parse("{\"a\":1,\"b\":2}\r\n")) === hashCanonicalJsonObject(JSON.parse("{\"a\":1,\"b\":2}\n")));
+// 13 indentation -> same
+check("13 不同缩进 -> 同 hash", hashCanonicalJsonObject(JSON.parse("{\n  \"a\": 1,\n  \"b\": 2\n}")) === hashCanonicalJsonObject(obj));
+// 14 key order -> same
+check("14 对象 key 顺序不同 -> 同 hash", hashCanonicalJsonObject(obj) === hashCanonicalJsonObject({ b: 2, a: 1 }));
+// 15 value change -> diff
+check("15 真实 value 改变 -> 异 hash", hashCanonicalJsonObject({ a: 1, b: 2 }) !== hashCanonicalJsonObject({ a: 1, b: 3 }));
+// 16 stamp 仅 reformat/key-order -> PASS
+let d16 = caseDir("case16");
+{ const p = join(d16, "replication_stamp.json"); const o = JSON.parse(readFileSync(p, "utf8")); writeFileSync(p, JSON.stringify({ source_hash_mode: o.source_hash_mode, schema_version: o.schema_version, model_count: o.model_count, estimate_count: o.estimate_count, model_ids: o.model_ids, estimate_ids: o.estimate_ids, models: o.models, source_hashes: o.source_hashes }) + "\n", "utf8"); }
+expect("16 stamp reformat/key-order -> PASS", d16, false);
+// 17 stamp 1.25 -> 1.24 -> FAIL
+let d17 = caseDir("case17");
+rmSync(join(d17, "artifact_manifest.json"), { force: true });
+edit(d17, "replication_stamp.json", (s) => { s.models[0].critical_estimates[0].estimate = 1.24; });
+expect("17 stamp estimate 1.25->1.24 -> FAIL", d17, true);
+// 18 artifact_type 错误 -> FAIL
+let d18 = caseDir("case18");
+edit(d18, "data_manifest.json", (m) => { m.artifact_type = "model_registry"; });
+expect("18 artifact_type 错误 -> FAIL", d18, true);
+// 19 model 缺关键字段 -> FAIL
+let d19 = caseDir("case19");
+edit(d19, "model_registry.json", (m) => { delete m.models[0].result_ref; });
+expect("19 model 缺关键字段 -> FAIL", d19, true);
+// 20 estimate 缺 required numeric -> FAIL
+let d20 = caseDir("case20");
+edit(d20, "estimates.json", (e) => { delete e.estimates[0].std_error; });
+expect("20 estimate 缺 numeric -> FAIL", d20, true);
 
 function check(name, cond) { if (cond) { console.log(`  ✅ ${name}`); pass++; } else { console.log(`  ❌ ${name}`); fail++; } }
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
 
