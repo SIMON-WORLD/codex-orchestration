@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SIMON-WORLD/codex-orchestration/blob/main/domains/economics/study_design.schema.json",
+  "title": "Economics study_design contract v1",
+  "description": "Contract produced by the Economics Research Director (domain-level scientific controller) and consumed by the Core Coordinator. Structural contract only: it validates shape/enum/registry membership. It does NOT resolve capabilities, decide unresolved scientific questions, or gate admission.",
+  "type": "object",
+  "required": ["study_id", "domain", "execution_context", "selected_capabilities"],
+  "properties": {
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.:-]*$",
+      "description": "Unique stable study identifier."
+    },
+    "domain": {
+      "type": "string",
+      "const": "economics",
+      "description": "Domain pack id. Only 'economics' is valid for this contract."
+    },
+    "execution_context": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["production", "test"],
+          "description": "Execution mode recognized by the resolver. 'production' enforces strict admission; 'test' allows the test-mode policy."
+        },
+        "allow_experimental": { "type": "boolean", "description": "Whether test/experimental implementations may be admitted in non-production modes." },
+        "preferred_runtimes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Run-level runtime preference (stata/r/python), advisory only."
+        },
+        "approved_overrides": {
+          "type": "array",
+          "items": { "type": "object" },
+          "description": "Run-level explicit approvals (capability + implementation). Never bypasses high-risk production verified-only admission."
+        },
+        "output_profile": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "selected_capabilities": {
+      "type": "object",
+      "description": "Mapping role id -> array of capability ids (resolver-compatible representation).",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "minItems": 1
+      }
+    },
+    "decisions": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Structured scientific decisions. Method-specific fields (e.g. instrument, family_definition) are NOT globally required; they are capability/precondition-specific."
+    },
+    "preconditions": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Structured machine-checkable / manual preconditions (e.g. design.panel, design.treatment_timing)."
+    },
+    "manual_validations": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Structured manual-validated flags (e.g. instrument_exclusion_argued)."
+    }
+  },
+  "additionalProperties": true
+}
