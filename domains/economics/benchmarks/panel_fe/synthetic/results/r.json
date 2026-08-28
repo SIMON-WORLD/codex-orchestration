@@ -1,0 +1,46 @@
+{
+  "implementation_id": "panel.fe.r.fixest",
+  "runtime_version": "R 4.5.2",
+  "package_version": "fixest 0.13.2",
+  "benchmark_id": "panel_fe_synthetic",
+  "dataset_checksum": "28aaa16fcdc5c0f7c07f57393b53be3a706ddf83474d3980d51790e8726744eb",
+  "n": 25,
+  "cluster_count": 5,
+  "coefficients": {
+    "value": 2.0588058798570423,
+    "capital": -0.92046553690878696
+  },
+  "std_errors": {
+    "value": 0.073021543422799373,
+    "capital": 0.04035783901716436
+  },
+  "inference_configuration": {
+    "clustering": "one-way cluster=firm",
+    "estimator": "fixest::feols (absorbed firm+year FE)",
+    "finite_sample_correction": "AER/Stata-style cluster-robust",
+    "absorbed_fe_dof": "firm + year absorbed via fixef",
+    "covariance_definition": "fixest clustered (cluster=~firm)",
+    "covariance_family": "aes_cluster",
+    "is_canonical_definition": true,
+    "ssc": {
+      "K.adj": true,
+      "K.fixef": "nonnested",
+      "G.adj": true,
+      "G.df": "min",
+      "K.exact": false
+    },
+    "note": "explicit ssc() frozen; fixest clustered SE == Stata reghdfe"
+  },
+  "native_default": {
+    "cov_type": "standard (iid, no cluster)",
+    "coefficients": {
+      "value": 2.0588058798570423,
+      "capital": -0.92046553690878696
+    },
+    "std_errors": {
+      "value": 0.050267715564720344,
+      "capital": 0.046728958647738517
+    },
+    "n": 25
+  }
+}

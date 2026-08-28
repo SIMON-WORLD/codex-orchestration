@@ -7,8 +7,12 @@ import pandas as pd
 from linearmodels.panel import PanelOLS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CSV = os.path.join(HERE, "..", "grunfeld.csv")
-BENCH_ID = "grunfeld_twfe_cluster"
+def _arg(name, default):
+    if "--" + name in sys.argv:
+        return sys.argv[sys.argv.index("--" + name) + 1]
+    return default
+CSV = _arg("csv", os.path.join(HERE, "..", "grunfeld.csv"))
+BENCH_ID = _arg("benchmark-id", "grunfeld_twfe_cluster")
 
 def text_hash(p):
     with open(p, "rb") as f:
@@ -91,8 +95,9 @@ result = {
     },
     "native_default": native_default,
 }
-out = os.path.join(HERE, "..", "results", "python.json")
+out = _arg("out", os.path.join(HERE, "..", "results", "python.json"))
 os.makedirs(os.path.dirname(out), exist_ok=True)
 with open(out, "w") as f:
     json.dump(result, f, indent=2)
 print(json.dumps(result, indent=2))
+

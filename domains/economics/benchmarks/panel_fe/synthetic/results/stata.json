@@ -3,17 +3,17 @@
   "runtime_version": "19.5",
   "package_version": "unknown",
   "package_version_evidence": "Stata e(version)='.' ; reghdfe does not expose a reliable version via e() (ado file present)",
-  "benchmark_id": "grunfeld_twfe_cluster",
-  "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
-  "n": 200,
-  "cluster_count": 10,
+  "benchmark_id": "panel_fe_synthetic",
+  "dataset_checksum": "28aaa16fcdc5c0f7c07f57393b53be3a706ddf83474d3980d51790e8726744eb",
+  "n": 25,
+  "cluster_count": 5,
   "coefficients": {
-    "value": 0.11771585508260658,
-    "capital": 0.35791627307342766
+    "value": 2.0588058798570423,
+    "capital": -0.9204655369087861
   },
   "std_errors": {
-    "value": 0.01082442947686367,
-    "capital": 0.0478483965925891
+    "value": 0.07302154342279918,
+    "capital": 0.04035783901716404
   },
   "inference_configuration": {
     "clustering": "one-way cluster=firm",
@@ -25,9 +25,9 @@
     "is_canonical_definition": true,
     "stata_dof_evidence": {
       "df_m": "2",
-      "df_r": "9",
-      "df_a": "19",
-      "df_a_nested": "10",
+      "df_r": "4",
+      "df_a": "4",
+      "df_a_nested": "5",
       "dofmethod": "pairwise clusters continuous",
       "vce": "cluster",
       "clustvar": "firm"
@@ -37,13 +37,13 @@
   "native_default": {
     "cov_type": "reghdfe_default",
     "coefficients": {
-      "value": 0.11771585508260658,
-      "capital": 0.35791627307342766
+      "value": 2.0588058798570423,
+      "capital": -0.9204655369087861
     },
     "std_errors": {
-      "value": 0.013751283003648225,
-      "capital": 0.022719010882572516
+      "value": 0.05026771556472031,
+      "capital": 0.046728958647738475
     },
-    "n": 200
+    "n": 25
   }
 }

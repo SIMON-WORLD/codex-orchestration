@@ -1,0 +1,37 @@
+{
+  "benchmark_id": "panel_fe_synthetic",
+  "capability_id": "economics.regression.panel_fe",
+  "dataset": {
+    "name": "panel_fe_synthetic",
+    "source": "synthetic known-result panel (seed 20260828, 5 firms x 5 years; true beta_value=2, beta_capital=-1; DGP includes firm FE + year FE + residual)",
+    "path": "panel.csv",
+    "checksum": "28aaa16fcdc5c0f7c07f57393b53be3a706ddf83474d3980d51790e8726744eb",
+    "hash_mode": "text_file_sha256_lf",
+    "n": 25,
+    "firms": 5,
+    "years": [1, 5]
+  },
+  "specification": {
+    "outcome": "invest",
+    "regressors": ["value", "capital"],
+    "fixed_effects": ["firm", "year"],
+    "cluster": "firm",
+    "model": "invest_it = b1*value_it + b2*capital_it + firm FE + year FE + error_it",
+    "estimator": "within (absorbed) two-way fixed effects"
+  },
+  "true_coefficients": { "value": 2.0, "capital": -1.0 },
+  "expected_sample": { "n": 25, "cluster_count": 5, "dropped_observations": 0 },
+  "canonical_inference": {
+    "covariance_family": "aes_cluster",
+    "definition": "one-way cluster-robust at firm, Stata/reghdfe nested-in-cluster DoF convention",
+    "nested_firm_in_cluster": true,
+    "canonical_reference_engine": "panel.fe.stata.reghdfe",
+    "note": "firm FE nested within cluster(firm) redundant for DoF; reference calculator reproduces reghdfe/fixest"
+  },
+  "implementations": [
+    { "implementation_id": "panel.fe.python.linearmodels", "runtime": "python", "tool": "linearmodels PanelOLS", "verification_status": "experimental" },
+    { "implementation_id": "panel.fe.r.fixest", "runtime": "r", "tool": "fixest::feols", "verification_status": "reference" },
+    { "implementation_id": "panel.fe.stata.reghdfe", "runtime": "stata", "tool": "reghdfe", "verification_status": "reference" }
+  ],
+  "note": "synthetic known-result benchmark; independent reference calculator (reference.mjs) is the ground truth."
+}

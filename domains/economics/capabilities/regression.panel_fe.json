@@ -35,13 +35,13 @@
       "kind": "tool",
       "name": "reghdfe",
       "runtime": "stata",
-      "verification_status": "reference",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "stata"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Passed the Grunfeld real benchmark AND the synthetic known-result benchmark against an independent reference calculator; fixest SE == reghdfe SE == reference SE.",
+        "benchmark_ref": "domains/economics/benchmarks/panel_fe/"
       }
     },
     {
@@ -49,13 +49,13 @@
       "kind": "tool",
       "name": "fixest::feols",
       "runtime": "r",
-      "verification_status": "reference",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "r"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Passed the Grunfeld real benchmark AND the synthetic known-result benchmark against an independent reference calculator; fixest SE == reghdfe SE == reference SE.",
+        "benchmark_ref": "domains/economics/benchmarks/panel_fe/"
       }
     }
   ],

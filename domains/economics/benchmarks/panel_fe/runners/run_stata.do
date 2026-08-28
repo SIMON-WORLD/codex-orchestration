@@ -1,25 +1,25 @@
-* P7 panel_fe benchmark runner (Stata reghdfe) - records real e() DoF evidence.
+* P7 panel_fe benchmark runner (Stata reghdfe) - parameterized csv + raw output.
+* usage: do run_stata.do "csvpath" "rawpath"
+args csvpath rawpath
 clear all
 set more off
 capture log close
-import delimited "domains/economics/benchmarks/panel_fe/grunfeld.csv", varnames(1) clear
+import delimited "`csvpath'", varnames(1) clear
 * canonical: two-way absorbed FE + one-way cluster at firm
 reghdfe invest value capital, absorb(firm year) vce(cluster firm)
 local bv : display %20.17g _b[value]
 local bp : display %20.17g _b[capital]
 local sev : display %20.17g _se[value]
 local sep : display %20.17g _se[capital]
-* real e() DoF metadata
-foreach v in N N_clust df_m df_r df_a df_a_nested df_a_nested_within df_a_within dofmethod vce clustvar cmd version {
+foreach v in N N_clust df_m df_r df_a df_a_nested dofmethod vce clustvar cmd version {
   capture local val`v' = e(`v')
   if "`val`v''"=="" local val`v' = "NA"
 }
-* native default: reghdfe default inference (no vce specified)
 reghdfe invest value capital, absorb(firm year)
 local dsev : display %20.17g _se[value]
 local dsep : display %20.17g _se[capital]
 local stataver = c(version)
-file open f using "domains/economics/benchmarks/panel_fe/results/stata_raw.txt", write replace
+file open f using "`rawpath'", write replace
 file write f "n=`valN'" _n
 file write f "cluster_count=`valN_clust'" _n
 file write f "b_value=`bv'" _n

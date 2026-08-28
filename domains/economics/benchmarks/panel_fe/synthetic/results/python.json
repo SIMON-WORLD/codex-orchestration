@@ -1,0 +1,89 @@
+{
+  "implementation_id": "panel.fe.python.linearmodels",
+  "runtime_version": "3.14.3",
+  "package_version": "7.0",
+  "benchmark_id": "panel_fe_synthetic",
+  "dataset_checksum": "28aaa16fcdc5c0f7c07f57393b53be3a706ddf83474d3980d51790e8726744eb",
+  "n": 25,
+  "cluster_count": 5,
+  "coefficients": {
+    "value": 2.0588058798570428,
+    "capital": -0.9204655369087864
+  },
+  "std_errors": {
+    "value": 0.07558447830914407,
+    "capital": 0.04177433213284188
+  },
+  "inference_configuration": {
+    "clustering": "one-way cluster=firm",
+    "estimator": "PanelOLS within (entity+time effects absorbed)",
+    "finite_sample_correction": "linearmodels clustered default",
+    "absorbed_fe_dof": "entity_effects + time_effects absorbed",
+    "covariance_definition": "cluster-robust (cov_type=clustered, cluster_entity=True)",
+    "covariance_family": "linearmodels_clustered",
+    "is_canonical_definition": false,
+    "df_adjustment": {
+      "num_effects": 2,
+      "_determine_df_adjustment": "returns True (debias) for two-way FE; auto_df counts ALL FE (entity+time) in extra_df",
+      "diag_matrix": {
+        "A_default": {
+          "config": {},
+          "value_se": 0.07558447830914407,
+          "capital_se": 0.04177433213284188
+        },
+        "B_auto_df_false_count_effects_true": {
+          "config": {
+            "auto_df": false,
+            "count_effects": true
+          },
+          "value_se": 0.07558447830914407,
+          "capital_se": 0.04177433213284188
+        },
+        "C_auto_df_false_count_effects_false": {
+          "config": {
+            "auto_df": false,
+            "count_effects": false
+          },
+          "value_se": 0.05897021615878447,
+          "capital_se": 0.03259189519952695
+        },
+        "D_debiased_false": {
+          "config": {
+            "debiased": false
+          },
+          "value_se": 0.07070280539771592,
+          "capital_se": 0.03907630960059896
+        },
+        "E_default_group_debias_true": {
+          "config": {
+            "group_debias": true
+          },
+          "value_se": 0.0827986475343563,
+          "capital_se": 0.0457614880677408
+        },
+        "F_auto_df_false_count_effects_false_group_debias_true": {
+          "config": {
+            "auto_df": false,
+            "count_effects": false,
+            "group_debias": true
+          },
+          "value_se": 0.06459863522224381,
+          "capital_se": 0.0357026323852505
+        }
+      },
+      "note": "linearmodels two-way FE auto_df counts all absorbed FE into extra_df, which raises the covariance scale; reghdfe/fixest do NOT double-count nested-in-cluster firm FE and also apply a cluster small-sample correction. The ~2.4% SE gap is the net of these corrections. No public PanelOLS config reproduces the reghdfe/fixest canonical SE -> DEFINITION_DIFFERENCE."
+    }
+  },
+  "native_default": {
+    "cov_type": "unadjusted",
+    "coefficients": {
+      "value": 2.0588058798570428,
+      "capital": -0.9204655369087864
+    },
+    "std_errors": {
+      "value": 0.05026771556472028,
+      "capital": 0.046728958647738454
+    },
+    "n": 25
+  }
+}

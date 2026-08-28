@@ -77,10 +77,14 @@ export function comparePanelFe(manifest, results, actualChecksum) {
 
 function readJson(p){ return JSON.parse(readFileSync(p, "utf8")); }
 const isMain = process.argv[1] && new URL(import.meta.url).href === new URL(`file://${process.argv[1]}`).href;
+function arg(name, def){ const i=process.argv.indexOf("--"+name); return i>=0?process.argv[i+1]:def; }
 if (isMain) {
-  const manifest = readJson(MAN);
-  const results = [ readJson(join(R, "python.json")), readJson(join(R, "r.json")), readJson(join(R, "stata.json")) ];
-  const out = comparePanelFe(manifest, results, hashTextFile(CSV));
+  const csv = arg("csv", CSV);
+  const manPath = arg("manifest", MAN);
+  const dir = arg("results-dir", R);
+  const manifest = readJson(manPath);
+  const results = [ readJson(join(dir, "python.json")), readJson(join(dir, "r.json")), readJson(join(dir, "stata.json")) ];
+  const out = comparePanelFe(manifest, results, hashTextFile(csv));
   console.log(JSON.stringify(out, null, 2));
   process.exit(out.verdict === "FAIL" ? 1 : 0);
 }

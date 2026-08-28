@@ -7,7 +7,12 @@ fa <- args[grep("^--file=", args)]
 here <- dirname(sub("^--file=", "", fa[1]))
 CSV <- file.path(here, "..", "grunfeld.csv")
 MAN <- file.path(here, "..", "benchmark.grunfeld.json")
-OUT <- file.path(here, "..", "results", "r.json")
+args2 <- commandArgs(trailingOnly = TRUE)
+resolve <- function(key, def){ i <- match(key, args2); if (!is.na(i) && i+1 <= length(args2)) args2[i+1] else def }
+CSV <- resolve("--csv", file.path(here, "..", "grunfeld.csv"))
+MAN <- resolve("--manifest", file.path(here, "..", "benchmark.grunfeld.json"))
+OUT <- resolve("--out", file.path(here, "..", "results", "r.json"))
+BENCH_ID <- resolve("--benchmark-id", "grunfeld_twfe_cluster")
 man <- fromJSON(MAN, simplifyVector = FALSE)
 
 df <- read.csv(CSV)
@@ -27,7 +32,7 @@ result <- list(
   implementation_id = "panel.fe.r.fixest",
   runtime_version = paste("R", as.character(getRversion())),
   package_version = paste("fixest", as.character(packageVersion("fixest"))),
-  benchmark_id = "grunfeld_twfe_cluster",
+  benchmark_id = BENCH_ID,
   dataset_checksum = man$dataset$checksum,
   n = as.integer(m$nobs),
   cluster_count = length(unique(df$firm)),
@@ -54,4 +59,5 @@ result <- list(
 dir.create(dirname(OUT), showWarnings = FALSE, recursive = TRUE)
 write_json(result, OUT, pretty = TRUE, auto_unbox = TRUE, digits = 16)
 cat(toJSON(result, pretty = TRUE, auto_unbox = TRUE, digits = 16))
+
 
