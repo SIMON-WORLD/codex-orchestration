@@ -25,6 +25,12 @@ const REQUIRED = {
   multiple_testing: ["artifact_id", "artifact_type", "families"],
 };
 export const EXPECTED_TYPE = { data_manifest: "data_manifest", variable_dictionary: "variable_dictionary", sample_flow: "sample_flow", descriptive_facts: "descriptive_facts", model_registry: "model_registry", estimates: "estimates", diagnostics: "diagnostics", multiple_testing: "multiple_testing" };
+const PRESENTATION_REQUIRED = ["artifact_id","artifact_type","schema_version","producer_role","producer_task_id","views"];
+const PRESENTATION_VIEW_REQUIRED = ["view_id","view_type","output_ref","source_refs"];
+const PRESENTATION_SOURCE_REQUIRED = ["artifact_id","source_hash","source_hash_mode"];
+const VIEW_ALLOWED_KEYS = new Set(["view_id","view_type","output_ref","source_refs"]);
+const SOURCE_ALLOWED_KEYS = new Set(["artifact_id","item_ids","source_hash","source_hash_mode"]);
+const ITEM_ID_FIELDS = { model_registry: ["models","model_id"], estimates: ["estimates","estimate_id"], diagnostics: ["diagnostics","diagnostic_id"], descriptive_facts: ["facts","fact_id"] };
 const MODEL_REQUIRED = ["model_id", "capability_id", "implementation_id", "runtime", "sample_id", "outcome", "n", "code_ref", "result_ref"];
 const ESTIMATE_REQUIRED = ["estimate_id", "model_id", "term", "estimate", "std_error", "ci_lower", "ci_upper", "p_value", "n"];
 const VARIABLE_REQUIRED = ["name", "definition"];
@@ -52,6 +58,51 @@ function uniqueErrs(list, key, label) {
   return errs;
 }
 
+// presentation_manifest：可选「派生视图」provenance binding。只存绑定元数据，不内嵌科学数值。
+function validatePresentation(bundle, paths) {
+  const errs = [];
+  const pm = bundle.presentation_manifest;
+  if (!pm) return errs;
+  if (typeof pm !== "object" || Array.isArray(pm)) return ["presentation_manifest: 非对象"];
+  for (const k of PRESENTATION_REQUIRED) if (pm[k] === undefined) errs.push(`presentation_manifest: 缺 ${k}`);
+  if (pm.artifact_type !== "presentation_manifest") errs.push(`presentation_manifest: artifact_type 应为 presentation_manifest`);
+  // artifact_id -> { type, path, obj }
+  const artifactById = new Map();
+  for (const type of ["data_manifest","variable_dictionary","sample_flow","descriptive_facts","model_registry","estimates","diagnostics","presentation_manifest"]) {
+    const obj = bundle[type];
+    if (obj && obj.artifact_id) artifactById.set(obj.artifact_id, { type, path: paths?.[type], obj });
+  }
+  for (const v of pm.views || []) {
+    if (!v || typeof v !== "object") { errs.push("presentation_manifest: view 非对象"); continue; }
+    for (const k of Object.keys(v)) if (!VIEW_ALLOWED_KEYS.has(k)) errs.push(`presentation_manifest: view ${v.view_id || "?"} 含非法字段 ${k}（不得内嵌科学数值）`);
+    for (const k of PRESENTATION_VIEW_REQUIRED) if (v[k] === undefined) errs.push(`presentation_manifest: view ${v.view_id || "?"} 缺 ${k}`);
+    if (v.view_type !== undefined && v.view_type !== "table" && v.view_type !== "figure") errs.push(`presentation_manifest: view ${v.view_id} view_type 非法`);
+    if (!Array.isArray(v.source_refs) || v.source_refs.length === 0) errs.push(`presentation_manifest: view ${v.view_id} source_refs 不能为空`);
+    for (const s of v.source_refs || []) {
+      if (!s || typeof s !== "object") { errs.push(`presentation_manifest: view ${v.view_id} source_ref 非对象`); continue; }
+      for (const k of Object.keys(s)) if (!SOURCE_ALLOWED_KEYS.has(k)) errs.push(`presentation_manifest: view ${v.view_id} source_ref 含非法字段 ${k}`);
+      for (const k of PRESENTATION_SOURCE_REQUIRED) if (s[k] === undefined) errs.push(`presentation_manifest: view ${v.view_id} source_ref 缺 ${k}`);
+      const src = artifactById.get(s.artifact_id);
+      if (!src) { errs.push(`presentation_manifest: view ${v.view_id} 引用不存在的 artifact ${s.artifact_id}`); continue; }
+      if (src.type === "presentation_manifest") errs.push(`presentation_manifest: view ${v.view_id} 不能以另一 presentation view 作为科学来源`);
+      if (s.source_hash_mode !== undefined && s.source_hash_mode !== CANONICAL_HASH_MODE) errs.push(`presentation_manifest: view ${v.view_id} source_hash_mode 应为 ${CANONICAL_HASH_MODE}`);
+      if (src.path && s.source_hash_mode === CANONICAL_HASH_MODE) {
+        let actual; try { actual = hashCanonicalJsonFile(src.path); } catch { errs.push(`presentation_manifest: 无法读取源 artifact ${s.artifact_id}`); actual = null; }
+        if (actual && actual !== s.source_hash) errs.push(`presentation_manifest: view ${v.view_id} 源 artifact hash 不匹配（${s.artifact_id} 已改变或未同步）`);
+      }
+      if (s.item_ids !== undefined) {
+        if (!Array.isArray(s.item_ids)) { errs.push(`presentation_manifest: view ${v.view_id} item_ids 非数组`); continue; }
+        const idSpec = ITEM_ID_FIELDS[src.type];
+        if (!idSpec) { errs.push(`presentation_manifest: view ${v.view_id} artifact ${s.artifact_id} (${src.type}) 不支持 item_ids`); continue; }
+        const [listKey, idKey] = idSpec;
+        const items = src.obj?.[listKey] || [];
+        const idSet = new Set(items.map((it) => it[idKey]));
+        for (const itemId of s.item_ids) if (!idSet.has(itemId)) errs.push(`presentation_manifest: view ${v.view_id} item_id ${itemId} 不存在于 ${s.artifact_id}`);
+      }
+    }
+  }
+  return errs;
+}
 export function validateArtifacts(bundle, paths) {
   const errs = [];
   const dm = bundle.data_manifest, vd = bundle.variable_dictionary, sf = bundle.sample_flow, desc = bundle.descriptive_facts;
@@ -130,6 +181,7 @@ if (am && Array.isArray(am.artifacts)) {
     const expected = buildReplicationStamp(mr.models, es.estimates, sourceHashes);
     if (canonicalJson(expected) !== canonicalJson(stamp)) errs.push("replication_stamp: 与 estimates/model_registry 不一致（可能手改或未重建）");
   }
+  errs.push(...validatePresentation(bundle, paths));
   return errs;
 }
 
@@ -138,7 +190,7 @@ if (isMain) {
   const bundleDir = arg("bundle");
   if (!bundleDir) { console.error("用法：node core/validate_artifacts.mjs --bundle <dir>"); process.exit(2); }
   const dir = isAbsolute(bundleDir) ? bundleDir : join(root, bundleDir);
-  const files = ["data_manifest.json", "variable_dictionary.json", "sample_flow.json", "descriptive_facts.json", "model_registry.json", "estimates.json", "diagnostics.json", "replication_stamp.json", "artifact_manifest.json", "multiple_testing.json"];
+  const files = ["data_manifest.json", "variable_dictionary.json", "sample_flow.json", "descriptive_facts.json", "model_registry.json", "estimates.json", "diagnostics.json", "replication_stamp.json", "artifact_manifest.json", "multiple_testing.json", "presentation_manifest.json"];
   const bundle = { paths: {} };
   for (const name of files) {
     const full = `${dir}/${name}`;
@@ -151,5 +203,6 @@ if (isMain) {
   if (errs.length) { console.error("validate_artifacts FAIL："); for (const e of errs) console.error("  - " + e); process.exit(1); }
   console.log("OK: artifacts 一致（valid）");
 }
+
 
 

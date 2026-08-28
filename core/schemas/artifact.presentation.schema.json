@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "artifact.presentation.schema.json",
+  "title": "presentation_manifest artifact (derived-view provenance binding)",
+  "description": "Optional artifact type that binds rendered tables/figures to their upstream machine-readable scientific artifacts. It stores provenance/binding metadata ONLY - it must NOT embed copied scientific values (estimates, SEs, p-values, coefficients, descriptive statistics). Those values remain sourced from the referenced upstream artifacts, which are the single source of truth.",
+  "type": "object",
+  "$defs": {
+    "common": {
+      "type": "object",
+      "required": ["artifact_id","artifact_type","schema_version","producer_role","producer_task_id"],
+      "properties": {
+        "artifact_id": { "type": "string" },
+        "artifact_type": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "producer_role": { "type": "string" },
+        "producer_task_id": { "type": "string" },
+        "created_at": { "type": "string" },
+        "inputs": { "type": "array", "items": { "type": "string" } },
+        "code_ref": { "type": "string" },
+        "data_ref": { "type": "string" }
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "required": ["artifact_id","source_hash","source_hash_mode"],
+      "properties": {
+        "artifact_id": { "type": "string" },
+        "item_ids": { "type": "array", "items": { "type": "string" } },
+        "source_hash": { "type": "string" },
+        "source_hash_mode": { "type": "string", "const": "canonical_json_sha256_v1" }
+      },
+      "additionalProperties": false
+    },
+    "view": {
+      "type": "object",
+      "required": ["view_id","view_type","output_ref","source_refs"],
+      "properties": {
+        "view_id": { "type": "string" },
+        "view_type": { "type": "string", "enum": ["table","figure"] },
+        "output_ref": { "type": "string" },
+        "source_refs": { "type": "array", "items": { "$ref": "#/$defs/source_ref" }, "minItems": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [{ "$ref": "#/$defs/common" }],
+  "properties": {
+    "artifact_type": { "const": "presentation_manifest" },
+    "views": { "type": "array", "items": { "$ref": "#/$defs/view" } }
+  },
+  "required": ["artifact_type","views"]
+}
