@@ -10,7 +10,9 @@
     "causal.iv.json",
     "stat.testing.multcomp.json",
     "presentation.tables.json",
+    "presentation.tables.estimates.json",
     "presentation.figures.json"
   ]
 }
+
 

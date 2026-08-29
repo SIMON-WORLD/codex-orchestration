@@ -1,9 +1,9 @@
 {
   "benchmark_id": "bench.presentation.table.v1",
-  "capability_id": "economics.presentation.tables",
+  "capability_id": "economics.presentation.tables.estimates",
   "title": "Deterministic presentation table renderer v1",
   "source_of_truth": "tests/fixtures/artifacts/valid/ (existing synthetic artifact bundle; scientific numbers obtained from estimates.json, not hard-coded)",
-  "scope": "table views sourced from estimates with explicit estimate_id references (markdown render); validates ONLY the table renderer, NOT figure rendering",
+  "scope": "estimate-table views sourced from estimates with explicit estimate_id references (fixed fields term/estimate/std_error/p_value/n). Validates ONLY the estimate-table renderer; does NOT cover generic tables, descriptive/diagnostic/model tables, or figures.",
   "gate": "full artifact-bundle validation (core validateArtifacts: scientific artifact structure + estimates<->model_registry + replication_stamp consistency + artifact_manifest canonical hashes + presentation provenance binding/source_hash)",
   "cases": {
     "A": "determinism (same artifacts + manifest, render twice -> identical bytes)",
@@ -13,5 +13,6 @@
   },
   "no_op": "does NOT promote any implementation to tested/verified"
 }
+
 
 
