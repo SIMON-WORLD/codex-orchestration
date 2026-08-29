@@ -1,0 +1,21 @@
+{
+  "benchmark_id": "grunfeld_real_data_estimate_table",
+  "capability_id": "economics.presentation.tables.estimates",
+  "evidence_class": "real_data",
+  "title": "Real-data Grunfeld estimate-table renderer benchmark",
+  "source": {
+    "name": "Grunfeld (R package plm dataset, 10 firms, 1935-1954)",
+    "panel_fe_benchmark_id": "grunfeld_twfe_cluster",
+    "accepted_result": "domains/economics/benchmarks/panel_fe/results/stata.json (reghdfe, canonical aes_cluster)",
+    "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "checksum_mode": "text_file_sha256_lf"
+  },
+  "p_value": "artifact-construction adapter: two-sided finite-df Student-t p from t = coef/se with residual df = reghdfe e(df_r)=9 (deterministic; NOT new estimator evidence, NOT renderer logic)",
+  "ci": "artifact-construction adapter: coef +/- qt(0.975, df)*se (deterministic; required by estimates contract)",
+  "scope": "estimate-table rendering from estimates (explicit estimate_id; fixed fields term/estimate/std_error/p_value/n). Does NOT cover generic tables, descriptive/diagnostic/model tables, or figures.",
+  "contrast": {
+    "synthetic_fixture_benchmark": "domains/economics/benchmarks/presentation/ (regression/adversarial invariant evidence)",
+    "this_benchmark": "non-synthetic real-data candidate evidence for a future tested gate"
+  },
+  "promotion": "presentation.local.table_renderer remains experimental"
+}

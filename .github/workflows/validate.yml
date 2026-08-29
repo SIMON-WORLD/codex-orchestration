@@ -64,6 +64,8 @@ jobs:
         run: node tests/presentation_artifact.spec.mjs
       - name: Run presentation table renderer benchmark
         run: node domains/economics/benchmarks/presentation/run_benchmark.mjs
+      - name: Run real-data Grunfeld estimate-table presentation benchmark
+        run: node domains/economics/benchmarks/presentation/grunfeld/run_benchmark.mjs
       - name: Run presentation renderer spec
         run: node tests/presentation_renderer.spec.mjs
       - name: Guard against fabricated verified in real registry

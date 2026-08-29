@@ -5,8 +5,14 @@
   "risk_level": "medium",
   "methodology": {
     "references": [
-      { "name": "Awesome-Journal-Skills (workflow/template precedent: 00_master.do 09_tables.do)", "url": "https://github.com/brycewang-stanford/Awesome-Journal-Skills" },
-      { "name": "AEA journals data & code (institutional presentation-style guidance)", "url": "https://www.aeaweb.org/journals/policies/data-code" }
+      {
+        "name": "Awesome-Journal-Skills (workflow/template precedent: 00_master.do 09_tables.do)",
+        "url": "https://github.com/brycewang-stanford/Awesome-Journal-Skills"
+      },
+      {
+        "name": "AEA journals data & code (institutional presentation-style guidance)",
+        "url": "https://www.aeaweb.org/journals/policies/data-code"
+      }
     ],
     "note": "Engineering abstraction: deterministic estimate-table rendering from the estimates artifact (explicit estimate_id) with fixed scientific fields term/estimate/std_error/p_value/n. Upstream template precedent: journal-skills 09_tables.do. Institutional guidance: src-aea-style. Scope is narrow: estimates-source, explicit estimate_id; does NOT claim general descriptive/diagnostic/model tables and is NOT described as fully journal-publication-ready."
   },
@@ -17,9 +23,11 @@
       "name": "domains/economics/presentation/render_table.mjs",
       "runtime": "node",
       "verification_status": "experimental",
-      "environment_requirements": { "runtime": "node" },
+      "environment_requirements": {
+        "runtime": "node"
+      },
       "verification": {
-        "evidence": "Deterministic estimate-table renderer benchmark (domains/economics/benchmarks/presentation/): determinism + source-fidelity + upstream-change + tamper-detection. Described as a deterministic/canonical estimate-table reference rendering layer; experimental only, NOT journal-publication-ready, NOT yet passed the tested gate.",
+        "evidence": "Two evidence classes: (1) synthetic fixture benchmark (domains/economics/benchmarks/presentation/) = regression/adversarial invariant evidence; (2) real-data Grunfeld benchmark (domains/economics/benchmarks/presentation/grunfeld/) = non-synthetic candidate evidence (source identity + full artifact/provenance validity + source fidelity + determinism + provenance enforcement). Still experimental only - NOT tested, NOT verified, NOT journal-publication-ready (deterministic/canonical estimate-table reference rendering layer).",
         "benchmark_ref": "domains/economics/benchmarks/presentation/"
       }
     }
