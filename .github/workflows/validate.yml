@@ -96,6 +96,6 @@ jobs:
       - name: Run Multiple Testing Pack v1 regression
         run: node tests/multcomp_pack.spec.mjs
       - name: Run Multiple Testing cross-engine comparator
+        run: node domains/economics/benchmarks/multcomp/comparator.mjs
       - name: Run Data Validation Pack v1 regression
         run: node tests/data_validation_pack.spec.mjs
-        run: node domains/economics/benchmarks/multcomp/comparator.mjs
