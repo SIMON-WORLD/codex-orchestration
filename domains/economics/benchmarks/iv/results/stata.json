@@ -26,10 +26,11 @@
         "p_value": 0.0000446246310567
       },
       "weak_id": {
-        "name": "Cragg-Donald / KP Wald F (weak identification)",
+        "name": "Cragg-Donald Wald F (weak identification)",
         "statistic": 16.71759143645145,
         "method": "ivreg2 weakid",
-        "definition": "Cragg-Donald Wald F (homoskedastic)"
+        "definition": "Cragg-Donald Wald F (homoskedastic)",
+        "note": "homoskedastic; NO heteroskedasticity-robust Kleibergen-Paap rk Wald F was produced in this benchmark"
       },
       "ar_wald": {
         "name": "Anderson-Rubin weak-IV-robust Wald",
@@ -44,10 +45,11 @@
         "definition": "chi-sq LM S"
       },
       "overid": {
-        "name": "Sargan overidentification",
-        "statistic": 0,
+        "name": "Overidentification test",
+        "status": "not_applicable_exactly_identified",
+        "raw_tool_output": 0,
         "method": "ivreg2 sargan",
-        "definition": "invalid here (equation exactly identified: 1 endogenous, 1 excluded instrument)"
+        "note": "1 endogenous regressor + 1 excluded instrument -> no overidentifying restrictions; the raw Sargan/J = 0 is NOT interpreted as evidence the exclusion restriction passed"
       }
     },
     "notes": "ivreg2 also displays a first-stage 'F test of excluded instruments' (16.72) and Sanderson-Windmeijer conditional F (16.72) in its output; these are NOT captured as a compared quantity because linearmodels IV2SLS does not expose a comparable first-stage F in this version (result.first_stage.fstat = null). Weak-instrument / underidentification / weak-IV-robust statistics are ivreg2-native; linearmodels default summary does not produce Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin, so no forced equality across engines."

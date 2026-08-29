@@ -18,7 +18,7 @@
   },
   "diagnostics_definitional_notes": {
     "linearmodels": "IV2SLS provides coefficients, SE, N, first-stage (individual) partial R2 / F. Overidentification Sargan is invalid here (equation exactly identified: 1 endogenous, 1 excluded instrument). linearmodels default summary does not expose Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin; these are NOT fabricated.",
-    "ivreg2": "ivreg2 (with homoskedastic VCE) reports first-stage F of excluded instruments, Sanderson-Windmeijer conditional F, Anderson canonical corr. LM (underidentification), Cragg-Donald / KP Wald F (weak identification), Stock-Wright LM S / Anderson-Rubin (weak-IV-robust), and Sargan (invalid here, equation exactly identified).",
+    "ivreg2": "ivreg2 (with homoskedastic VCE) reports first-stage F of excluded instruments, Sanderson-Windmeijer conditional F, Anderson canonical corr. LM (underidentification), Cragg-Donald Wald F (weak identification), Stock-Wright LM S / Anderson-Rubin (weak-IV-robust), and Sargan (invalid here, equation exactly identified).",
     "comparison": "Coefficients, SEs, and N are definition-compatible between linearmodels and ivreg2 under homoskedastic 2SLS and are STRICTLY compared. Diagnostic statistics are compared only when the same quantity and definition are produced by BOTH; otherwise documented as tool-specific, not forced to equality."
   },
   "no_op": "Does NOT promote any IV implementation to verified. Maturity follows frozen rules: genuine real-data benchmark + source fidelity + deterministic artifact mapping + provenance enforcement may justify tested for the exact demonstrated implementation/scope; synthetic tests alone never do."

@@ -33,7 +33,7 @@
       "fstat": null,
       "note": "linearmodels IV2SLS first-stage (individual) partial R2 / F; if unavailable, left null (not fabricated)"
     },
-    "overid": "invalid_exactly_identified",
+    "overid": "not_applicable_exactly_identified",
     "weak_id_diagnostics": "linearmodels default summary does not expose Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin; NOT fabricated"
   },
   "diag": {

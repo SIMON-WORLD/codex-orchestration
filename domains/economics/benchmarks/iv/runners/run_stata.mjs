@@ -25,10 +25,10 @@ export function buildIvResultFromRaw(rawText, man, benchmarkId = "iv_card_2sls_v
     note: "diagnostics are ivreg2-native; where a statistic is not produced/definition-compatible it is documented, never fabricated",
     diagnostics: {
       underid: { name: "Anderson canonical corr. LM (underidentification)", statistic: num("e_idstat"), method: "ivreg2 underid", definition: "chi-sq(k1) rank test", p_value: num("e_idp") },
-      weak_id: { name: "Cragg-Donald / KP Wald F (weak identification)", statistic: num("e_cdf"), method: "ivreg2 weakid", definition: "Cragg-Donald Wald F (homoskedastic)" },
+      weak_id: { name: "Cragg-Donald Wald F (weak identification)", statistic: num("e_cdf"), method: "ivreg2 weakid", definition: "Cragg-Donald Wald F (homoskedastic)", note: "homoskedastic; NO heteroskedasticity-robust Kleibergen-Paap rk Wald F was produced in this benchmark" },
       ar_wald: { name: "Anderson-Rubin weak-IV-robust Wald", statistic: num("e_arf"), method: "ivreg2 weak-iv-robust", definition: "F, test of endogenous regressor = 0 + orthogonality valid" },
       s_lm: { name: "Stock-Wright LM S statistic", statistic: num("e_sstat"), method: "ivreg2 weak-iv-robust", definition: "chi-sq LM S" },
-      overid: { name: "Sargan overidentification", statistic: num("e_sargan"), method: "ivreg2 sargan", definition: "invalid here (equation exactly identified: 1 endogenous, 1 excluded instrument)" },
+      overid: { name: "Overidentification test", status: "not_applicable_exactly_identified", raw_tool_output: num("e_sargan"), method: "ivreg2 sargan", note: "1 endogenous regressor + 1 excluded instrument -> no overidentifying restrictions; the raw Sargan/J = 0 is NOT interpreted as evidence the exclusion restriction passed" },
     },
     notes: "ivreg2 also displays a first-stage 'F test of excluded instruments' (16.72) and Sanderson-Windmeijer conditional F (16.72) in its output; these are NOT captured as a compared quantity because linearmodels IV2SLS does not expose a comparable first-stage F in this version (result.first_stage.fstat = null). Weak-instrument / underidentification / weak-IV-robust statistics are ivreg2-native; linearmodels default summary does not produce Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin, so no forced equality across engines.",
   };

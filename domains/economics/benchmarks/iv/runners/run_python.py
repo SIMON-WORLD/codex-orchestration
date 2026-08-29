@@ -33,7 +33,7 @@ def main():
             first_stage = {"partial_r2": partial_r2, "fstat": fstat, "note": "linearmodels IV2SLS first-stage (individual) partial R2 / F; if unavailable, left null (not fabricated)"}
     except Exception as e:
         first_stage = {"partial_r2": None, "fstat": None, "note": "linearmodels first-stage diagnostic unavailable: " + str(e)}
-    overid = "invalid_exactly_identified"  # sargan invalid: 1 endog, 1 excluded instrument
+    overid = "not_applicable_exactly_identified"  # sargan invalid: 1 endog, 1 excluded instrument
     result = {
         "implementation_id": "causal.iv.python.linearmodels",
         "runtime": "python",

@@ -93,4 +93,21 @@ ok("F2. IV diagnostics table rendered via Presentation Pack", rDiag.ok === true 
 const rModel = renderFam(pb, pp, { family: "model_registry" });
 ok("F3. IV model-registry table rendered via Presentation Pack", rModel.ok === true && /economics.causal.iv/.test(rModel.output), JSON.stringify(rModel.errors || []));
 
+// G. IV evidence-label hygiene (Phase 0 closure)
+const capSrc = readFileSync(join(root, "domains/economics/capabilities/causal.iv.json"), "utf8");
+const benchSrc = readFileSync(join(root, "domains/economics/benchmarks/iv/benchmark.iv.card.json"), "utf8");
+const runnerSrc = readFileSync(join(root, "domains/economics/benchmarks/iv/runners/run_stata.mjs"), "utf8");
+const ivManifestForG = JSON.parse(benchSrc);
+ok("G1 evidence text no 'linearmodels.dexport' or 'statreg2' typo", !/linearmodels\.dexport/.test(capSrc) && !/statreg2/.test(capSrc), "capSrc should use linearmodels.datasets / ivreg2");
+ok("G2 no 'Cragg-Donald / KP' labeling when definition is Cragg-Donald homoskedastic", !/Cragg-Donald \/ KP/i.test(capSrc) && !/Cragg-Donald \/ KP/i.test(benchSrc) && !/Cragg-Donald \/ KP/i.test(runnerSrc));
+ok("G3 weak-id diagnostic uses precise 'Cragg-Donald Wald F'", /Cragg-Donald Wald F/i.test(runnerSrc) && ivManifestForG.diagnostics_definitional_notes.ivreg2.includes("Cragg-Donald Wald F"));
+ok("G4 exactly-identified Sargan is 'not_applicable_exactly_identified' (raw 0 separated from interpretation)", sOverid())
+function sOverid() {
+  const sta = JSON.parse(readFileSync(join(root, "domains/economics/benchmarks/iv/results/stata.json"), "utf8"));
+  const py = JSON.parse(readFileSync(join(root, "domains/economics/benchmarks/iv/results/python.json"), "utf8"));
+  const od = sta.inference_configuration.diagnostics.overid;
+  return od && od.status === "not_applicable_exactly_identified" && typeof od.raw_tool_output === "number" && py.inference_configuration.overid === "not_applicable_exactly_identified";
+}
+ok("G5 Sargan raw 0 is NOT presented as a valid overidentification result", sOverid());
+
 console.log(`\n${pass} passed, ${fail} failed`);
