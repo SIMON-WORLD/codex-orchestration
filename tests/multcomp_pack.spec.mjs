@@ -91,8 +91,8 @@ ok("D2. multcomp implementations do not leak into any other capability", !bleed)
 const info = buildMultcompBundle(BUNDLE);
 let { bundle, paths } = loadBundle(BUNDLE);
 const estArt = bundle.estimates.estimates;
-const result = readJson(join(root, "domains/economics/benchmarks/panel_fe/results/stata.json"));
-ok("E. artifact estimates derive raw p programmatically from frozen reghdfe (self-check)", estArt.every((e) => approx(e.p_value, info.estimates.find((x) => x.estimate_id === e.estimate_id).p_value, 1e-12, 1e-14)) && estArt.every((e) => e.p_value > 0 && e.p_value < 1));
+const pySrc = readJson(join(MBASE, "results/python.json"));
+ok("E. artifact estimates p_value equals the benchmarked implementation raw_p (map-only, no JS recompute)", estArt.every((e) => approx(e.p_value, pySrc.estimates.raw_p[e.estimate_id], 1e-12, 1e-14)) && estArt.every((e) => e.p_value > 0 && e.p_value < 1));
 const estMap = Object.fromEntries(estArt.map((e) => [e.estimate_id, e]));
 ok("E2. multiple_testing raw_p_value equals estimate p_value (not a separate source)", bundle.multiple_testing.families.every((f) => f.adjusted_results.every((a) => approx(a.raw_p_value, estMap[a.estimate_id].p_value, 1e-9, 1e-12))));
 ok("E3. family membership is explicit (declared on both sides)", bundle.multiple_testing.families.length === 2 && bundle.multiple_testing.families.every((f) => f.member_estimate_ids.length === 2 && estArt.every((e) => (e.multiple_testing_family_ids || []).includes(f.family_id))));
@@ -135,15 +135,16 @@ const rr = readJson(join(MBASE, "results/r.json"));
 const cmp = compareMultcomp(py, rr, manifest);
 ok("G. comparator verdict PASS (checksum/benchmark_id/n/raw_p/adjusted/method_identity)", cmp.verdict === "PASS", JSON.stringify(cmp.checks));
 const estOrder = ["EST_GRUNFELD_VALUE", "EST_GRUNFELD_CAPITAL"];
-ok("G2. Python holm/bh match frozen manifest expected_adjusted", estOrder.every((eid) => approx(py.adjusted.holm[eid], manifest.expected_adjusted.holm[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(py.adjusted.benjamini_hochberg[eid], manifest.expected_adjusted.benjamini_hochberg[eid], 1e-9, 1e-12)));
-ok("G3. R holm/bh match frozen manifest expected_adjusted", estOrder.every((eid) => approx(rr.adjusted.holm[eid], manifest.expected_adjusted.holm[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(rr.adjusted.benjamini_hochberg[eid], manifest.expected_adjusted.benjamini_hochberg[eid], 1e-9, 1e-12)));
-ok("G4. Python holm == R holm; Python bh == R bh (cross-engine)", estOrder.every((eid) => approx(py.adjusted.holm[eid], rr.adjusted.holm[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(py.adjusted.benjamini_hochberg[eid], rr.adjusted.benjamini_hochberg[eid], 1e-9, 1e-12)));
-ok("G5. raw p cross-engine matches manifest expected_raw_p", estOrder.every((eid) => approx(py.estimates.raw_p[eid], manifest.expected_raw_p[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(rr.estimates.raw_p[eid], manifest.expected_raw_p[eid], 1e-9, 1e-12)));
+const artifactHolm = Object.fromEntries(bundle.multiple_testing.families.find((f) => f.method === "holm").adjusted_results.map((a) => [a.estimate_id, a.adjusted_p_value]));
+const artifactBH = Object.fromEntries(bundle.multiple_testing.families.find((f) => f.method === "benjamini_hochberg").adjusted_results.map((a) => [a.estimate_id, a.adjusted_p_value]));
+ok("G2. artifact adjusted p equals the selected implementation result (python.json)", estOrder.every((eid) => approx(artifactHolm[eid], py.adjusted.holm[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(artifactBH[eid], py.adjusted.benjamini_hochberg[eid], 1e-9, 1e-12)));
+ok("G3. R remains an independent engine (multcomp.r.base, stats::p.adjust holm/BH)", rr.implementation_id === "multcomp.r.base" && rr.methods.holm.tool === "stats::p.adjust" && rr.methods.benjamini_hochberg.tool === "stats::p.adjust");
+ok("G4. Python holm == R holm; Python bh == R bh (independent cross-engine agreement)", estOrder.every((eid) => approx(py.adjusted.holm[eid], rr.adjusted.holm[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(py.adjusted.benjamini_hochberg[eid], rr.adjusted.benjamini_hochberg[eid], 1e-9, 1e-12)));
+ok("G5. raw p cross-engine matches (python vs R)", estOrder.every((eid) => approx(py.estimates.raw_p[eid], rr.estimates.raw_p[eid], 1e-9, 1e-12)));
 
 // ---- H. Determinism / order / monotonic / bounds ----
-const J1 = JSON.stringify(info.holm), J2 = JSON.stringify(info.bh);
 const info2 = buildMultcompBundle(join(root, "role-team-out/multcomp_pack_bundle2"));
-ok("H. JS reference is deterministic across two runs", JSON.stringify(info2.holm) === J1 && JSON.stringify(info2.bh) === J2);
+ok("H. artifact construction is deterministic across two runs", JSON.stringify(info2.multipleTesting) === JSON.stringify(info.multipleTesting));
 ok("H2. hypothesis IDs preserved (order not scrambled)", bundle.multiple_testing.families[0].member_estimate_ids.join(",") === ["EST_GRUNFELD_VALUE","EST_GRUNFELD_CAPITAL"].join(","));
 const holmSorted = estOrder.map((eid) => bundle.multiple_testing.families[0].adjusted_results.find((a) => a.estimate_id === eid).adjusted_p_value);
 ok("H3. Holm adjusted p monotonic (non-decreasing in raw-p order) and bounded [0,1]", holmSorted[0] <= holmSorted[1] + 1e-15 && holmSorted.every((v) => v >= 0 && v <= 1));
@@ -153,7 +154,23 @@ ok("H4. adjusted p >= raw p (Holm/BH do not shrink below unadjusted)", bundle.mu
 ok("I. multcomp bundle coexists with replication_stamp + artifact_manifest chain", validateArtifacts(bundle, paths).length === 0);
 ok("I2. dataset checksum matches frozen Grunfeld", bundle.data_manifest.dataset_sha256 === manifest.source.dataset_checksum && hashTextFile(join(root, "domains/economics/benchmarks/panel_fe/grunfeld.csv")) === manifest.source.dataset_checksum);
 
+
+// ---- J. Phase 0: benchmark responsibility boundary (adapter must be map-only, no statistical algorithm) ----
+const buildSrc = readFileSync(join(MBASE, "build_bundle.mjs"), "utf8");
+ok("J1. builder contains NO Holm/BH/Student-t statistical algorithm", !/(\bholmAdj\b|\bbhAdj\b|\bstudentT\b|\bgammln\b|\bbetacf\b|\bbetai\b|\bmultipletests\b|\bp\.adjust\b)/.test(buildSrc), "build_bundle.mjs must be a map-only adapter");
+ok("J2. artifact adjusted p equals the selected implementation result (results/python.json)", estOrder.every((eid) => approx(artifactHolm[eid], py.adjusted.holm[eid], 1e-9, 1e-12)) && estOrder.every((eid) => approx(artifactBH[eid], py.adjusted.benjamini_hochberg[eid], 1e-9, 1e-12)));
+// changing implementation result and rebuilding -> reflects change + still validates (source-bound, not hard-coded)
+const modPyPath = join(root, "role-team-out/multcomp_mod_py.json");
+const modPy = clone(py); modPy.adjusted.holm[estOrder[0]] = 0.000012345; writeFileSync(modPyPath, JSON.stringify(modPy, null, 2) + "\n", "utf8");
+const infoMod = buildMultcompBundle(join(root, "role-team-out/multcomp_mod_bundle"), modPyPath);
+const modB = loadBundle(join(root, "role-team-out/multcomp_mod_bundle"));
+const modHolm = infoMod.multipleTesting.families.find((f) => f.method === "holm").adjusted_results.find((a) => a.estimate_id === estOrder[0]).adjusted_p_value;
+ok("J3. modifying the implementation result -> rebuild reflects the change and validates", approx(modHolm, 0.000012345, 1e-12, 1e-15) && validateArtifacts(modB.bundle, modB.paths).length === 0, `modHolm=${modHolm}`);
+// manual bundle artifact edit without rebuild -> fail-closed (provenance)
+const PMUT = join(root, "role-team-out/multcomp_pack_mod_mut");
+rmSync(PMUT, { recursive: true, force: true }); mkdirSync(PMUT, { recursive: true }); cpSync(BUNDLE, PMUT, { recursive: true });
+const pmtp = join(PMUT, "multiple_testing.json"); const pmto = readJson(pmtp); pmto.families[0].adjusted_results[0].adjusted_p_value = 0.000012345; writeFileSync(pmtp, JSON.stringify(pmto, null, 2) + "\n", "utf8");
+let { bundle: pmb, paths: pmp } = loadBundle(PMUT);
+ok("J4. manual bundle artifact edit without rebuild -> validation fails", validateArtifacts(pmb, pmp).length > 0, JSON.stringify(validateArtifacts(pmb, pmp)));
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
-
-

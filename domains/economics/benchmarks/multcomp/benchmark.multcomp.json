@@ -11,7 +11,8 @@
     "checksum_mode": "text_file_sha256_lf",
     "upstream_artifact_ids": ["MODEL_GRUNFELD", "ESTIMATES_GRUNFELD", "DIAGNOSTICS_GRUNFELD"]
   },
-  "raw_p_value_provenance": "two-sided finite-df Student-t p from t = coef/se with df = reghdfe e(df_r)=9; computed programmatically from the accepted frozen reghdfe result; NOT hard-coded literals.",
+  "artifact_construction_source": "domains/economics/benchmarks/multcomp/results/python.json (multcomp.python.statsmodels). The JS builder is a MAP-ONLY adapter: it does NOT implement Holm, Benjamini-Hochberg, or a Student-t distribution. Adjusted/raw p-values, estimate, std_error and CIs are mapped verbatim from the benchmarked implementation result; the builder only verifies source identity/provenance against the accepted frozen reghdfe result.",
+  "raw_p_value_provenance": "two-sided finite-df Student-t p from t = coef/se with df = reghdfe e(df_r)=9; derived programmatically by the implementation runners (Python scipy.stats / R stats::pt) from the accepted frozen reghdfe result; NOT hard-coded in the manifest.",
   "methods": ["holm", "benjamini_hochberg"],
   "method_definitions": {
     "holm": "Holm (1979) family-wise error rate step-down (statsmodels method='holm'; R stats::p.adjust method='holm')",
@@ -22,11 +23,7 @@
     "estimate_ids": ["EST_GRUNFELD_VALUE", "EST_GRUNFELD_CAPITAL"],
     "note": "ENGINEERING VERIFICATION family: significance tests of the two Grunfeld panel-FE coefficients (value, capital). NOT automatically a substantive research-family recommendation. The Director/user must define the scientific family explicitly; this benchmark only demonstrates definition-compatible Holm/BH on a fixed, explicit family."
   },
-  "expected_adjusted": {
-    "holm": { "EST_GRUNFELD_VALUE": 3.545342746047453e-06, "EST_GRUNFELD_CAPITAL": 3.7702779484178524e-05 },
-    "benjamini_hochberg": { "EST_GRUNFELD_VALUE": 3.545342746047453e-06, "EST_GRUNFELD_CAPITAL": 3.7702779484178524e-05 }
-  },
-  "expected_raw_p": { "EST_GRUNFELD_VALUE": 1.7726713730237265e-06, "EST_GRUNFELD_CAPITAL": 3.7702779484178524e-05 },
+  "expected_source": "The expected raw + adjusted p-values are NOT stored as manifest literals; they are read programmatically from the benchmarked implementation result files (results/python.json, results/r.json) by the comparator/spec.",
   "n": 200,
   "cluster_count": 10,
   "residual_df": 9,

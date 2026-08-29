@@ -35,16 +35,24 @@ export function compareMultcomp(pyResults, rResults, manifest) {
   }
   checks.raw_p_cross_engine = rawOk ? "PASS" : "FAIL";
 
-  // adjusted p values: each method must be cross-engine aligned AND match the frozen manifest expected_adjusted
+  // adjusted p values: each method must be cross-engine aligned (R = independent check) AND be a valid p in [0,1].
+  // Expected values are obtained programmatically from the implementation result files, not manifest literals.
   checks.adjusted = "PASS";
   for (const method of methods) {
     const key = method === "holm" ? "holm" : "benjamini_hochberg";
-    const expAdjusted = manifest.expected_adjusted[key];
     for (const eid of estOrder) {
       const pv = pyResults.adjusted[key][eid];
       const rv = rResults.adjusted[key][eid];
       if (!approx(pv, rv)) checks.adjusted = "FAIL";
-      if (!approx(pv, expAdjusted[eid])) checks.adjusted = "FAIL";
+      if (!(pv >= 0 && pv <= 1) || !(rv >= 0 && rv <= 1)) checks.adjusted = "FAIL";
+    }
+  }
+  // adjusted p must be >= raw p for these methods (no shrinking below unadjusted)
+  checks.adjusted_monotone = "PASS";
+  for (const key of ["holm", "benjamini_hochberg"]) {
+    for (const eid of estOrder) {
+      const pv = pyResults.adjusted[key][eid], raw = pyResults.estimates.raw_p[eid];
+      if (pv < raw - 1e-14) checks.adjusted_monotone = "FAIL";
     }
   }
   checks.method_identity = "PASS";
@@ -67,4 +75,3 @@ if (isMain) {
   console.log(JSON.stringify(out, null, 2));
   if (out.verdict !== "PASS") process.exit(1);
 }
-

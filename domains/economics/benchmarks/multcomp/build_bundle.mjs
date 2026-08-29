@@ -1,17 +1,23 @@
 #!/usr/bin/env node
 // Real-data Grunfeld multiple-testing benchmark: artifact/provenance bundle builder.
-// Reads the accepted frozen panel-FE reghdfe result + frozen grunfeld.csv and builds a complete valid
-// artifact bundle (data_manifest .. multiple_testing) that passes validateArtifacts.
 //
-// Artifact-construction adapter (documented explicitly):
-//   - scientific values (term / estimate / std_error / n) come from panel_fe/results/stata.json (canonical reghdfe).
-//   - raw p_value: two-sided finite-df Student-t p from t = coef/se with df = stored reghdfe residual df (df_r).
-//   - ci_lower/ci_upper: coef +/- qt(0.975, df)*se (same t inference; required by the estimates contract).
-//   - Holm / Benjamini-Hochberg adjusted p-values: deterministic JS reference library (order/holm_step_down / bh).
-//     These are the frozen "expected" adjusted values for the benchmark; Python statsmodels and R stats::p.adjust
-//     must reproduce them under the same definition-compatible methods.
-//   - The benchmark family is an ENGINEERING VERIFICATION family (the two coefficient significance tests on the
-//     frozen Grunfeld two-way FE result). It is NOT automatically a substantive research-family recommendation.
+// TARGET ARCHITECTURE:
+//   accepted frozen Grunfeld scientific result (panel_fe/reghdfe)
+//   -> actual benchmarked implementation runner (multcomp.python.statsmodels)
+//   -> machine-readable implementation result (results/python.json)
+//   -> artifact-construction adapter   [THIS FILE IS THE ADAPTER]
+//   -> multiple_testing artifact
+//   -> provenance validation
+//
+// The adapter does NOT implement Holm, Benjamini-Hochberg, or a Student-t distribution.
+// It maps the chosen benchmarked implementation result (results/python.json) into the artifact bundle,
+// and only *verifies* source identity / provenance against the accepted frozen reghdfe result
+// (coefficient, std error, N, residual df, dataset checksum).
+//
+// R (multcomp.r.base / results/r.json) remains the independent definition-compatible cross-engine check.
+//
+// The benchmark family is an ENGINEERING VERIFICATION family (the two coefficient significance tests on the
+// frozen Grunfeld two-way FE result). It is NOT automatically a substantive research-family recommendation.
 import { copyFileSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -23,113 +29,63 @@ const ROOT = join(HERE, "..", "..", "..", "..");
 const PANEL_FE = join(ROOT, "domains/economics/benchmarks/panel_fe");
 const GRUNFELD_CSV = join(PANEL_FE, "grunfeld.csv");
 const REGHDFE_RESULT = join(PANEL_FE, "results/stata.json");
+const PY_RESULT = join(HERE, "results/python.json");
 
-// ---- Student-t (deterministic, used only by the artifact-construction adapter) ----
-function gammln(xx) {
-  const cof = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
-  let x = xx, y = xx;
-  let tmp = x + 5.5;
-  tmp -= (x + 0.5) * Math.log(tmp);
-  let ser = 1.000000000190015;
-  for (let j = 0; j < 6; j++) ser += cof[j] / ++y;
-  return -tmp + Math.log(2.5066282746310005 * ser / x);
-}
-function betacf(a, b, x) {
-  const MAXIT = 200, EPS = 3e-14, FPMIN = 1e-300;
-  const qab = a + b, qap = a + 1, qam = a - 1;
-  let c = 1, d = 1 - (qab * x) / qap;
-  if (Math.abs(d) < FPMIN) d = FPMIN;
-  d = 1 / d; let h = d;
-  for (let m = 1; m <= MAXIT; m++) {
-    const m2 = 2 * m;
-    let aa = (m * (b - m) * x) / ((qam + m2) * (a + m2));
-    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
-    c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
-    d = 1 / d; h *= d * c;
-    aa = -((a + m) * (qab + m) * x) / ((a + m2) * (qap + m2));
-    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
-    c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
-    d = 1 / d; const del = d * c; h *= del;
-    if (Math.abs(del - 1) < EPS) break;
-  }
-  return h;
-}
-function betai(a, b, x) {
-  if (x <= 0) return 0; if (x >= 1) return 1;
-  const bt = Math.exp(gammln(a + b) - gammln(a) - gammln(b) + a * Math.log(x) + b * Math.log(1 - x));
-  if (x < (a + 1) / (a + b + 2)) return (bt * betacf(a, b, x)) / a;
-  return 1 - (bt * betacf(b, a, 1 - x)) / b;
-}
-function studentTCdf(t, df) {
-  const x = df / (df + t * t);
-  const ib = betai(df / 2, 0.5, x);
-  return t >= 0 ? 1 - 0.5 * ib : 0.5 * ib;
-}
-function studentTTwoSidedP(t, df) { const c = studentTCdf(Math.abs(t), df); return 2 * (1 - c); }
-function studentTQuantile(p, df) { let lo = 0, hi = 100; for (let i = 0; i < 200; i++) { const mid = (lo + hi) / 2; if (studentTCdf(mid, df) < p) lo = mid; else hi = mid; } return (lo + hi) / 2; }
-
-// ---- Holm / Benjamini-Hochberg deterministic JS reference (definition-compatible with statsmodels/R) ----
-function holmAdj(p) {
-  const m = p.length;
-  const idx = p.map((v, i) => i).sort((a, b) => p[a] - p[b]);
-  const adj = new Array(m);
-  for (let rank = 0; rank < m; rank++) adj[idx[rank]] = Math.min(1, (m - rank) * p[idx[rank]]);
-  // Holm step-down monotonicity: cumulative max in ascending raw-p order (smallest p keeps its value).
-  for (let i = 1; i < m; i++) adj[idx[i]] = Math.min(1, Math.max(adj[idx[i]], adj[idx[i - 1]]));
-  return adj;
-}
-function bhAdj(p) {
-  const m = p.length;
-  const idx = p.map((v, i) => i).sort((a, b) => p[a] - p[b]);
-  const adj = new Array(m);
-  for (let rank = 0; rank < m; rank++) adj[idx[rank]] = Math.min(1, (p[idx[rank]] * m) / (rank + 1));
-  for (let i = m - 2; i >= 0; i--) adj[idx[i]] = Math.min(adj[idx[i]], adj[idx[i + 1]]);
-  return adj;
-}
-
+function approx(a, b, relTol = 1e-9, absTol = 1e-12) { return Math.abs(a - b) <= absTol || Math.abs(a - b) <= relTol * Math.max(Math.abs(a), Math.abs(b)); }
 function write(path, obj) { writeFileSync(path, JSON.stringify(obj, null, 2) + "\n", "utf8"); }
 
-export function buildMultcompBundle(bundleDir) {
+export function buildMultcompBundle(bundleDir, pyResultPath = PY_RESULT) {
   rmSync(bundleDir, { recursive: true, force: true }); mkdirSync(bundleDir, { recursive: true });
   copyFileSync(GRUNFELD_CSV, join(bundleDir, "grunfeld.csv"));
 
   const result = JSON.parse(readFileSync(REGHDFE_RESULT, "utf8"));
+  const py = JSON.parse(readFileSync(pyResultPath, "utf8"));
   const coefs = result.coefficients, ses = result.std_errors;
   const n = result.n;
   const dfR = Number(result.inference_configuration?.stata_dof_evidence?.df_r);
   if (!Number.isFinite(dfR) || dfR <= 0) throw new Error("reghdfe residual df (df_r) unavailable");
-  const tcrit = studentTQuantile(0.975, dfR);
 
   const terms = ["value", "capital"];
-  const estimates = terms.map((term) => {
-    const est = coefs[term], se = ses[term];
-    const t = est / se;
-    const p = studentTTwoSidedP(t, dfR);
+  const estimateIds = terms.map((t) => `EST_GRUNFELD_${t.toUpperCase()}`);
+
+  // ---- Source-identity verification (adapter reads the frozen result only to verify provenance) ----
+  for (const t of terms) {
+    const eid = `EST_GRUNFELD_${t.toUpperCase()}`;
+    if (!approx(py.estimates.estimate[eid], coefs[t])) throw new Error(`source-identity mismatch: estimate ${eid} != reghdfe ${t}`);
+    if (!approx(py.estimates.std_error[eid], ses[t])) throw new Error(`source-identity mismatch: std_error ${eid} != reghdfe ${t}`);
+  }
+  if (Number(py.source?.residual_df) !== dfR) throw new Error(`source-identity mismatch: residual_df python(${py.source?.residual_df}) != reghdfe(${dfR})`);
+  if (py.n !== n) throw new Error(`source-identity mismatch: n python(${py.n}) != reghdfe(${n})`);
+
+  // ---- Map the benchmarked implementation result into the artifact bundle ----
+  const estimates = estimateIds.map((eid) => {
+    const term = eid.replace("EST_GRUNFELD_", "").toLowerCase();
     return {
-      estimate_id: `EST_GRUNFELD_${term.toUpperCase()}`,
+      estimate_id: eid,
       model_id: "MODEL_GRUNFELD",
-      term, estimate: est, std_error: se,
-      ci_lower: est - tcrit * se, ci_upper: est + tcrit * se,
-      p_value: p, n,
+      term,
+      estimate: py.estimates.estimate[eid],
+      std_error: py.estimates.std_error[eid],
+      ci_lower: py.estimates.ci_lower[eid],
+      ci_upper: py.estimates.ci_upper[eid],
+      p_value: py.estimates.raw_p[eid],
+      n,
       multiple_testing_family_ids: ["FAM_GRUNFELD_MHT_HOLM", "FAM_GRUNFELD_MHT_BH"],
     };
   });
 
-  const rawP = Object.fromEntries(estimates.map((e) => [e.estimate_id, e.p_value]));
-  const holm = holmAdj(estimates.map((e) => rawP[e.estimate_id]));
-  const bh = bhAdj(estimates.map((e) => rawP[e.estimate_id]));
-
-  const mkFamily = (family_id, method, adjArr) => ({
-    family_id, method,
-    member_estimate_ids: estimates.map((e) => e.estimate_id),
-    adjusted_results: estimates.map((e, i) => ({ estimate_id: e.estimate_id, raw_p_value: rawP[e.estimate_id], adjusted_p_value: adjArr[i] })),
+  const mkFamily = (familyId, method, key) => ({
+    family_id: familyId,
+    method,
+    member_estimate_ids: estimateIds,
+    adjusted_results: estimateIds.map((eid) => ({ estimate_id: eid, raw_p_value: py.estimates.raw_p[eid], adjusted_p_value: py.adjusted[key][eid] })),
   });
   const multipleTesting = {
     artifact_id: "MT_GRUNFELD", artifact_type: "multiple_testing", schema_version: "1.0",
     producer_role: "review", producer_task_id: "task_review_grunfeld", created_at: "2026-08-29T00:00:00Z",
     families: [
-      mkFamily("FAM_GRUNFELD_MHT_HOLM", "holm", holm),
-      mkFamily("FAM_GRUNFELD_MHT_BH", "benjamini_hochberg", bh),
+      mkFamily("FAM_GRUNFELD_MHT_HOLM", "holm", "holm"),
+      mkFamily("FAM_GRUNFELD_MHT_BH", "benjamini_hochberg", "benjamini_hochberg"),
     ],
   };
 
@@ -212,13 +168,13 @@ export function buildMultcompBundle(bundleDir) {
   };
   write(join(bundleDir, "artifact_manifest.json"), artifactManifest);
 
-  return { datasetSha, dfR, tcrit, estimates, holm, bh, multipleTesting };
+  return { datasetSha, dfR, estimates, multipleTesting, source: "results/python.json" };
 }
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const bd = process.argv.indexOf("--out") >= 0 ? process.argv[process.argv.indexOf("--out") + 1] : join(ROOT, "role-team-out/multcomp_bundle");
   const info = buildMultcompBundle(bd);
-  console.log(JSON.stringify({ bundleDir: bd, datasetSha256: info.datasetSha, residual_df: info.dfR, holm: info.holm, bh: info.bh, estimates: info.estimates.map((e) => ({ estimate_id: e.estimate_id, term: e.term, estimate: e.estimate, std_error: e.std_error, p_value: e.p_value, n: e.n })) }, null, 2));
+  console.log(JSON.stringify({ bundleDir: bd, datasetSha256: info.datasetSha, residual_df: info.dfR, source: info.source, estimates: info.estimates.map((e) => ({ estimate_id: e.estimate_id, term: e.term, estimate: e.estimate, std_error: e.std_error, p_value: e.p_value, n: e.n })) }, null, 2));
 }
 

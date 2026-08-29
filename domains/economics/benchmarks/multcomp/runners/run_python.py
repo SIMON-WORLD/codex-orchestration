@@ -29,11 +29,23 @@ def main():
     estimate_ids = ["EST_GRUNFELD_" + t.upper() for t in terms]
     raw_p = {}
     tstat = {}
+    estimate = {}
+    std_error = {}
+    ci_lower = {}
+    ci_upper = {}
+    df = float(df_r)
+    tcrit = stats.t.ppf(0.975, df)
     for t in terms:
-        tv = coefs[t] / ses[t]
-        p = 2.0 * stats.t.sf(abs(tv), df_r)
-        raw_p["EST_GRUNFELD_" + t.upper()] = float(p)
-        tstat["EST_GRUNFELD_" + t.upper()] = tv
+        eid = "EST_GRUNFELD_" + t.upper()
+        est = coefs[t]; se = ses[t]
+        tv = est / se
+        p = 2.0 * stats.t.sf(abs(tv), df)
+        raw_p[eid] = float(p)
+        tstat[eid] = tv
+        estimate[eid] = float(est)
+        std_error[eid] = float(se)
+        ci_lower[eid] = float(est - tcrit * se)
+        ci_upper[eid] = float(est + tcrit * se)
     pv = [raw_p[eid] for eid in estimate_ids]
     holm = list(multipletests(pv, method="holm")[1])
     bh = list(multipletests(pv, method="fdr_bh")[1])
@@ -63,7 +75,7 @@ def main():
             "family_ids": ["FAM_GRUNFELD_MHT_HOLM", "FAM_GRUNFELD_MHT_BH"],
             "note": "ENGINEERING VERIFICATION family: significance tests of the two Grunfeld panel-FE coefficients (value, capital). NOT a substantive research-family recommendation.",
         },
-        "estimates": {"order": estimate_ids, "raw_p": raw_p, "t_stat": tstat},
+        "estimates": {"order": estimate_ids, "raw_p": raw_p, "t_stat": tstat, "estimate": estimate, "std_error": std_error, "ci_lower": ci_lower, "ci_upper": ci_upper},
         "adjusted": adjusted,
         "methods": {
             "holm": {"tool": "statsmodels.stats.multitest.multipletests", "method": "holm", "definition": "Holm (1979) family-wise error rate step-down"},
