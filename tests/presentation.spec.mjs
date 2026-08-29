@@ -49,7 +49,7 @@ ok("4c figures does NOT have local table renderer", !figImpls.some((i) => i.id =
 
 // 5. estimate-table implementation remains experimental
 const estLocal = estImpls.find((i) => i.id === "presentation.local.table_renderer");
-ok("5 estimate-table renderer verification_status is experimental", !!estLocal && estLocal.verification_status === "experimental");
+ok("5 estimate-table renderer verification_status is tested", !!estLocal && estLocal.verification_status === "tested");
 
 // 6. benchmark binds only to tables.estimates
 ok("6 benchmark capability_id is economics.presentation.tables.estimates", benchmark.capability_id === "economics.presentation.tables.estimates");
@@ -66,7 +66,7 @@ ok("8a broad tables NOT resolved in production (reference-only, no workflow reso
 // 9. estimate-table capability can independently resolve (its own impl/env/status)
 const resEst = resolveAll(mkStudy("economics.presentation.tables.estimates"), registry, nodeEnv(), { mode: "test", allow_experimental: true, preferred_runtimes: [], approved_overrides: [] });
 const estRes = resEst.capabilities["economics.presentation.tables.estimates"];
-ok("9 estimate-table capability independently resolves (test + experimental + node env)", estRes.resolution === "resolved" && estRes.selected_implementation?.id === "presentation.local.table_renderer", `got=${estRes.resolution} sel=${estRes.selected_implementation?.id}`);
+ok("9 estimate-table capability independently resolves (test mode + node env)", estRes.resolution === "resolved" && estRes.selected_implementation?.id === "presentation.local.table_renderer", `got=${estRes.resolution} sel=${estRes.selected_implementation?.id}`);
 
 // 10. empirical scope authorizes all three
 const empirical = roles.find((r) => r.id === "empirical");

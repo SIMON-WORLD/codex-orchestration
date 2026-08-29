@@ -22,12 +22,12 @@
       "kind": "script",
       "name": "domains/economics/presentation/render_table.mjs",
       "runtime": "node",
-      "verification_status": "experimental",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "node"
       },
       "verification": {
-        "evidence": "Two evidence classes: (1) synthetic fixture benchmark (domains/economics/benchmarks/presentation/) = regression/adversarial invariant evidence; (2) real-data Grunfeld benchmark (domains/economics/benchmarks/presentation/grunfeld/) = non-synthetic candidate evidence (source identity + full artifact/provenance validity + source fidelity + determinism + provenance enforcement). Still experimental only - NOT tested, NOT verified, NOT journal-publication-ready (deterministic/canonical estimate-table reference rendering layer).",
+        "evidence": "Accepted evidence (scope: deterministic estimate-table rendering from \u001bstimates with explicit \u001bstimate_id, fixed fields term/estimate/std_error/p_value/n, full artifact/provenance validation): (1) synthetic presentation benchmark (regression/adversarial invariant evidence: determinism, source fidelity, provenance/tamper enforcement); (2) Grunfeld real-data presentation benchmark (non-synthetic source identity, complete artifact/provenance validation, source fidelity, deterministic rendering, provenance enforcement). Status = tested for this estimate-table scope only. NOT generic tables, NOT descriptive/diagnostic/model tables, NOT figures, NOT journal-publication-ready output, NOT verified scientific methodology.",
         "benchmark_ref": "domains/economics/benchmarks/presentation/"
       }
     }

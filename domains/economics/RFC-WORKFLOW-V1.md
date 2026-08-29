@@ -109,7 +109,7 @@ Role and Capability are kept **separate**: Roles carry responsibility/authority 
 | causal inference | `economics.causal.did.twfe`, `economics.causal.did.staggered`, `economics.causal.iv` (+ future `.rd`, `.scm`) | **E1** `src-did-r`/`src-csdid-stata`/`src-ivreg2`/`src-rdrobust`/`src-honestdid`; **E2** `case-euro-scm`(SCM). |
 | robustness / statistical testing | `economics.stat.testing.multcomp`, `economics.robustness.*` | **E1** `src-statsmodels`; **E2** `case-dime-niger-asp`(MHT), `case-euro-scm`(placebo). |
 | presentation (tables) | `economics.presentation.tables` | **E2** all 3 repos (render step); **E1** `src-aea-style`. |
-| presentation (estimate tables) | `economics.presentation.tables.estimates` | `presentation.local.table_renderer` (experimental) benchmarked; **E1** `src-aea-style`. |
+| presentation (estimate tables) | `economics.presentation.tables.estimates` | `presentation.local.table_renderer` (tested, estimate-table scope only); **E1** `src-aea-style`. |
 | presentation (figures) | `economics.presentation.figures` | **E2** all 3 repos (render step); **E1** `src-aea-style`. |
 | replication / provenance | `economics.replication.provenance`, `economics.replication.stamp` | **E1** `src-aea-data-editor`, `src-ssde-template-readme`, `case-aea-replication-template`; **E2** all 3 repos. |
 
@@ -273,5 +273,3 @@ No migration is implemented in this task. The plan is:
 ---
 
 *This RFC is a design proposal; it makes no code changes. After review, it becomes the basis for the implementation sequence in §9.*
-
-

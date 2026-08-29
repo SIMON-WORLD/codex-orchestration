@@ -17,5 +17,5 @@
     "synthetic_fixture_benchmark": "domains/economics/benchmarks/presentation/ (regression/adversarial invariant evidence)",
     "this_benchmark": "non-synthetic real-data candidate evidence for a future tested gate"
   },
-  "promotion": "presentation.local.table_renderer remains experimental"
+  "promotion": "presentation.local.table_renderer promoted to tested for the estimate-table scope only (upon accepted evidence); NOT verified"
 }
