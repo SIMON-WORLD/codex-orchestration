@@ -88,4 +88,22 @@ let { bundle: bMut, paths: pMut } = loadBundle();
 ok("F2 provenance mutation (ATT value) fails closed", validateArtifacts(bMut, pMut).length > 0, `errs=${JSON.stringify(validateArtifacts(bMut, pMut))}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
+// H. DiD closure fix: aggregation is staggered-specific, NOT required for narrow TWFE
+// H1. TWFE study with aggregation absent -> ready (not needs_decision solely due to aggregation)
+const h1 = clone(example); h1.selected_capabilities = { empirical: ["economics.causal.did.twfe"] }; h1.manual_validations.twfe_scope_homogeneous_or_reference = true; delete h1.decisions.aggregation;
+const h1r = evaluateStudyDesign(h1, registry);
+ok("H1 TWFE ready when staggered-specific aggregation absent (closure fix)", h1r.status === "ready" && !hasUnresolved(h1r, "economics.causal.did.twfe", "aggregation"), `status=${h1r.status} unresolved=${JSON.stringify(h1r.unresolved_decisions)}`);
+// H2. staggered still requires aggregation
+const h2 = clone(example); delete h2.decisions.aggregation;
+const h2r = evaluateStudyDesign(h2, registry);
+ok("H2 staggered still requires aggregation", h2r.status === "needs_decision" && hasUnresolved(h2r, "economics.causal.did.staggered", "aggregation"), `status=${h2r.status}`);
+// H3. missing relevant TWFE scientific decision still surfaces
+const h3 = clone(example); h3.selected_capabilities = { empirical: ["economics.causal.did.twfe"] }; h3.manual_validations.twfe_scope_homogeneous_or_reference = true; delete h3.decisions.estimator_choice;
+const h3r = evaluateStudyDesign(h3, registry);
+ok("H3 missing TWFE estimator_choice -> needs_decision", h3r.status === "needs_decision" && hasUnresolved(h3r, "economics.causal.did.twfe", "estimator_choice"), `status=${h3r.status}`);
+// H4. no silent staggered -> TWFE fallback remains intact (high-risk production)
+const h4 = clone(example);
+const h4r = resolveAll(h4, registry, { runtime_instances: { "r.os": { runtime: "r", available: true, known: true, version: "4.5.2" } } }, { mode: "production", allow_experimental: false, preferred_runtimes: [], approved_overrides: [] });
+ok("H4 selecting staggered never resolves/selects TWFE (no silent fallback)", !Object.keys(h4r.capabilities).includes("economics.causal.did.twfe"), `caps=${Object.keys(h4r.capabilities)}`);
+
 if (fail > 0) process.exit(1);

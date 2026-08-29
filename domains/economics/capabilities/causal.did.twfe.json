@@ -10,7 +10,7 @@
         "url": "https://doi.org/10.1016/j.jeconom.2021.03.014"
       },
       {
-        "name": "Callaway & Sant\u0027Anna 2021 — difference-in-differences with multiple time periods (modern staggered alternative)",
+        "name": "Callaway & Sant'Anna 2021 — difference-in-differences with multiple time periods (modern staggered alternative)",
         "url": "https://doi.org/10.1016/j.jeconom.2020.12.001"
       },
       {
@@ -75,8 +75,7 @@
     "clustering_level",
     "sample_exclusion",
     "estimator_choice",
-    "anticipation",
-    "aggregation"
+    "anticipation"
   ],
   "fallback_policy": "hard_stop"
 }
