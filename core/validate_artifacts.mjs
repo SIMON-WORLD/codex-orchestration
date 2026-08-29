@@ -26,6 +26,7 @@ const REQUIRED = {
 };
 export const EXPECTED_TYPE = { data_manifest: "data_manifest", variable_dictionary: "variable_dictionary", sample_flow: "sample_flow", descriptive_facts: "descriptive_facts", model_registry: "model_registry", estimates: "estimates", diagnostics: "diagnostics", multiple_testing: "multiple_testing" };
 const PRESENTATION_REQUIRED = ["artifact_id","artifact_type","schema_version","producer_role","producer_task_id","views"];
+const PRESENTATION_ALLOWED_KEYS = new Set(["artifact_id","artifact_type","schema_version","producer_role","producer_task_id","created_at","inputs","code_ref","data_ref","views"]);
 const PRESENTATION_VIEW_REQUIRED = ["view_id","view_type","output_ref","source_refs"];
 const PRESENTATION_SOURCE_REQUIRED = ["artifact_id","source_hash","source_hash_mode"];
 const VIEW_ALLOWED_KEYS = new Set(["view_id","view_type","output_ref","source_refs"]);
@@ -66,6 +67,7 @@ function validatePresentation(bundle, paths) {
   if (typeof pm !== "object" || Array.isArray(pm)) return ["presentation_manifest: 非对象"];
   for (const k of PRESENTATION_REQUIRED) if (pm[k] === undefined) errs.push(`presentation_manifest: 缺 ${k}`);
   if (pm.artifact_type !== "presentation_manifest") errs.push(`presentation_manifest: artifact_type 应为 presentation_manifest`);
+  for (const k of Object.keys(pm)) if (!PRESENTATION_ALLOWED_KEYS.has(k)) errs.push(`presentation_manifest: 含非法顶层字段 ${k}（不得内嵌科学数值）`);
   // artifact_id -> { type, path, obj }
   const artifactById = new Map();
   for (const type of ["data_manifest","variable_dictionary","sample_flow","descriptive_facts","model_registry","estimates","diagnostics","presentation_manifest"]) {
@@ -203,6 +205,7 @@ if (isMain) {
   if (errs.length) { console.error("validate_artifacts FAIL："); for (const e of errs) console.error("  - " + e); process.exit(1); }
   console.log("OK: artifacts 一致（valid）");
 }
+
 
 
 

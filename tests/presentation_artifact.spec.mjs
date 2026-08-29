@@ -90,6 +90,22 @@ let d8b = caseDir("p8b");
 writePres(d8b, { artifact_id: "PRESENT_008B", artifact_type: "presentation_manifest", ...COMMON, views: [ { view_id: "V_TABLE_7B", view_type: "table", output_ref: "output/tables/t7b.tex", source_refs: [ { artifact_id: "ESTIMATES_001", item_ids: ["EST_001"], source_hash: EST_HASH, source_hash_mode: CANONICAL_HASH_MODE, p_value: 0.5 } ] } ] });
 expect("8b source_ref embedded numeric payload rejected", d8b, true, "source_ref 含非法字段");
 
+
+// 9/9b/9c: presentation_manifest 顶层只允许声明字段
+// 9 顶层 estimate 字段 -> FAIL
+let d9 = caseDir("p9");
+writePres(d9, { artifact_id: "PRESENT_009", artifact_type: "presentation_manifest", ...COMMON, estimate: 9.99, views: [ { view_id: "V_T9", view_type: "table", output_ref: "output/tables/t9.tex", source_refs: [ { artifact_id: "ESTIMATES_001", item_ids: ["EST_001"], source_hash: EST_HASH, source_hash_mode: CANONICAL_HASH_MODE } ] } ] });
+expect("9 top-level estimate field fails", d9, true, "含非法顶层字段");
+
+// 9b 顶层 p_value 科学数值 -> FAIL
+let d9b = caseDir("p9b");
+writePres(d9b, { artifact_id: "PRESENT_009B", artifact_type: "presentation_manifest", ...COMMON, p_value: 0.5, views: [ { view_id: "V_T9B", view_type: "figure", output_ref: "output/figures/fig9b.png", source_refs: [ { artifact_id: "DIAGNOSTICS_001", item_ids: ["DIAG_001"], source_hash: DIAG_HASH, source_hash_mode: CANONICAL_HASH_MODE } ] } ] });
+expect("9b top-level p_value payload fails", d9b, true, "含非法顶层字段");
+
+// 9c 合法顶层 manifest（仅声明字段）通过
+let d9c = caseDir("p9c");
+writePres(d9c, { artifact_id: "PRESENT_009C", artifact_type: "presentation_manifest", ...COMMON, views: [ { view_id: "V_T9C", view_type: "table", output_ref: "output/tables/t9c.tex", source_refs: [ { artifact_id: "ESTIMATES_001", item_ids: ["EST_001"], source_hash: EST_HASH, source_hash_mode: CANONICAL_HASH_MODE } ] } ] });
+expect("9c valid top-level manifest passes", d9c, false);
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
 
