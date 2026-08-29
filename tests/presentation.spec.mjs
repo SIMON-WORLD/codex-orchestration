@@ -36,7 +36,7 @@ ok("5 no visualize Role returns", !roles.some((r) => r.id === "visualize"));
 
 // 6. presentation implementation is only reference (not tested/verified)
 const impls = cap.implementations || [];
-ok("6 presentation implementations are reference only", impls.length > 0 && impls.every((i) => i.verification_status === "reference"), `statuses=${impls.map((i) => i.verification_status).join(",")}`);
+ok("6 presentation implementations are reference/experimental only (no tested/verified)", impls.length > 0 && impls.every((i) => i.verification_status === "reference" || i.verification_status === "experimental"), `statuses=${impls.map((i) => i.verification_status).join(",")}`);
 ok("6b no tested/verified presentation implementation", !impls.some((i) => i.verification_status === "tested" || i.verification_status === "verified"));
 
 // 7. current study_design.example.json unchanged in selected capabilities (no presentation)
@@ -51,4 +51,5 @@ ok("8 production resolver blocks reference-only medium hard_stop capability (no 
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
+
 

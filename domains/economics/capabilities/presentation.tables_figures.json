@@ -42,6 +42,20 @@
         "evidence": null,
         "benchmark_ref": null
       }
+    },
+    {
+      "id": "presentation.local.table_renderer",
+      "kind": "script",
+      "name": "domains/economics/presentation/render_table.mjs",
+      "runtime": "node",
+      "verification_status": "experimental",
+      "environment_requirements": {
+        "runtime": "node"
+      },
+      "verification": {
+        "evidence": "Deterministic table renderer benchmark (domains/economics/benchmarks/presentation/): determinism + source-fidelity + upstream-change + tamper-detection. experimental only - not yet passed the tested gate.",
+        "benchmark_ref": "domains/economics/benchmarks/presentation/"
+      }
     }
   ],
   "scientific_preconditions": [],

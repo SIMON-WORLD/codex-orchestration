@@ -60,7 +60,7 @@ function uniqueErrs(list, key, label) {
 }
 
 // presentation_manifest：可选「派生视图」provenance binding。只存绑定元数据，不内嵌科学数值。
-function validatePresentation(bundle, paths) {
+export function validatePresentation(bundle, paths) {
   const errs = [];
   const pm = bundle.presentation_manifest;
   if (!pm) return errs;
@@ -205,6 +205,7 @@ if (isMain) {
   if (errs.length) { console.error("validate_artifacts FAIL："); for (const e of errs) console.error("  - " + e); process.exit(1); }
   console.log("OK: artifacts 一致（valid）");
 }
+
 
 
 

@@ -62,6 +62,10 @@ jobs:
         run: node tests/presentation.spec.mjs
       - name: Run presentation artifact provenance spec
         run: node tests/presentation_artifact.spec.mjs
+      - name: Run presentation table renderer benchmark
+        run: node domains/economics/benchmarks/presentation/run_benchmark.mjs
+      - name: Run presentation renderer spec
+        run: node tests/presentation_renderer.spec.mjs
       - name: Guard against fabricated verified in real registry
         run: |
           node -e "const fs=require('fs'); const dir='domains/economics/capabilities'; for(const f of fs.readdirSync(dir)){ if(!f.endsWith('.json')||f==='index.json') continue; const c=JSON.parse(fs.readFileSync(dir+'/'+f,'utf8')); for(const i of c.implementations||[]){ if(i.verification_status==='verified') throw new Error(f+' 有虚标 verified，真实 registry 不得在无 benchmark evidence 下标 verified'); } } console.log('OK real registry no fabricated verified')"

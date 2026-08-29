@@ -1,0 +1,15 @@
+{
+  "benchmark_id": "bench.presentation.table.v1",
+  "capability_id": "economics.presentation.tables_figures",
+  "title": "Deterministic presentation table renderer v1",
+  "source_of_truth": "tests/fixtures/artifacts/valid/ (existing synthetic artifact bundle; scientific numbers obtained from estimates.json, not hard-coded)",
+  "scope": "table views sourced from estimates with explicit estimate_id references (markdown render); no figure rendering",
+  "gate": "presentation provenance binding validation (structure + source_refs non-empty + source artifact exists + item_id exists + canonical source hash current)",
+  "cases": {
+    "A": "determinism (same artifacts + manifest, render twice -> identical bytes)",
+    "B": "source fidelity (rendered values equal the referenced values from estimates.json)",
+    "C": "upstream change propagation (modify copied estimates.json -> old presentation hash fails; refresh binding -> renders, output changes)",
+    "D": "manual rendered-output tampering (altered output differs from a fresh deterministic rerender)"
+  },
+  "no_op": "does NOT promote any implementation to tested/verified"
+}
