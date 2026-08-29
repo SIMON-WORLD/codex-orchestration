@@ -1,0 +1,16 @@
+{
+  "benchmark_id": "bench.presentation.table.families.v1",
+  "capability_id": "economics.presentation.tables.descriptive",
+  "capability_ids": ["economics.presentation.tables.descriptive", "economics.presentation.tables.diagnostics", "economics.presentation.tables.models"],
+  "title": "Deterministic presentation table renderer v1 — artifact families (descriptive_facts / diagnostics / model_registry)",
+  "source_of_truth": "tests/fixtures/artifacts/valid/ (existing synthetic artifact bundle; scientific numbers obtained from descriptive_facts.json / diagnostics.json / model_registry.json, not hard-coded)",
+  "scope": "deterministic derived-view table rendering from each family artifact with explicit item_id references. Descriptive-facts fields: fact_id/name/value/unit/sample_id. Diagnostics fields: diagnostic_id/name/value/method/model_id. Model-registry fields: model_id/capability_id/implementation_id/runtime/sample_id/outcome/specification/fixed_effects/vcov_spec/clustering/n. Does NOT cover generic tables, estimate tables, figures, or a general summary-statistics matrix.",
+  "gate": "full artifact-bundle validation (core validateArtifacts: scientific artifact structure + estimates<->model_registry + replication_stamp consistency + artifact_manifest canonical hashes + presentation provenance binding/source_hash)",
+  "cases": {
+    "A": "determinism for each family (render twice -> identical bytes)",
+    "B": "source fidelity per family (rendered row equals referenced values from the family artifact)",
+    "C": "upstream change propagation per family (modify source artifact -> old binding fails; rebuild full provenance chain -> renders, output reflects change)",
+    "D": "explicit scope / stale item_id / missing family view -> render FAIL (no cross-family bleed)"
+  },
+  "no_op": "does NOT promote any implementation to verified; tested promotion is justified by this synthetic/adversarial evidence PLUS genuine non-synthetic Grunfeld real-data family views"
+}

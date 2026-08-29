@@ -12,10 +12,16 @@
   },
   "p_value": "artifact-construction adapter: two-sided finite-df Student-t p from t = coef/se with residual df = reghdfe e(df_r)=9 (deterministic; NOT new estimator evidence, NOT renderer logic)",
   "ci": "artifact-construction adapter: coef +/- qt(0.975, df)*se (deterministic; required by estimates contract)",
-  "scope": "estimate-table rendering from estimates (explicit estimate_id; fixed fields term/estimate/std_error/p_value/n). Does NOT cover generic tables, descriptive/diagnostic/model tables, or figures.",
+  "scope": "Estimate-table rendering from estimates (explicit estimate_id; fixed fields term/estimate/std_error/p_value/n) is the primary scope. The same non-synthetic Grunfeld bundle additionally exercises deterministic derived-view tables for descriptive_facts (sample_size/firms), diagnostics (cluster_count/residual_df), and model_registry (MODEL_GRUNFELD spec) with full artifact/provenance validation, source fidelity, determinism, and fail-closed provenance enforcement.",
   "contrast": {
     "synthetic_fixture_benchmark": "domains/economics/benchmarks/presentation/ (regression/adversarial invariant evidence)",
     "this_benchmark": "non-synthetic real-data evidence (basis for the estimate-table tested promotion; NOT verified)"
   },
-  "promotion": "presentation.local.table_renderer promoted to tested for the estimate-table scope only (upon accepted evidence); NOT verified"
+  "promotion": "presentation.local.table_renderer promoted to tested for the estimate-table scope only (upon accepted evidence); NOT verified",
+  "family_fields": {
+    "descriptive_facts": "fact_id/name/value/unit/sample_id",
+    "diagnostics": "diagnostic_id/name/value/method/model_id",
+    "model_registry": "model_id/capability_id/implementation_id/runtime/sample_id/outcome/specification/fixed_effects/vcov_spec/clustering/n"
+  },
+  "family_promotion": "presentation.local.descriptive_table_renderer / presentation.local.diagnostics_table_renderer / presentation.local.model_table_renderer promoted to tested for their respective family scope only (upon synthetic + genuine non-synthetic Grunfeld evidence); NOT verified, NOT generic tables, NOT figures."
 }

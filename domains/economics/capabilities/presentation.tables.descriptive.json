@@ -1,0 +1,46 @@
+{
+  "id": "economics.presentation.tables.descriptive",
+  "domain": "economics",
+  "description": "Deterministic descriptive-facts table rendering from the `descriptive_facts` scientific artifact using explicit `fact_id` selection. Derived view only; must NOT define or recompute scientific estimands/statistics; full artifact-bundle provenance validation required. Supported fields: fact_id / name / value / unit / sample_id. Not yet fully journal-publication-ready — this is a deterministic, canonical descriptive-facts reference rendering layer.",
+  "risk_level": "medium",
+  "methodology": {
+    "references": [
+      {
+        "name": "World Bank / DIME — niger-asp-reprod (observed report_tables)",
+        "url": "https://github.com/dime-worldbank/niger-asp-reprod"
+      },
+      {
+        "name": "World Bank EduAnalytics — Learning Poverty (observed 03_export_tables)",
+        "url": "https://github.com/worldbank/LearningPoverty"
+      },
+      {
+        "name": "Awesome-Journal-Skills (workflow/template precedent: 00_master.do 09_tables.do)",
+        "url": "https://github.com/brycewang-stanford/Awesome-Journal-Skills"
+      },
+      {
+        "name": "AEA journals data & code (institutional presentation-style guidance)",
+        "url": "https://www.aeaweb.org/journals/policies/data-code"
+      }
+    ],
+    "note": "Engineering abstraction: deterministic descriptive-facts table rendering from the descriptive_facts artifact (explicit fact_id) with fixed fields fact_id/name/value/unit/sample_id. Upstream template precedent: journal-skills 09_tables.do; observed table stage: niger-asp report_tables / learning-poverty 03_export_tables. Institutional guidance: src-aea-style (presentation only). Scope is narrow: descriptive_facts-source, explicit fact_id; does NOT claim a general summary-statistics matrix (mean/sd/min/max recomputation) and is NOT described as fully journal-publication-ready."
+  },
+  "implementations": [
+    {
+      "id": "presentation.local.descriptive_table_renderer",
+      "kind": "script",
+      "name": "domains/economics/presentation/render_family_table.mjs",
+      "runtime": "node",
+      "verification_status": "tested",
+      "environment_requirements": {
+        "runtime": "node"
+      },
+      "verification": {
+        "evidence": "Accepted evidence (scope: deterministic descriptive-facts table rendering from descriptive_facts with explicit fact_id, fixed fields fact_id/name/value/unit/sample_id, full artifact/provenance validation): (1) synthetic family presentation benchmark (regression/adversarial invariant evidence: determinism, source fidelity, provenance/tamper enforcement, explicit scope); (2) Grunfeld real-data presentation benchmark family views (non-synthetic source identity, complete artifact/provenance validation, source fidelity, deterministic rendering, provenance enforcement). Status = tested for this descriptive_facts scope only. NOT generic tables, NOT a general summary-statistics table or estimates/diagnostics tables, NOT figures, NOT journal-publication-ready output, NOT verified scientific methodology.",
+        "benchmark_ref": "domains/economics/benchmarks/presentation/"
+      }
+    }
+  ],
+  "scientific_preconditions": [],
+  "decision_requirements": [],
+  "fallback_policy": "hard_stop"
+}

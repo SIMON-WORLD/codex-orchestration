@@ -187,10 +187,24 @@ export function buildGrunfeldBundle(bundleDir) {
   const presentationManifest = {
     artifact_id: "PRESENTATION_GRUNFELD", artifact_type: "presentation_manifest", schema_version: "1.0",
     producer_role: "empirical", producer_task_id: "task_pres_grunfeld", created_at: "2026-08-29T00:00:00Z",
-    views: [{
-      view_id: "V_GRUNFELD_TABLE", view_type: "table", output_ref: "output/tables/grunfeld_estimates.tex",
-      source_refs: [{ artifact_id: estimatesArtifact.artifact_id, item_ids: estimates.map((e) => e.estimate_id), source_hash: hashCanonicalJsonFile(join(bundleDir, "estimates.json")), source_hash_mode: CANONICAL_HASH_MODE }],
-    }],
+    views: [
+      {
+        view_id: "V_GRUNFELD_TABLE", view_type: "table", output_ref: "output/tables/grunfeld_estimates.tex",
+        source_refs: [{ artifact_id: estimatesArtifact.artifact_id, item_ids: estimates.map((e) => e.estimate_id), source_hash: hashCanonicalJsonFile(join(bundleDir, "estimates.json")), source_hash_mode: CANONICAL_HASH_MODE }],
+      },
+      {
+        view_id: "V_GRUNFELD_DESCRIPTIVE", view_type: "table", output_ref: "output/tables/grunfeld_descriptive.tex",
+        source_refs: [{ artifact_id: descriptiveFacts.artifact_id, item_ids: descriptiveFacts.facts.map((f) => f.fact_id), source_hash: hashCanonicalJsonFile(join(bundleDir, "descriptive_facts.json")), source_hash_mode: CANONICAL_HASH_MODE }],
+      },
+      {
+        view_id: "V_GRUNFELD_DIAGNOSTICS", view_type: "table", output_ref: "output/tables/grunfeld_diagnostics.tex",
+        source_refs: [{ artifact_id: diagnostics.artifact_id, item_ids: diagnostics.diagnostics.map((d) => d.diagnostic_id), source_hash: hashCanonicalJsonFile(join(bundleDir, "diagnostics.json")), source_hash_mode: CANONICAL_HASH_MODE }],
+      },
+      {
+        view_id: "V_GRUNFELD_MODELS", view_type: "table", output_ref: "output/tables/grunfeld_models.tex",
+        source_refs: [{ artifact_id: modelRegistry.artifact_id, item_ids: modelRegistry.models.map((m) => m.model_id), source_hash: hashCanonicalJsonFile(join(bundleDir, "model_registry.json")), source_hash_mode: CANONICAL_HASH_MODE }],
+      },
+    ],
   };
   write(join(bundleDir, "presentation_manifest.json"), presentationManifest);
 

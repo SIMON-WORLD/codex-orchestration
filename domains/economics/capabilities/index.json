@@ -11,8 +11,9 @@
     "stat.testing.multcomp.json",
     "presentation.tables.json",
     "presentation.tables.estimates.json",
+    "presentation.tables.descriptive.json",
+    "presentation.tables.diagnostics.json",
+    "presentation.tables.models.json",
     "presentation.figures.json"
   ]
 }
-
-
