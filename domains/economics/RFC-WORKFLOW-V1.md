@@ -116,6 +116,12 @@ Role and Capability are kept **separate**: Roles carry responsibility/authority 
 | presentation (figures) | `economics.presentation.figures` | **E2** all 3 repos (render step); **E1** `src-aea-style`. |
 | replication / provenance | `economics.replication.provenance`, `economics.replication.stamp` | **E1** `src-aea-data-editor`, `src-ssde-template-readme`, `case-aea-replication-template`; **E2** all 3 repos. |
 
+#### Causal DiD Pack v1 — conservative scope
+
+- **TWFE** (`economics.causal.did.twfe`) is a **narrow** estimator. It is allowed only as an (a) explicit reference/naive calculation or (b) estimator for a genuinely homogeneous-adoption / clean two-group design satisfying parallel trends + no anticipation. It is **NOT** a generally robust solution for heterogeneous staggered adoption (Goodman-Bacon bias). The contract carries a manual guard `twfe_scope_homogeneous_or_reference` forcing the Director to confirm scope. Heterogeneous staggered designs must route to `economics.causal.did.staggered`, never silently to TWFE.
+- **Staggered** (`economics.causal.did.staggered`) is frozen v1 to the **Callaway & Sant'Anna group-time ATT** framework (`did::att_gt`), with explicit treatment cohort / first-treatment timing, comparison group (never-treated or not-yet-treated), anticipation, clustering/inference, ATT(g,t), benchmark aggregation, and event-time aggregation. It is **not** a blanket claim of numerical equivalence across staggered estimators (Sun&Abraham, Borusyak, de Chaisemartin not claimed equivalent). Anticipation + aggregation are required Director decisions.
+- **Maturity (honest)**: No DiD implementation is promoted to `tested` in this pack — the dev environment has no runnable modern staggered estimator (`did`/R, `csdid`/python, `pyfixest`/python absent; CRAN unreachable) and no obtainable canonical real DiD dataset, so no genuine non-synthetic DiD benchmark was produced and none is fabricated. TWFE/staggered implementations remain `reference`/`experimental`; causal identification is a human/Director scientific judgment, never machine-verified.
+
 **Separation rule**: Roles *select* capabilities; Capabilities are *verified* (reference/experimental/tested/verified) and *resolved* to an implementation. Capabilities never decide the scientific question; Roles never invent method semantics — they invoke a resolved capability.
 
 ---

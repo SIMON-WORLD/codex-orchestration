@@ -4,13 +4,26 @@
   "execution_context": {
     "mode": "production",
     "allow_experimental": false,
-    "preferred_runtimes": ["stata", "r", "python"]
+    "preferred_runtimes": [
+      "stata",
+      "r",
+      "python"
+    ]
   },
   "selected_capabilities": {
-    "literature_search": ["economics.literature.search"],
-    "data": ["economics.data.validation"],
-    "empirical": ["economics.regression.panel_fe", "economics.causal.did.staggered"],
-    "review": ["economics.stat.testing.multcomp"]
+    "literature_search": [
+      "economics.literature.search"
+    ],
+    "data": [
+      "economics.data.validation"
+    ],
+    "empirical": [
+      "economics.regression.panel_fe",
+      "economics.causal.did.staggered"
+    ],
+    "review": [
+      "economics.stat.testing.multcomp"
+    ]
   },
   "decisions": {
     "treatment_definition": "firm mandate post (staggered)",
@@ -24,7 +37,9 @@
     "family_definition": "m1-m6a",
     "correction_method": "holm",
     "search_scope": "2020-2026",
-    "variable_definition": "objective output_count"
+    "variable_definition": "objective output_count",
+    "anticipation": "0 (no anticipation)",
+    "aggregation": "simple (CS simple group-time ATT aggregation)"
   },
   "preconditions": {
     "design.panel": "unit_time",

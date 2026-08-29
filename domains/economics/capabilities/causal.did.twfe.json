@@ -1,16 +1,24 @@
 {
   "id": "economics.causal.did.twfe",
   "domain": "economics",
-  "description": "Two-way fixed-effects difference-in-differences",
+  "description": "Narrow two-way fixed-effects difference-in-differences (TWFE DiD) estimator. Causal interpretation rests on parallel trends, no anticipation, and treatment-effect homogeneity / clean two-group adoption. It is NOT a generally robust estimator for staggered adoption with heterogeneous treatment effects (Goodman-Bacon bias). For heterogeneous staggered designs, the study design must route to economics.causal.did.staggered (group-time ATT), never silently to TWFE. TWFE is used here only as an allowed narrow specification/reference calculation or in genuinely homogeneous/clean-adoption designs.",
   "risk_level": "high",
   "methodology": {
     "references": [
       {
-        "name": "Goodman-Bacon 2021",
-        "url": "https://..."
+        "name": "Goodman-Bacon 2021 — difference-in-differences with variation in treatment timing (TWFE decomposition / bias)",
+        "url": "https://doi.org/10.1016/j.jeconom.2021.03.014"
+      },
+      {
+        "name": "Callaway & Sant\u0027Anna 2021 — difference-in-differences with multiple time periods (modern staggered alternative)",
+        "url": "https://doi.org/10.1016/j.jeconom.2020.12.001"
+      },
+      {
+        "name": "Sun & Abraham 2021 — estimating dynamic treatment effects in event studies with heterogeneous treatment effects (event-study alternative)",
+        "url": "https://doi.org/10.1016/j.jeconom.2020.09.006"
       }
     ],
-    "note": "TWFE with treatment timing"
+    "note": "TWFE DiD is a narrow estimator. It is acceptable as (a) an allowed reference/naive calculation or (b) the estimator for a genuinely two-group / homogeneous-adoption design that satisfies parallel trends and no anticipation. It is NOT acceptable as a generally robust replacement for a modern staggered-group-time ATT estimator. The causality rests on design assumptions that are human/Director scientific judgments, not machine-verified facts. This contract must not present ordinary TWFE as a robust solution for staggered adoption with heterogeneous treatment effects."
   },
   "implementations": [
     {
@@ -26,8 +34,8 @@
         }
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Declared experimental in registry. NOT benchmarked/verified in this environment: pyfixest is not installed in any detected Python runtime (p7-venv 3.14.3, system 3.14, system 3.9). No genuine real-data TWFE DiD benchmark was produced. Remains experimental, NOT tested, NOT verified.",
+        "benchmark_ref": "domains/economics/benchmarks/did/"
       }
     },
     {
@@ -40,8 +48,8 @@
         "runtime": "stata"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Declared reference. reghdfe is available in the environment (StataNow19) and can estimate TWFE, but no genuine real-data DiD benchmark was produced because no canonical real DiD dataset is obtainable in this environment (mpdta / did package unavailable, CRAN unreachable). No fabricated result. Remains reference, NOT tested, NOT verified.",
+        "benchmark_ref": "domains/economics/benchmarks/did/"
       }
     }
   ],
@@ -56,13 +64,19 @@
     {
       "kind": "manual",
       "label": "comparison_group_support_satisfied"
+    },
+    {
+      "kind": "manual",
+      "label": "twfe_scope_homogeneous_or_reference"
     }
   ],
   "decision_requirements": [
     "treatment_definition",
     "clustering_level",
     "sample_exclusion",
-    "estimator_choice"
+    "estimator_choice",
+    "anticipation",
+    "aggregation"
   ],
   "fallback_policy": "hard_stop"
 }

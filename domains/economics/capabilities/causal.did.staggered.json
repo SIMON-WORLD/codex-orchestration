@@ -1,20 +1,32 @@
 {
   "id": "economics.causal.did.staggered",
   "domain": "economics",
-  "description": "Heterogeneous-treatment staggered DiD (CS / Sun-Abraham / Borusyak / de Chaisemartin)",
+  "description": "Narrow v1 staggered difference-in-differences around the Callaway & Sant\u0027Anna group-time ATT framework (did::att_gt). Estimates ATT(g,t) for treatment cohort g at time t, with an explicit comparison group, anticipation convention, and clustering/inference convention, then aggregates. NOT a blanket claim of numerical equivalence across all staggered estimators. This contract freeze scopes to the CS group-time ATT estimator (and its aggregation/event-time) as the reference v1; Sun\u0026Abraham, Borusyak, de Chaisemartin et al. are NOT claimed as equivalent here.",
   "risk_level": "high",
   "methodology": {
     "references": [
       {
-        "name": "Callaway & Sant'Anna 2021",
-        "url": "https://..."
+        "name": "Callaway & Sant\u0027Anna 2021 — difference-in-differences with multiple time periods (group-time ATT)",
+        "url": "https://doi.org/10.1016/j.jeconom.2020.12.001"
       },
       {
-        "name": "Sun & Abraham 2021",
-        "url": "https://..."
+        "name": "did R package (Callaway/Sant\u0027Anna) — att_gt / aggte",
+        "url": "https://github.com/bcallaway11/did"
+      },
+      {
+        "name": "did package documentation / authors & citation",
+        "url": "https://bcallaway11.github.io/did/"
+      },
+      {
+        "name": "csdid / drdid (Rios-Avila et al., Stata) — staggered DiD",
+        "url": "https://github.com/friosavila/csdid_drdid"
+      },
+      {
+        "name": "Sun & Abraham 2021 — event study with heterogeneous treatment effects",
+        "url": "https://doi.org/10.1016/j.jeconom.2020.09.006"
       }
     ],
-    "note": "report >=2 estimators"
+    "note": "V1 scope: Callaway\u0026Sant\u0027Anna group-time ATT(g,t) via did::att_gt (or a definition-compatible implementation), with explicit: treatment cohort / first-treatment timing, comparison group (never-treated or not-yet-treated), anticipation convention, clustering/inference convention, ATT(g,t), the aggregation used by the benchmark (e.g. att_gt simple/group/dynamic aggte), and event-time aggregation when exercised. Do not collapse different staggered-DiD estimators into one claim of numerical equivalence, and do not rout a heterogeneous staggered design to TWFE. ESTIMATOR-SPECIFIC logic lives in the Domain capability/adapter, never in Core."
   },
   "implementations": [
     {
@@ -30,8 +42,8 @@
         }
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Declared experimental in registry. NOT benchmarked/verified in this environment: csdid is not installed in any detected Python runtime (p7-venv 3.14.3, system 3.14, system 3.9). No genuine real-data staggered benchmark was produced. Remains experimental, NOT tested, NOT verified.",
+        "benchmark_ref": "domains/economics/benchmarks/did/"
       }
     },
     {
@@ -44,8 +56,8 @@
         "runtime": "r"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Declared reference. The did R package (and its mpdta example dataset) is NOT installed in the environment (R 4.5.2 has fixest 0.13.2 but no did package); CRAN is unreachable so it cannot be installed here. No genuine real-data staggered benchmark was produced. Remains reference, NOT tested, NOT verified.",
+        "benchmark_ref": "domains/economics/benchmarks/did/"
       }
     }
   ],
@@ -73,7 +85,9 @@
     "treatment_definition",
     "clustering_level",
     "sample_exclusion",
-    "estimator_choice"
+    "estimator_choice",
+    "anticipation",
+    "aggregation"
   ],
   "fallback_policy": "hard_stop"
 }

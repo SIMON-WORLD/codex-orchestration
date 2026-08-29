@@ -1,0 +1,41 @@
+{
+  "benchmark_id": "did_twfe_staggered_design_v1",
+  "capability_ids": ["economics.causal.did.twfe", "economics.causal.did.staggered"],
+  "title": "Economics Causal DiD Pack v1 — benchmark design + availability",
+  "evidence_class": "design_and_availability",
+  "intended_real_data_benchmark": {
+    "dataset": {
+      "preferred": "Callaway & Sant'Anna did package example dataset (mpdta) — county-level teen employment / minimum wage",
+      "source": "https://github.com/bcallaway11/did (data/mpdta.rda) and cran.r-project.org/web/packages/did",
+      "obtainability": "NOT obtainable in this development environment: did R package not installed; CRAN mirror unreachable (available.packages -> 0 pkgs); no local copy of mpdta."
+    },
+    "estimator": {
+      "preferred": "did::att_gt (Callaway & Sant'Anna group-time ATT)",
+      "runnable": "NO — did R package not installed; csdid (python) and pyfixest (python) not installed; no runnable modern staggered estimator in environment."
+    },
+    "frozen_definitional_fields": [
+      "treatment cohort / first-treatment timing",
+      "comparison group (never-treated or not-yet-treated)",
+      "anticipation convention",
+      "clustering / inference convention",
+      "ATT(g,t)",
+      "benchmark aggregation (att_gt simple / dynamic aggte)",
+      "event-time aggregation when exercised"
+    ]
+  },
+  "availability_audit": {
+    "r": "R 4.5.2; fixest 0.13.2 present; did package NOT present; mpdta NOT present",
+    "python": "p7-venv 3.14.3 (pandas 3.0.5, statsmodels 0.15.0), system 3.14, system 3.9 — pyfixest NOT present, csdid NOT present",
+    "stata": "StataNow19 with reghdfe (TWFE-capable; no real DiD dataset in repo/environment)",
+    "cran": "unreachable (0 packages returned)"
+  },
+  "what_was_delivered": [
+    "Repaired TWFE and staggered DiD capability contracts (canonical published references; narrow, scientifically conservative scope)",
+    "Staggered v1 frozen to Callaway & Sant'Anna group-time ATT framework (not a blanket equivalence claim across staggered estimators)",
+    "TWFE narrowed to an allowed reference/homogeneous-adoption specification; heterogeneous staggered designs must NOT silently route to TWFE",
+    "TWFE safety / no-silent-fallback / cross-capability-bleed / high-risk fail-closed regression (tests/did_pack.spec.mjs)",
+    "Director-level missing decision / precondition regressions",
+    "No fabricated real-data result; no DiD implementation promoted to tested"
+  ],
+  "no_op": "Does NOT promote any DiD implementation to tested or verified. A genuine non-synthetic staggered benchmark is not obtainable in this environment (no runnable modern staggered estimator, no obtainable canonical DiD dataset) — no fabricated 'real-data' result is produced."
+}

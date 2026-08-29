@@ -187,6 +187,32 @@
       "evidence": "cran.r-project.org/web/packages/did; github.com/bcallaway11/did (verified). doi:10.1016/j.jeconom.2020.12.001."
     },
     {
+      "source_id": "src-goodman-bacon",
+      "name": "Goodman-Bacon 2021 - Difference-in-differences with variation in treatment timing",
+      "url": "https://doi.org/10.1016/j.jeconom.2021.03.014",
+      "source_type": "method",
+      "authority": "Andrew Goodman-Bacon",
+      "maturity": "high",
+      "phases": ["TWFE DiD", "staggered bias", "decomposition"],
+      "adopt": ["understand TWFE bias under heterogeneous/staggered adoption", "decompose the TWFE DiD coefficient", "justify when ordinary TWFE is acceptable (homogeneous adoption / reference)"],
+      "not_copy": ["treating ordinary TWFE as a generally robust estimator for heterogeneous staggered designs"],
+      "supports": { "roles": ["empirical", "review"], "capabilities": ["economics.causal.did.twfe"], "policies": ["TWFE scope restriction"], "artifacts": ["estimates", "diagnostics"] },
+      "evidence": "Goodman-Bacon (2021), Journal of Econometrics 225(2):254-277. doi:10.1016/j.jeconom.2021.03.014."
+    },
+    {
+      "source_id": "src-sun-abraham",
+      "name": "Sun & Abraham 2021 - Estimating dynamic treatment effects in event studies with heterogeneous treatment effects",
+      "url": "https://doi.org/10.1016/j.jeconom.2020.09.006",
+      "source_type": "method",
+      "authority": "Liyang Sun, Sarah Abraham",
+      "maturity": "high",
+      "phases": ["event study", "heterogeneous treatment effects", "staggered DiD"],
+      "adopt": ["interaction-weighted event-study estimator for heterogeneous treatments", "never-treated or last-treated reference"],
+      "not_copy": ["claiming numerical equivalence with CS2021 across all estimators"],
+      "supports": { "roles": ["empirical", "review"], "capabilities": ["economics.causal.did.staggered"], "policies": ["event-time aggregation"], "artifacts": ["estimates", "diagnostics"] },
+      "evidence": "Sun & Abraham (2021), Journal of Econometrics 225(2):175-199. doi:10.1016/j.jeconom.2020.09.006."
+    },
+    {
       "source_id": "src-csdid-stata",
       "name": "csdid / drdid (Stata, Rios-Avila et al.)",
       "url": "https://github.com/friosavila/csdid_drdid",
