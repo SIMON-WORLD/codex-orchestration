@@ -9,6 +9,8 @@
     "causal.did.staggered.json",
     "causal.iv.json",
     "stat.testing.multcomp.json",
-    "presentation.tables_figures.json"
+    "presentation.tables.json",
+    "presentation.figures.json"
   ]
 }
+

@@ -151,7 +151,7 @@ setup/脚手架（master或run_all + globals + 包安装）      R=3 strong
 
 - **Role（强 observed/institutional）**：`data`、`empirical`；以及 `writing`、`review`（机构/工作流）。
 - **Role（机构/工作流，非真实仓储观察）**：`literature_search`、`literature_review`。
-- **Capability（而非 Role）**：`environment.setup`/`project.scaffold`、`economics.data.validation`、`economics.regression.*`、`economics.causal.*`、`economics.robustness`、`economics.presentation.tables_figures`、`economics.replication.provenance`、`economics.literature.search/.verify`。
+- **Capability（而非 Role）**：`environment.setup`/`project.scaffold`、`economics.data.validation`、`economics.regression.*`、`economics.causal.*`、`economics.robustness`、`economics.presentation.tables` / `economics.presentation.figures`、`economics.replication.provenance`、`economics.literature.search/.verify`。
 - **gate（而非 Role）**：复现门禁（`replicability_check`）、decision gate。
 
 > 注：`data` / `empirical` 的 role 证据最强；`setup`/`visualize`/`replication` 更多是 capability/gate 而非 role。
@@ -175,3 +175,4 @@ setup/脚手架（master或run_all + globals + 包安装）      R=3 strong
 - **所有「observed」结论仅引用 3 个真实仓库；机构/工作流结论用 `src-*` / `case-*`(template) 区分标注。**
 
 > 本文件**不修改**任何现有 roles / capabilities / policies / artifacts / benchmarks；仅作为后续设计的证据基础。
+

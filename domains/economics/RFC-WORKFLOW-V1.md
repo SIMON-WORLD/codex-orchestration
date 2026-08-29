@@ -74,13 +74,13 @@ The **worker Role set = 6 roles**: `literature_search`, `literature_review`, `da
 
 ### 2.3 Decision: `visualize` → presentation Capability
 
-**Decision**: `visualize` is **removed** as a Role and becomes an `economics.presentation.tables_figures` **Capability**.
+**Decision**: `visualize` is **removed** as a Role and becomes an `economics.presentation.tables` and `economics.presentation.figures` **Capabilities**.
 
 Rationale:
 - **E2**: real projects do not run a separate "visualize agent". `case-euro-scm` renders figures in `5_Graphs_Annual`; `case-journal-skills` `00_master.do` ends with `09_tables.do`; `case-dime-niger-asp` writes `report_tables/graphs`. Figure/tables are a **deterministic render step** driven by the analysis artifacts.
 - **E4**: rendering is mechanical; it should be strictly artifact-consuming and carry a strong rule (no causal inference from a figure). That rule is more naturally a **capability policy** than an agent's discretionary authority.
 
-`economics.presentation.tables_figures` is invoked inside the `empirical`→`writing` handoff (in the analysis pipeline), and `writing` consumes the rendered tables/figures.
+`economics.presentation.tables` / `economics.presentation.figures` are invoked inside the `empirical`→`writing` handoff (in the analysis pipeline), and `writing` consumes the rendered tables/figures.
 
 ### 2.4 Decision: replication = Capability + gate under `review` (not a new Role)
 
@@ -108,7 +108,8 @@ Role and Capability are kept **separate**: Roles carry responsibility/authority 
 | regression | `economics.regression.panel_fe` (+ future `.ols`, `.fe_interacted`) | **E1** `src-fixest`/`src-reghdfe`/`src-linearmodels`/`src-pyfixest`; **E2** `case-euro-scm`, `case-dime-niger-asp`. |
 | causal inference | `economics.causal.did.twfe`, `economics.causal.did.staggered`, `economics.causal.iv` (+ future `.rd`, `.scm`) | **E1** `src-did-r`/`src-csdid-stata`/`src-ivreg2`/`src-rdrobust`/`src-honestdid`; **E2** `case-euro-scm`(SCM). |
 | robustness / statistical testing | `economics.stat.testing.multcomp`, `economics.robustness.*` | **E1** `src-statsmodels`; **E2** `case-dime-niger-asp`(MHT), `case-euro-scm`(placebo). |
-| presentation | `economics.presentation.tables_figures` | **E2** all 3 repos (render step); **E1** `src-aea-style`. |
+| presentation (tables) | `economics.presentation.tables` | **E2** all 3 repos (render step); **E1** `src-aea-style`. |
+| presentation (figures) | `economics.presentation.figures` | **E2** all 3 repos (render step); **E1** `src-aea-style`. |
 | replication / provenance | `economics.replication.provenance`, `economics.replication.stamp` | **E1** `src-aea-data-editor`, `src-ssde-template-readme`, `case-aea-replication-template`; **E2** all 3 repos. |
 
 **Separation rule**: Roles *select* capabilities; Capabilities are *verified* (reference/experimental/tested/verified) and *resolved* to an implementation. Capabilities never decide the scientific question; Roles never invent method semantics — they invoke a resolved capability.
@@ -209,7 +210,7 @@ Coordinator (core, domain-agnostic)
 5. Once the design resolves to allowed capability set, the Coordinator dispatches the **worker Roles**:
    - `literature_search` → `literature_search_log`; `literature_review` → `literature_review`.
    - `data` → `data_manifest`/`variable_dictionary`/`sample_flow`/`descriptive_facts`/`decision_log` (escalating sample_exclusion/treatment_definition if UOS shifts; those are `needs_decision`).
-   - `empirical` → resolves `panel_fe`/`did.staggered` implementations via `core/resolve_capabilities.mjs` (picks runtime by env + policy + verification status); produces `model_registry`/`estimates`/`diagnostics`; invokes `economics.presentation.tables_figures` to render tables/figures.
+   - `empirical` → resolves `panel_fe`/`did.staggered` implementations via `core/resolve_capabilities.mjs` (picks runtime by env + policy + verification status); produces `model_registry`/`estimates`/`diagnostics`; invokes `economics.presentation.tables` / `economics.presentation.figures` to render tables/figures.
    - `writing` → `manuscript` + claim ledger (each claim references an artifact).
    - `review` → adversarial review (human) **and** **replication gate**: runs `core/build_replication_stamp.mjs` from the artifacts (deterministic), then `core/validate_artifacts.mjs`. A mismatch (e.g. a figure number not in `estimates`, or a hand-edited stamp) → **machine FAIL**.
 6. **Gates/review**: if the replication gate PASSes and the Director accepts interpretation/routing, the Coordinator may create threads / route to submission; otherwise the study returns to the Director for revision.
@@ -235,7 +236,7 @@ No migration is implemented in this task. The plan is:
 - `domains/economics/study_design.example.json`: add `economics_director` (or `director`) routing fields; keep `execution_context`/`selected_capabilities`/`decisions`/`preconditions`/`manual_validations`.
 
 ### 8.3 Added
-- New capability files: `economics.literature.verify`, `economics.robustness.honestdid` (or `.sensitivity`), `economics.presentation.tables_figures`, `economics.replication.provenance`, `economics.replication.stamp` (if not already present); registration in `capabilities/index.json`.
+- New capability files: `economics.literature.verify`, `economics.robustness.honestdid` (or `.sensitivity`), `economics.presentation.tables`, `economics.presentation.figures`, `economics.replication.provenance`, `economics.replication.stamp` (if not already present); registration in `capabilities/index.json`.
 - A **`study_design.schema.json`** under `domains/economics/` — this is the **Director's contract** (NOT a `roles.json` entry). The Director is a domain-level controller, not a worker Role.
 - `domains/economics/RFC-WORKFLOW-V1.md` (this file, the current RFC).
 
@@ -250,9 +251,9 @@ No migration is implemented in this task. The plan is:
 
 1. **Director contract / schema**: Add `domains/economics/study_design.schema.json` (the Director's contract); add a controller note to the SKILL / docs. **Do NOT add `economics_director` to `roles.json`** (it is not a worker Role). *(E4)*
 2. **Worker Role/schema update**: update `roles.json` (re-scope `visualize`, split `review`, add `economics.presentation.*` to `empirical`), update `validate_role_scope.mjs` expectations. *(E4)*
-3. **Capability additions**: `economics.literature.verify`, `economics.robustness.*`, `economics.presentation.tables_figures`, `economics.replication.provenance`; register in `index.json`; update `schema.spec.mjs`. *(E1/E2)*
+3. **Capability additions**: `economics.literature.verify`, `economics.robustness.*`, `economics.presentation.tables`, `economics.presentation.figures`, `economics.replication.provenance`; register in `index.json`; update `schema.spec.mjs`. *(E1/E2)*
 4. **Director preflight hook**: Wire the Director's `study_design` into the resolver/preflight path so unresolved scientific choices surface `needs_decision`, and machine-enforceable admission failures surface `blocked` (no verified implementation for high-risk production, precondition mismatch). *(E4)*
-5. **Presentational capability + artifact binding**: Implement `economics.presentation.tables_figures` so it consumes only `model_registry`/`estimates`/`diagnostics`/`data_manifest`; extend the **generic** `validate_artifacts.mjs` for artifact-reference/provenance checks (figure/table ↔ artifact id), keeping it domain-agnostic. *(E4 + E1)*
+5. **Presentational capability + artifact binding**: Implement `economics.presentation.tables` (table renderer) and `economics.presentation.figures` (reference-only) so they consume only `model_registry`/`estimates`/`diagnostics`/`data_manifest`; extend the **generic** `validate_artifacts.mjs` for artifact-reference/provenance checks (figure/table ↔ artifact id), keeping it domain-agnostic. *(E4 + E1)*
 6. **Replication gate in `review`**: Add `economics.replication.provenance`; confirm `replication_stamp` is built deterministically and validated. *(E1)*
 7. **Role/capability tests + docs**: Update `role_scope.spec.mjs`, `resolver.spec.mjs`, `docs_consistency.spec.mjs`, `skills/codex-role-team/SKILL.md` (Director boundary, presentation capability, review split, blocked/needs_decision). *(E4)*
 8. **Compatibility + regression**: Keep v1.2 legacy path green; add fixtures for Director gate (unresolved scientific choice → `needs_decision`; high-risk production no-verified → `blocked`; precondition mismatch → `blocked`), presentation-capability artifact binding, replication gate FAIL. *(E4)*
@@ -271,3 +272,4 @@ No migration is implemented in this task. The plan is:
 ---
 
 *This RFC is a design proposal; it makes no code changes. After review, it becomes the basis for the implementation sequence in §9.*
+
