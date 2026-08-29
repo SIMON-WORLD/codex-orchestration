@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { validatePresentation } from "../../../core/validate_artifacts.mjs";
+import { validateArtifacts } from "../../../core/validate_artifacts.mjs";
 import { CANONICAL_HASH_MODE } from "../../../core/artifact_hash.mjs";
 
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
@@ -67,7 +67,7 @@ export function collectTableEstimateRows(bundle, viewId) {
 
 // Provenance gate：复用 core 的 presentation 校验（结构 + source_refs + item_id + canonical hash）。
 export function renderValidated(bundle, paths, opts = {}) {
-  const errs = validatePresentation(bundle, paths);
+  const errs = validateArtifacts(bundle, paths);
   if (errs.length) return { ok: false, errors: errs };
   try {
     const { rows } = collectTableEstimateRows(bundle, opts.viewId);
@@ -92,3 +92,4 @@ if (isMain) {
 }
 
 export { CANONICAL_HASH_MODE };
+

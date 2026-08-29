@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// 确定性 presentation TABLE renderer v1 回归。
-import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync } from "node:fs";
+// 确定性 presentation TABLE renderer v1 回归（完整 scientific bundle 校验门禁）。
+import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadBundle, renderValidated } from "../domains/economics/presentation/render_table.mjs";
 import { hashCanonicalJsonFile, CANONICAL_HASH_MODE } from "../core/artifact_hash.mjs";
+import { buildReplicationStamp } from "../core/build_replication_stamp.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const VALID = join(root, "tests/fixtures/artifacts/valid");
@@ -17,6 +18,21 @@ function writeManifest(dir, hash, opts = {}) {
 }
 function render(dir, viewId) { const { bundle, paths } = loadBundle(dir); return renderValidated(bundle, paths, { viewId }); }
 function estHash(dir) { return hashCanonicalJsonFile(join(dir, "estimates.json")); }
+function editEstimate(dir, value) {
+  const p = join(dir, "estimates.json"); const o = JSON.parse(readFileSync(p, "utf8")); o.estimates[0].estimate = value; writeFileSync(p, JSON.stringify(o, null, 2) + "\n", "utf8");
+}
+function rebuildStamp(dir) {
+  const mr = JSON.parse(readFileSync(join(dir, "model_registry.json"), "utf8"));
+  const es = JSON.parse(readFileSync(join(dir, "estimates.json"), "utf8"));
+  const sourceHashes = { model_registry: hashCanonicalJsonFile(join(dir, "model_registry.json")), estimates: hashCanonicalJsonFile(join(dir, "estimates.json")) };
+  if (existsSync(join(dir, "diagnostics.json"))) sourceHashes.diagnostics = hashCanonicalJsonFile(join(dir, "diagnostics.json"));
+  writeFileSync(join(dir, "replication_stamp.json"), JSON.stringify(buildReplicationStamp(mr.models, es.estimates, sourceHashes), null, 2) + "\n", "utf8");
+}
+function rebuildArtifactManifest(dir) {
+  const am = JSON.parse(readFileSync(join(dir, "artifact_manifest.json"), "utf8"));
+  for (const a of am.artifacts) a.sha256 = hashCanonicalJsonFile(join(dir, a.path));
+  writeFileSync(join(dir, "artifact_manifest.json"), JSON.stringify(am, null, 2) + "\n", "utf8");
+}
 
 let pass = 0, fail = 0;
 function ok(name, cond, detail) { if (cond) { console.log(`  ✅ ${name}`); pass++; } else { console.log(`  ❌ ${name} ${detail || ""}`); fail++; } }
@@ -24,19 +40,18 @@ function expectFail(name, dir, contains) { const r = render(dir); const cond = r
 
 console.log("Presentation renderer spec");
 
-// 1 valid estimate table renders
+// 1 valid complete bundle renders
 let d1 = join(TMP, "v1"); copyValid(d1); writeManifest(d1, estHash(d1));
 const r1 = render(d1);
-ok("1 valid estimate table renders", r1.ok === true && r1.output.includes("| term | estimate | std_error | p_value | n |"), `ok=${r1.ok}`);
+ok("1 valid complete bundle renders", r1.ok === true && r1.output.includes("| term | estimate | std_error | p_value | n |"), `ok=${r1.ok}`);
 
 // 2 deterministic rerender
 const r2a = render(d1), r2b = render(d1);
 ok("2 deterministic rerender", r2a.ok && r2b.ok && r2a.output === r2b.output, `equal=${r2a.output === r2b.output}`);
 
-// 3 stale manifest/source hash blocks render
-let d3 = join(TMP, "v3"); copyValid(d3); writeManifest(d3, estHash(d3));
-{ const p = join(d3, "estimates.json"); const o = JSON.parse(readFileSync(p, "utf8")); o.estimates[0].estimate = 9.99; writeFileSync(p, JSON.stringify(o, null, 2) + "\n", "utf8"); }
-expectFail("3 stale manifest/source hash blocks render", d3, "hash 不匹配");
+// 3 stale presentation hash blocks (modified estimates, hash not refreshed)
+let d3 = join(TMP, "v3"); copyValid(d3); writeManifest(d3, estHash(d3)); editEstimate(d3, 1.50);
+expectFail("3 stale presentation hash blocks render", d3, "hash 不匹配");
 
 // 4 nonexistent estimate_id blocks render
 let d4 = join(TMP, "v4"); copyValid(d4); writeManifest(d4, estHash(d4), { itemIds: ["EST_999"] });
@@ -47,21 +62,31 @@ const src = JSON.parse(readFileSync(join(d1, "estimates.json"), "utf8")).estimat
 const expectedRow = `| ${src.term} | ${Number(src.estimate).toFixed(4)} | ${Number(src.std_error).toFixed(4)} | ${Number(src.p_value).toFixed(4)} | ${src.n} |`;
 ok("5 output values originate from source artifact", r1.output.split("\n")[2] === expectedRow, `got=${r1.output.split("\n")[2]} want=${expectedRow}`);
 
-// 6 changed upstream artifact + refreshed binding changes rendered output
-let d6 = join(TMP, "v6"); copyValid(d6); writeManifest(d6, estHash(d6));
-const before = render(d6).output;
-{ const p = join(d6, "estimates.json"); const o = JSON.parse(readFileSync(p, "utf8")); o.estimates[0].estimate = 7.77; writeFileSync(p, JSON.stringify(o, null, 2) + "\n", "utf8"); }
-expectFail("6 stale hash blocks after upstream change", d6, "hash 不匹配");
-writeManifest(d6, estHash(d6));
-const after = render(d6);
-ok("6 refreshed binding renders changed output", after.ok === true && after.output.includes("7.7700") && after.output !== before, `changed=${after.output !== before}`);
+// 6 loophole closed: valid presentation + invalid scientific bundle does NOT render
+let d6 = join(TMP, "v6"); copyValid(d6); writeManifest(d6, estHash(d6)); editEstimate(d6, 1.50); writeManifest(d6, estHash(d6));
+expectFail("6 valid presentation + invalid scientific bundle does NOT render (refresh-only presentation hash)", d6, "");
 
-// 7 tampered rendered output differs from regenerated canonical output
-let d7 = join(TMP, "v7"); copyValid(d7); writeManifest(d7, estHash(d7));
-const canonical = render(d7).output;
+// 7 stale replication stamp blocks rendering (artifact_manifest + presentation current, stamp stale)
+let d7 = join(TMP, "v7"); copyValid(d7); writeManifest(d7, estHash(d7)); editEstimate(d7, 1.50); writeManifest(d7, estHash(d7)); rebuildArtifactManifest(d7);
+expectFail("7 stale replication stamp blocks rendering", d7, "replication_stamp");
+
+// 8 stale artifact_manifest blocks rendering (stamp + presentation current, artifact_manifest stale)
+let d8 = join(TMP, "v8"); copyValid(d8); writeManifest(d8, estHash(d8)); editEstimate(d8, 1.50); writeManifest(d8, estHash(d8)); rebuildStamp(d8);
+expectFail("8 stale artifact_manifest blocks rendering", d8, "checksum 不匹配");
+
+// 9 fully rebuilt provenance chain restores rendering
+let d9 = join(TMP, "v9"); copyValid(d9); writeManifest(d9, estHash(d9));
+const before = render(d9).output;
+editEstimate(d9, 1.50); writeManifest(d9, estHash(d9)); rebuildStamp(d9); rebuildArtifactManifest(d9);
+const after = render(d9);
+ok("9 fully rebuilt provenance chain restores rendering and changes output", after.ok === true && after.output.includes("1.5000") && after.output !== before, `ok=${after.ok} changed=${after.output !== before}`);
+
+// 10 tampered rendered output differs from regenerated canonical output
+let d10 = join(TMP, "v10"); copyValid(d10); writeManifest(d10, estHash(d10));
+const canonical = render(d10).output;
 const tampered = canonical.replace("1.2500", "9.9999");
-const fresh = render(d7).output;
-ok("7 tampered output differs from deterministic rerender", canonical === fresh && tampered !== fresh, `canonicalEq=${canonical === fresh} diff=${tampered !== fresh}`);
+const fresh = render(d10).output;
+ok("10 tampered output differs from deterministic rerender", canonical === fresh && tampered !== fresh, `canonicalEq=${canonical === fresh} diff=${tampered !== fresh}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exit(1);
