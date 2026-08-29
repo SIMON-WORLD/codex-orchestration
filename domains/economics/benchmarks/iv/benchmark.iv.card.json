@@ -1,0 +1,25 @@
+{
+  "benchmark_id": "iv_card_2sls_v1",
+  "capability_id": "economics.causal.iv",
+  "evidence_class": "real_data",
+  "title": "Card (1993) NLSYM returns-to-schooling IV/2SLS benchmark",
+  "source": {
+    "name": "Card (1993) / NLSYM data, redistributed as the linearmodels 'card' dataset (linearmodels.datasets.card)",
+    "url": "https://github.com/bashtage/linearmodels (datasets/card)",
+    "dataset_checksum": "d6afc7e7d430c8030a08cf180c37e8772889bcf54f09e586b5d269b6fb69566b",
+    "checksum_mode": "text_file_sha256_lf"
+  },
+  "sample": { "outcome": "lwage", "n": 3010, "endogenous": "educ", "excluded_instrument": "nearc4", "included_exogenous": ["exper", "expersq", "black", "smsa", "south", "const"], "fixed_effects": [] },
+  "estimator": {
+    "name": "IV/2SLS",
+    "spec": "lwage ~ 1 + exper + expersq + black + smsa + south + [educ ~ nearc4]",
+    "covariance": "homoskedastic / unadjusted (non-robust 2SLS)",
+    "engines": ["causal.iv.python.linearmodels", "causal.iv.stata.ivreg2"]
+  },
+  "diagnostics_definitional_notes": {
+    "linearmodels": "IV2SLS provides coefficients, SE, N, first-stage (individual) partial R2 / F. Overidentification Sargan is invalid here (equation exactly identified: 1 endogenous, 1 excluded instrument). linearmodels default summary does not expose Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin; these are NOT fabricated.",
+    "ivreg2": "ivreg2 (with homoskedastic VCE) reports first-stage F of excluded instruments, Sanderson-Windmeijer conditional F, Anderson canonical corr. LM (underidentification), Cragg-Donald / KP Wald F (weak identification), Stock-Wright LM S / Anderson-Rubin (weak-IV-robust), and Sargan (invalid here, equation exactly identified).",
+    "comparison": "Coefficients, SEs, and N are definition-compatible between linearmodels and ivreg2 under homoskedastic 2SLS and are STRICTLY compared. Diagnostic statistics are compared only when the same quantity and definition are produced by BOTH; otherwise documented as tool-specific, not forced to equality."
+  },
+  "no_op": "Does NOT promote any IV implementation to verified. Maturity follows frozen rules: genuine real-data benchmark + source fidelity + deterministic artifact mapping + provenance enforcement may justify tested for the exact demonstrated implementation/scope; synthetic tests alone never do."
+}

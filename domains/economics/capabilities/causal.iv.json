@@ -1,16 +1,28 @@
 {
   "id": "economics.causal.iv",
   "domain": "economics",
-  "description": "Instrumental variables / 2SLS with diagnostics",
+  "description": "Narrow linear IV/2SLS estimator with auditable diagnostics. Explicitly distinguishes: structural equation / outcome, endogenous regressor(s), excluded instrument(s), included exogenous controls, fixed effects (if exercised), clustering/covariance convention, sample, first stage, reduced form (where available), and the second-stage 2SLS estimate. Does NOT machine-verify the exclusion restriction and does NOT interpret relevance diagnostics as proof of instrument validity. Director/human scientific decisions are required for instrument definition, endogenous-regressor definition, exclusion-restriction argument, clustering, sample exclusions, and model/specification choice.",
   "risk_level": "high",
   "methodology": {
     "references": [
       {
-        "name": "Weak-IV (Olea-Pflueger 2013)",
-        "url": "https://..."
+        "name": "ivreg2 (Stata, Baum/Schaffer/Stillman) - IV/GMM + weak-instrument diagnostics",
+        "url": "https://ideas.repec.org/c/boc/bocode/s456501.html"
+      },
+      {
+        "name": "linearmodels (Python) - IV2SLS",
+        "url": "https://github.com/bashtage/linearmodels"
+      },
+      {
+        "name": "Stock & Yogo (2005) - Testing for weak instruments (Cragg-Donald / weak-ID critical values; cited by ivreg2)",
+        "url": "https://ideas.repec.org/p/boc/bostec/439b.html"
+      },
+      {
+        "name": "Staiger & Stock (1997) - Instrumental variables regression with weak instruments",
+        "url": "https://doi.org/10.2307/1916603"
       }
     ],
-    "note": "first-stage + exclusion"
+    "note": "IV/2SLS is a narrow estimator; validity rests on the exclusion restriction + relevance + exogeneity, which are human/Director scientific judgments. Weak-instrument and diagnostic statistics are NOT interchangeable: conventional first-stage F, partial F, Kleibergen-Paap rk Wald F, Cragg-Donald Wald F, Sanderson-Windmeijer conditional F, Anderson-Rubin / Stock-Wright weak-IV-robust inference, and underidentification (Anderson canonical corr. LM) each have distinct definitions and are produced by different engines. Only definition-compatible quantities are compared across engines; tool-specific statistics are documented, not forced to equality. Relevance diagnostics (e.g. first-stage F) are evidence of relevance, NOT of instrument validity."
   },
   "implementations": [
     {
@@ -18,7 +30,7 @@
       "kind": "tool",
       "name": "linearmodels IV2SLS",
       "runtime": "python",
-      "verification_status": "experimental",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "python",
         "packages": {
@@ -26,8 +38,8 @@
         }
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Tested for the exact demonstrated scope: homoskedastic (unadjusted) IV/2SLS on the Card (1993) NLSYM returns-to-schooling benchmark (lwage ~ exper expersq black smsa south + [educ ~ nearc4], N=3010, dataset checksum d6afc7e7...). Evidence: genuine real-data benchmark (linearmodels.dexport datasets.card), source fidelity (coefficients/SE/N from actual IV2SLS output), deterministic artifact mapping (model_registry/estimates/diagnostics/replication_stamp/artifact_manifest validate), provenance enforcement, and cross-engine agreement with statreg2 (educ coef 0.1322887693, SE 0.0491759499, N=3010). Scope note: the tested claim is the 2SLS coefficient/SE/N for this spec; weak-instrument/underid/weak-IV-robust diagnostics are NOT part of the tested claim (linearmodels default summary does not expose Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin in this version; they are documented as tool-specific, not fabricated). NOT verified; NOT a claim of general IV validity.",
+        "benchmark_ref": "domains/economics/benchmarks/iv/"
       }
     },
     {
@@ -35,13 +47,13 @@
       "kind": "tool",
       "name": "ivreg2",
       "runtime": "stata",
-      "verification_status": "reference",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "stata"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Tested for the exact demonstrated scope: homoskedastic ivreg2 on the same Card (1993) NLSYM benchmark (same spec, N=3010). Evidence: genuine real-data benchmark, source fidelity (educ coef 0.1322887693, SE 0.0491759499, N=3010 match linearmodels under homoskedastic 2SLS), and ivreg2-native diagnostics captured with explicit method identity (Anderson canon. corr. LM underid 16.66; Cragg-Donald / KP Wald F 16.72; Anderson-Rubin Wald 6.88; Stock-Wright LM S 6.88; Sargan invalid - exactly identified). ivreg2 package version unknown (does not expose via e(); ado present) - recorded as unknown + evidence. Scope note: tested claim is 2SLS coefficient/SE/N + captured ivreg2-native diagnostics; cross-engine diagnostic comparison is documented as tool-specific (linearmodels does not expose comparable KP/SW/AR). NOT verified; NOT a claim of general IV validity.",
+        "benchmark_ref": "domains/economics/benchmarks/iv/"
       }
     }
   ],
@@ -57,9 +69,11 @@
   ],
   "decision_requirements": [
     "instrument",
+    "endogenous_regressor",
     "exclusion_restriction",
     "clustering_level",
-    "sample_exclusion"
+    "sample_exclusion",
+    "estimator_specification"
   ],
   "fallback_policy": "hard_stop"
 }

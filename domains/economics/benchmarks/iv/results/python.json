@@ -1,0 +1,82 @@
+{
+  "implementation_id": "causal.iv.python.linearmodels",
+  "runtime": "python",
+  "runtime_version": "3.14.3",
+  "package_version": "linearmodels 7.0",
+  "benchmark_id": "iv_card_2sls_v1",
+  "dataset_checksum": "d6afc7e7d430c8030a08cf180c37e8772889bcf54f09e586b5d269b6fb69566b",
+  "n": 3010,
+  "coefficients": {
+    "Intercept": 3.7527824992721435,
+    "exper": 0.10749795523588546,
+    "expersq": -0.0022840717359033924,
+    "black": -0.1308019738994517,
+    "smsa": 0.13132370932999038,
+    "south": -0.10490054800743565,
+    "educ": 0.1322887692722361
+  },
+  "std_errors": {
+    "Intercept": 0.8283758827134103,
+    "exper": 0.02127582322701256,
+    "expersq": 0.00033374399394694277,
+    "black": 0.05281078476767742,
+    "smsa": 0.03009477699466674,
+    "south": 0.023046256479555965,
+    "educ": 0.04917594986181377
+  },
+  "inference_configuration": {
+    "covariance": "homoskedastic / unadjusted",
+    "cov_type": "unadjusted",
+    "estimator": "IV2SLS (2SLS)",
+    "first_stage": {
+      "partial_r2": null,
+      "fstat": null,
+      "note": "linearmodels IV2SLS first-stage (individual) partial R2 / F; if unavailable, left null (not fabricated)"
+    },
+    "overid": "invalid_exactly_identified",
+    "weak_id_diagnostics": "linearmodels default summary does not expose Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin; NOT fabricated"
+  },
+  "diag": {
+    "tstats": {
+      "Intercept": 4.5302894224534995,
+      "exper": 5.052587347097439,
+      "expersq": -6.843783790357901,
+      "black": -2.476804207225271,
+      "smsa": 4.363671123174063,
+      "south": -4.551739155575725,
+      "educ": 2.690111114151784
+    },
+    "pvalues": {
+      "Intercept": 5.890293863997087e-06,
+      "exper": 4.358649177138574e-07,
+      "expersq": 7.712719352070962e-12,
+      "black": 0.013256460105002255,
+      "smsa": 1.2789780835076314e-05,
+      "south": 5.320427362898172e-06,
+      "educ": 0.007142823173524437
+    },
+    "ci_lower": {
+      "Intercept": 2.129195603492283,
+      "exper": 0.06579810796950009,
+      "expersq": -0.0029381979440959542,
+      "black": -0.23430921003939592,
+      "smsa": 0.07233903029767899,
+      "south": -0.1500703806858382,
+      "educ": 0.03590567863753366
+    },
+    "ci_upper": {
+      "Intercept": 5.376369395052004,
+      "exper": 0.14919780250227083,
+      "expersq": -0.0016299455277108308,
+      "black": -0.02729473775950747,
+      "smsa": 0.19030838836230177,
+      "south": -0.059730715329033096,
+      "educ": 0.22867185990693853
+    },
+    "first_stage": {
+      "partial_r2": null,
+      "fstat": null,
+      "note": "linearmodels IV2SLS first-stage (individual) partial R2 / F; if unavailable, left null (not fabricated)"
+    }
+  }
+}

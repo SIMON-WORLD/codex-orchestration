@@ -1,0 +1,65 @@
+{
+  "implementation_id": "causal.iv.stata.ivreg2",
+  "runtime_version": "19.5",
+  "package_version": "unknown",
+  "package_version_evidence": "ivreg2 does not expose a reliable version via e(); ado file present at D:\\Software\\Stata\\StataNow19\\ado\\plus\\i\\ivreg2.ado",
+  "benchmark_id": "iv_card_2sls_v1",
+  "dataset_checksum": "d6afc7e7d430c8030a08cf180c37e8772889bcf54f09e586b5d269b6fb69566b",
+  "n": 3010,
+  "coefficients": {
+    "educ": 0.13228876927020894
+  },
+  "std_errors": {
+    "educ": 0.049175949861709
+  },
+  "inference_configuration": {
+    "estimator": "ivreg2 (2SLS)",
+    "covariance": "homoskedastic / non-robust",
+    "covariance_definition": "ivreg2 default VCE (homoskedastic 2SLS)",
+    "note": "diagnostics are ivreg2-native; where a statistic is not produced/definition-compatible it is documented, never fabricated",
+    "diagnostics": {
+      "underid": {
+        "name": "Anderson canonical corr. LM (underidentification)",
+        "statistic": 16.66379345089093,
+        "method": "ivreg2 underid",
+        "definition": "chi-sq(k1) rank test",
+        "p_value": 0.0000446246310567
+      },
+      "weak_id": {
+        "name": "Cragg-Donald / KP Wald F (weak identification)",
+        "statistic": 16.71759143645145,
+        "method": "ivreg2 weakid",
+        "definition": "Cragg-Donald Wald F (homoskedastic)"
+      },
+      "ar_wald": {
+        "name": "Anderson-Rubin weak-IV-robust Wald",
+        "statistic": 6.881101138179363,
+        "method": "ivreg2 weak-iv-robust",
+        "definition": "F, test of endogenous regressor = 0 + orthogonality valid"
+      },
+      "s_lm": {
+        "name": "Stock-Wright LM S statistic",
+        "statistic": 6.881372961243287,
+        "method": "ivreg2 weak-iv-robust",
+        "definition": "chi-sq LM S"
+      },
+      "overid": {
+        "name": "Sargan overidentification",
+        "statistic": 0,
+        "method": "ivreg2 sargan",
+        "definition": "invalid here (equation exactly identified: 1 endogenous, 1 excluded instrument)"
+      }
+    },
+    "notes": "ivreg2 also displays a first-stage 'F test of excluded instruments' (16.72) and Sanderson-Windmeijer conditional F (16.72) in its output; these are NOT captured as a compared quantity because linearmodels IV2SLS does not expose a comparable first-stage F in this version (result.first_stage.fstat = null). Weak-instrument / underidentification / weak-IV-robust statistics are ivreg2-native; linearmodels default summary does not produce Kleibergen-Paap / Sanderson-Windmeijer / Anderson-Rubin, so no forced equality across engines."
+  },
+  "native_default": {
+    "cov_type": "ivreg2_default_homoskedastic",
+    "coefficients": {
+      "educ": 0.13228876927020894
+    },
+    "std_errors": {
+      "educ": 0.049175949861709
+    },
+    "n": 3010
+  }
+}
