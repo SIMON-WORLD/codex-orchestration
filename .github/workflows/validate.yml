@@ -34,6 +34,8 @@ jobs:
         run: node core/validate_capability_schema.mjs
       - name: Run capability schema rejection spec
         run: node tests/schema.spec.mjs
+      - name: Run control-character consistency guard
+        run: node tests/control_chars.spec.mjs
       - name: Validate role pack schema
         run: node core/validate_role_scope.mjs
       - name: Run Issue #5 adversarial regression

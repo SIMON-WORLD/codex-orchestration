@@ -27,7 +27,7 @@
         "runtime": "node"
       },
       "verification": {
-        "evidence": "Accepted evidence (scope: deterministic estimate-table rendering from \u001bstimates with explicit \u001bstimate_id, fixed fields term/estimate/std_error/p_value/n, full artifact/provenance validation): (1) synthetic presentation benchmark (regression/adversarial invariant evidence: determinism, source fidelity, provenance/tamper enforcement); (2) Grunfeld real-data presentation benchmark (non-synthetic source identity, complete artifact/provenance validation, source fidelity, deterministic rendering, provenance enforcement). Status = tested for this estimate-table scope only. NOT generic tables, NOT descriptive/diagnostic/model tables, NOT figures, NOT journal-publication-ready output, NOT verified scientific methodology.",
+        "evidence": "Accepted evidence (scope: deterministic estimate-table rendering from estimates with explicit estimate_id, fixed fields term/estimate/std_error/p_value/n, full artifact/provenance validation): (1) synthetic presentation benchmark (regression/adversarial invariant evidence: determinism, source fidelity, provenance/tamper enforcement); (2) Grunfeld real-data presentation benchmark (non-synthetic source identity, complete artifact/provenance validation, source fidelity, deterministic rendering, provenance enforcement). Status = tested for this estimate-table scope only. NOT generic tables, NOT descriptive/diagnostic/model tables, NOT figures, NOT journal-publication-ready output, NOT verified scientific methodology.",
         "benchmark_ref": "domains/economics/benchmarks/presentation/"
       }
     }
