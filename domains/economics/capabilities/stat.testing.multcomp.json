@@ -1,16 +1,28 @@
 {
   "id": "economics.stat.testing.multcomp",
   "domain": "economics",
-  "description": "Multiple-testing correction for a family of hypotheses",
+  "description": "Narrow multiple-testing correction (Holm FWER; Benjamini-Hochberg FDR) for an EXPLICITLY defined hypothesis family. V1 supports only the two benchmarked procedures. The hypothesis-family definition and correction method are Director/user scientific decisions; the capability does NOT choose the family automatically and does NOT treat adjusted p-values as a substitute for defining the family. It does NOT silently mix Holm / Bonferroni / Hochberg / BH / BY or other procedures, and it does NOT claim that multiplicity correction establishes scientific validity.",
   "risk_level": "medium",
   "methodology": {
     "references": [
       {
-        "name": "Holm 1979 / Benjamini-Hochberg",
-        "url": "https://..."
+        "name": "Holm (1979) - A simple sequentially rejective multiple test procedure (Scand J Stat 6:65-70)",
+        "url": "https://www.jstor.org/stable/4615733"
+      },
+      {
+        "name": "Benjamini & Hochberg (1995) - Controlling the false discovery rate (JRSS B 57(1):289-300)",
+        "url": "https://doi.org/10.1111/j.2517-6161.1995.tb02031.x"
+      },
+      {
+        "name": "statsmodels.stats.multitest.multipletests (holm / fdr_bh)",
+        "url": "https://www.statsmodels.org/stable/generated/statsmodels.stats.multitest.multipletests.html"
+      },
+      {
+        "name": "R stats::p.adjust (holm / BH)",
+        "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html"
       }
     ],
-    "note": "family-wide error control"
+    "note": "V1 supports ONLY Holm (family-wise error rate) and Benjamini-Hochberg (false discovery rate), each with exact semantics, and only when definition-compatible across the demonstrated engines. Other procedures (Bonferroni, Hochberg, BY, etc.) are NOT claimed. The scientific family must be defined explicitly; raw p-values come from upstream estimates; adjusted p-values are derived output, not a replacement for family definition, and do not establish scientific validity. The capability is medium-risk with the existing medium-risk verification policy."
   },
   "implementations": [
     {
@@ -18,7 +30,7 @@
       "kind": "tool",
       "name": "statsmodels multipletests",
       "runtime": "python",
-      "verification_status": "experimental",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "python",
         "packages": {
@@ -26,22 +38,22 @@
         }
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Tested for the exact demonstrated scope: Holm (method='holm') and Benjamini-Hochberg (method='fdr_bh') adjustment of the two raw p-values programmatically derived from the accepted frozen Grunfeld panel-FE reghdfe result (value, capital; two-sided Student-t with df_r=9; raw p = 1.7727e-06, 3.7703e-05). Cross-engine agreement with R stats::p.adjust (holm/BH) exact. Deterministic artifact mapping (multiple_testing artifact + provenance) and adversarial coverage. NOT verified; NOT a claim of generic multiple-testing coverage; NOT a claim that correction establishes validity.",
+        "benchmark_ref": "domains/economics/benchmarks/multcomp/"
       }
     },
     {
       "id": "multcomp.r.base",
       "kind": "tool",
-      "name": "p.adjust",
+      "name": "stats::p.adjust",
       "runtime": "r",
-      "verification_status": "reference",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "r"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Tested for the exact demonstrated scope: stats::p.adjust(method='holm') and method='BH' on the same two raw p-values derived from the frozen Grunfeld panel-FE result (1.7727e-06, 3.7703e-05). Cross-engine agreement with statsmodels multipletests exact (holm/BH both [3.5453e-06, 3.7703e-05]). NOT verified; NOT a claim of generic multiple-testing coverage; NOT a claim that correction establishes validity.",
+        "benchmark_ref": "domains/economics/benchmarks/multcomp/"
       }
     }
   ],

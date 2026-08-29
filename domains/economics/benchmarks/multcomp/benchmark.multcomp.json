@@ -1,0 +1,39 @@
+{
+  "benchmark_id": "grunfeld_multcomp_v1",
+  "capability_id": "economics.stat.testing.multcomp",
+  "evidence_class": "real_data",
+  "title": "Real-data Grunfeld multiple-testing (Holm FWER / Benjamini-Hochberg FDR) benchmark",
+  "source": {
+    "name": "Grunfeld (R package plm dataset, 10 firms, 1935-1954)",
+    "panel_fe_benchmark_id": "grunfeld_twfe_cluster",
+    "accepted_result": "domains/economics/benchmarks/panel_fe/results/stata.json (reghdfe, canonical aes_cluster)",
+    "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "checksum_mode": "text_file_sha256_lf",
+    "upstream_artifact_ids": ["MODEL_GRUNFELD", "ESTIMATES_GRUNFELD", "DIAGNOSTICS_GRUNFELD"]
+  },
+  "raw_p_value_provenance": "two-sided finite-df Student-t p from t = coef/se with df = reghdfe e(df_r)=9; computed programmatically from the accepted frozen reghdfe result; NOT hard-coded literals.",
+  "methods": ["holm", "benjamini_hochberg"],
+  "method_definitions": {
+    "holm": "Holm (1979) family-wise error rate step-down (statsmodels method='holm'; R stats::p.adjust method='holm')",
+    "benjamini_hochberg": "Benjamini & Hochberg (1995) false discovery rate (statsmodels method='fdr_bh'; R stats::p.adjust method='BH')"
+  },
+  "family_definition": {
+    "family_ids": ["FAM_GRUNFELD_MHT_HOLM", "FAM_GRUNFELD_MHT_BH"],
+    "estimate_ids": ["EST_GRUNFELD_VALUE", "EST_GRUNFELD_CAPITAL"],
+    "note": "ENGINEERING VERIFICATION family: significance tests of the two Grunfeld panel-FE coefficients (value, capital). NOT automatically a substantive research-family recommendation. The Director/user must define the scientific family explicitly; this benchmark only demonstrates definition-compatible Holm/BH on a fixed, explicit family."
+  },
+  "expected_adjusted": {
+    "holm": { "EST_GRUNFELD_VALUE": 3.545342746047453e-06, "EST_GRUNFELD_CAPITAL": 3.7702779484178524e-05 },
+    "benjamini_hochberg": { "EST_GRUNFELD_VALUE": 3.545342746047453e-06, "EST_GRUNFELD_CAPITAL": 3.7702779484178524e-05 }
+  },
+  "expected_raw_p": { "EST_GRUNFELD_VALUE": 1.7726713730237265e-06, "EST_GRUNFELD_CAPITAL": 3.7702779484178524e-05 },
+  "n": 200,
+  "cluster_count": 10,
+  "residual_df": 9,
+  "implementations": [
+    { "implementation_id": "multcomp.python.statsmodels", "runtime": "python", "tool": "statsmodels.stats.multitest.multipletests", "verification_status": "tested" },
+    { "implementation_id": "multcomp.r.base", "runtime": "r", "tool": "stats::p.adjust", "verification_status": "tested" }
+  ],
+  "no_op": "Does NOT promote any implementation to verified. tested scope is exactly Holm/BH on the frozen Grunfeld raw p-values, definition-compatible across engines; NOT generic multiple-testing coverage; NOT a claim that multiplicity correction establishes scientific validity.",
+  "tolerance": "deterministic floating-point tolerance: relative 1e-9 / absolute 1e-12 on adjusted p-values; raw p relative 1e-9"
+}

@@ -93,3 +93,7 @@ jobs:
         run: node tests/docs_consistency.spec.mjs
       - name: Run P7 panel_fe cross-engine benchmark comparator
         run: node tests/panel_fe_benchmark.spec.mjs
+      - name: Run Multiple Testing Pack v1 regression
+        run: node tests/multcomp_pack.spec.mjs
+      - name: Run Multiple Testing cross-engine comparator
+        run: node domains/economics/benchmarks/multcomp/comparator.mjs
