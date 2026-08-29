@@ -1,0 +1,23 @@
+{
+  "rules_id": "gcdv_grunfeld_rules_v1",
+  "dataset_id": "GRUNFELD_1935_1954",
+  "data_path": "grunfeld.csv",
+  "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+  "checksum_mode": "text_file_sha256_lf",
+  "unit_key": ["firm", "year"],
+  "unit": "firm-year panel",
+  "expected_n": 200,
+  "variables": [
+    { "name": "firm", "type": "integer", "definition": "firm identifier (1-10)" },
+    { "name": "year", "type": "integer", "definition": "calendar year (1935-1954)" },
+    { "name": "invest", "type": "float", "definition": "gross investment (outcome)", "unit": "million USD" },
+    { "name": "value", "type": "float", "definition": "market value of the firm", "unit": "million USD" },
+    { "name": "capital", "type": "float", "definition": "capital stock", "unit": "million USD" }
+  ],
+  "sample_flow_steps": [
+    { "step_id": "STEP_LOAD_FROZEN", "n_before": 200, "n_after": 200, "n_removed": 0, "reason": "load frozen grunfeld.csv (complete balanced panel)" }
+  ],
+  "merge_spec": null,
+  "no_auto_repair": true,
+  "note": "Explicit declared metadata/rules consumed by the Data Validation runner. The runner validates; it does NOT repair/mutate the data. Duplicate/type/missingness/row-count/sample-flow checks apply; merge_spec is null (single frozen dataset, no merge)."
+}

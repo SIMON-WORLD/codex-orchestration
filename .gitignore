@@ -26,3 +26,5 @@ domains/economics/benchmarks/panel_fe/results/stata_raw.txt
 # P7 synthetic benchmark intermediate
 domains/economics/benchmarks/panel_fe/synthetic/results/stata_raw.txt
 
+
+__pycache__/

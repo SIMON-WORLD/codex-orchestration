@@ -1,0 +1,125 @@
+{
+  "benchmark_id": "grunfeld_data_validation_v1",
+  "cases": {
+    "dup_key": {
+      "n": 3,
+      "checks": {
+        "DV_ROWCOUNT": "pass",
+        "DV_VAR_PRESENT": "pass",
+        "DV_VAR_TYPE": "pass",
+        "DV_KEY_UNIQUE": "fail",
+        "DV_MISSINGNESS": "pass",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "not_applicable"
+      },
+      "summary": {
+        "pass": 5,
+        "fail": 1,
+        "not_applicable": 1
+      }
+    },
+    "missing_var": {
+      "n": 2,
+      "checks": {
+        "DV_ROWCOUNT": "pass",
+        "DV_VAR_PRESENT": "fail",
+        "DV_VAR_TYPE": "pass",
+        "DV_KEY_UNIQUE": "pass",
+        "DV_MISSINGNESS": "pass",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "not_applicable"
+      },
+      "summary": {
+        "pass": 5,
+        "fail": 1,
+        "not_applicable": 1
+      }
+    },
+    "extra_missing": {
+      "n": 2,
+      "checks": {
+        "DV_ROWCOUNT": "pass",
+        "DV_VAR_PRESENT": "pass",
+        "DV_VAR_TYPE": "pass",
+        "DV_KEY_UNIQUE": "pass",
+        "DV_MISSINGNESS": "fail",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "not_applicable"
+      },
+      "summary": {
+        "pass": 5,
+        "fail": 1,
+        "not_applicable": 1
+      }
+    },
+    "wrong_n": {
+      "n": 3,
+      "checks": {
+        "DV_ROWCOUNT": "fail",
+        "DV_VAR_PRESENT": "pass",
+        "DV_VAR_TYPE": "pass",
+        "DV_KEY_UNIQUE": "pass",
+        "DV_MISSINGNESS": "pass",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "not_applicable"
+      },
+      "summary": {
+        "pass": 5,
+        "fail": 1,
+        "not_applicable": 1
+      }
+    },
+    "wrong_type": {
+      "n": 2,
+      "checks": {
+        "DV_ROWCOUNT": "pass",
+        "DV_VAR_PRESENT": "pass",
+        "DV_VAR_TYPE": "fail",
+        "DV_KEY_UNIQUE": "pass",
+        "DV_MISSINGNESS": "pass",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "not_applicable"
+      },
+      "summary": {
+        "pass": 5,
+        "fail": 1,
+        "not_applicable": 1
+      }
+    },
+    "bad_rule_key": {
+      "n": 3,
+      "checks": {
+        "DV_ROWCOUNT": "pass",
+        "DV_VAR_PRESENT": "pass",
+        "DV_VAR_TYPE": "pass",
+        "DV_KEY_UNIQUE": "fail",
+        "DV_MISSINGNESS": "pass",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "not_applicable"
+      },
+      "summary": {
+        "pass": 5,
+        "fail": 1,
+        "not_applicable": 1
+      }
+    },
+    "merge_cardinality": {
+      "n": 3,
+      "checks": {
+        "DV_ROWCOUNT": "pass",
+        "DV_VAR_PRESENT": "pass",
+        "DV_VAR_TYPE": "pass",
+        "DV_KEY_UNIQUE": "pass",
+        "DV_MISSINGNESS": "pass",
+        "DV_SAMPLE_FLOW": "pass",
+        "DV_MERGE_CARDINALITY": "fail"
+      },
+      "summary": {
+        "pass": 6,
+        "fail": 1,
+        "not_applicable": 0
+      }
+    }
+  },
+  "adversarial_driver": "domains/economics/benchmarks/data_validation/runners/run_adversarial.py"
+}

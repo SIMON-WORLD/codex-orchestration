@@ -1,0 +1,15 @@
+n=200
+expected_n=200
+DV_ROWCOUNT=pass
+DV_VAR_PRESENT=pass
+DV_VAR_TYPE=pass
+DV_KEY_UNIQUE=pass
+DV_MISSINGNESS=pass
+DV_SAMPLE_FLOW=pass
+DV_MERGE_CARDINALITY=not_applicable
+dup_count=0
+n_unique=200
+missing_vars=
+type_mismatches=
+summary_pass=6
+summary_fail=0

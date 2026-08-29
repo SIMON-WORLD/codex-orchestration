@@ -1,16 +1,20 @@
 {
   "id": "economics.data.validation",
   "domain": "economics",
-  "description": "Validate data: duplicates, missingness, attrition, merge cardinality, unit errors",
+  "description": "Machine-checkable structural data validation against EXPLICITLY DECLARED metadata/rules. V1 supports: (a) declared-key duplicate detection; (b) selected-variable missingness counts/rates; (c) row-count / observation-count consistency; (d) required-variable presence + declared type consistency; (e) sample-flow arithmetic consistency; (f) merge cardinality (1:1 / 1:m / m:1) ONLY when a merge + expected relationship is explicitly declared. It does NOT infer economically reasonable ranges/units automatically, does NOT decide sample exclusions, does NOT impute/delete/recode or repair data, and does NOT substitute validation for scientific judgment.",
   "risk_level": "medium",
   "methodology": {
     "references": [
       {
-        "name": "DIME working-with-data",
-        "url": "https://github.com/JonasWeinert/EconAgentSkills"
+        "name": "DIME Data Handbook (World Bank) - data management / documentation / reproducibility",
+        "url": "https://worldbank.github.io/dime-data-handbook/"
+      },
+      {
+        "name": "DIME Wiki - Data Management (deduplication, documentation, data cleaning discipline)",
+        "url": "https://dimewiki.worldbank.org/Data_Management"
       }
     ],
-    "note": "data discipline"
+    "note": "Structural, machine-checkable data validation. The capability consumes frozen data + explicit declared metadata/rules; it does NOT decide substantive sample exclusions, units, or ranges automatically. No automatic cleaning/reparation is performed."
   },
   "implementations": [
     {
@@ -18,7 +22,7 @@
       "kind": "tool",
       "name": "pandas",
       "runtime": "python",
-      "verification_status": "experimental",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "python",
         "packages": {
@@ -26,22 +30,22 @@
         }
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Tested for the exact demonstrated scope: read-only pandas structural validation of the accepted frozen Grunfeld real dataset against its declared rules (key=firm+year, N=200; checks DV_ROWCOUNT / DV_VAR_PRESENT / DV_VAR_TYPE / DV_KEY_UNIQUE / DV_MISSINGNESS / DV_SAMPLE_FLOW pass; DV_MERGE_CARDINALITY not_applicable for a single frozen dataset), plus deterministic adversarial defect detection (duplicate key, missing variable, unexpected missingness, row-count mismatch, wrong declared type, bad rule key, invalid merge cardinality -> each surfaces as FAIL). Does NOT impute/delete/repair data; does NOT infer ranges/units. NOT verified; NOT generic data cleaning; NOT automatic sample exclusion.",
+        "benchmark_ref": "domains/economics/benchmarks/data_validation/"
       }
     },
     {
       "id": "data.val.stata",
       "kind": "tool",
-      "name": "Stata (iecodebook/ieduplicates)",
+      "name": "base Stata (+ ieduplicates/iecodebook available)",
       "runtime": "stata",
-      "verification_status": "reference",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "stata"
       },
       "verification": {
-        "evidence": null,
-        "benchmark_ref": null
+        "evidence": "Tested for the exact demonstrated scope: base-Stata read-only structural validation of the accepted frozen Grunfeld real dataset (DV_ROWCOUNT / DV_VAR_PRESENT / DV_VAR_TYPE / DV_KEY_UNIQUE / DV_MISSINGNESS / DV_SAMPLE_FLOW pass; DV_MERGE_CARDINALITY not_applicable). Cross-engine agreement with data.val.python.pandas (same 6 pass / 0 fail / 1 not_applicable; same frozen checksum). ieduplicates/iecodebook are installed, but the demonstrated scope is the base-Stata structural checks. Does NOT impute/delete/repair; does NOT infer ranges/units. NOT verified; NOT generic data cleaning; NOT automatic sample exclusion.",
+        "benchmark_ref": "domains/economics/benchmarks/data_validation/"
       }
     }
   ],

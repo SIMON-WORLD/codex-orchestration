@@ -1,0 +1,94 @@
+{
+  "implementation_id": "data.val.stata",
+  "runtime_version": "Stata 19.5",
+  "package_version": "base Stata",
+  "benchmark_id": "grunfeld_data_validation_v1",
+  "capability_id": "economics.data.validation",
+  "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+  "dataset_path": "grunfeld.csv",
+  "rules": {
+    "rules_id": "gcdv_grunfeld_rules_v1",
+    "unit_key": [
+      "firm",
+      "year"
+    ],
+    "expected_n": 200
+  },
+  "n": 200,
+  "checks": [
+    {
+      "check_id": "DV_ROWCOUNT",
+      "name": "observation count matches expected",
+      "status": "pass",
+      "value": {
+        "observed": 200,
+        "expected": 200
+      }
+    },
+    {
+      "check_id": "DV_VAR_PRESENT",
+      "name": "required variables present",
+      "status": "pass",
+      "value": {
+        "missing": []
+      }
+    },
+    {
+      "check_id": "DV_VAR_TYPE",
+      "name": "declared variable types match",
+      "status": "pass",
+      "value": {
+        "mismatches": []
+      }
+    },
+    {
+      "check_id": "DV_KEY_UNIQUE",
+      "name": "declared key unique",
+      "status": "pass",
+      "value": {
+        "key": [
+          "firm",
+          "year"
+        ],
+        "n": 200,
+        "n_unique": 200,
+        "duplicate_count": 0
+      }
+    },
+    {
+      "check_id": "DV_MISSINGNESS",
+      "name": "selected-variable missingness within expectation",
+      "status": "pass",
+      "value": {
+        "missing_vars": []
+      }
+    },
+    {
+      "check_id": "DV_SAMPLE_FLOW",
+      "name": "sample-flow arithmetic consistent",
+      "status": "pass",
+      "value": {
+        "final_n": 200,
+        "expected": 200
+      }
+    },
+    {
+      "check_id": "DV_MERGE_CARDINALITY",
+      "name": "merge cardinality",
+      "status": "not_applicable",
+      "value": {
+        "reason": "single frozen dataset; no merge declared"
+      }
+    }
+  ],
+  "summary": {
+    "pass": 6,
+    "fail": 0,
+    "not_applicable": 1
+  },
+  "facts": {
+    "observation_count": 200
+  },
+  "no_auto_repair": true,
+  "note": "Read-only base-Stata structural validation. Does NOT delete rows, impute, recode, or repair data."
+}

@@ -1,0 +1,30 @@
+{
+  "benchmark_id": "grunfeld_data_validation_v1",
+  "capability_id": "economics.data.validation",
+  "evidence_class": "real_data + adversarial",
+  "title": "Real-data Grunfeld structural data-validation benchmark",
+  "source": {
+    "name": "Grunfeld (R package plm dataset, 10 firms, 1935-1954)",
+    "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "checksum_mode": "text_file_sha256_lf",
+    "frozen_result": "domains/economics/benchmarks/panel_fe/results/stata.json (reghdfe, canonical aes_cluster)",
+    "rules": "domains/economics/benchmarks/data_validation/rules.json (explicit declared metadata/rules)"
+  },
+  "scope": "V1 machine-checkable structural validation against EXPLICITLY DECLARED metadata/rules: (a) declared-key duplicate detection; (b) selected-variable missingness counts/rates; (c) row-count / observation-count consistency; (d) required-variable presence + declared type consistency; (e) sample-flow arithmetic consistency; (f) merge cardinality (1:1 / 1:m / m:1) ONLY when a merge + expected relationship is explicitly declared. It does NOT infer economic ranges/units automatically, does NOT decide sample exclusions, does NOT impute/delete/recodify or repair data.",
+  "implementations": [
+    { "implementation_id": "data.val.python.pandas", "runtime": "python", "tool": "pandas", "verification_status": "tested" },
+    { "implementation_id": "data.val.stata", "runtime": "stata", "tool": "base Stata (+ ieduplicates/iecodebook available)", "verification_status": "tested" }
+  ],
+  "artifact_construction_source": "domains/economics/benchmarks/data_validation/results/python.json (data.val.python.pandas). The bundle builder is a MAP-ONLY adapter: it does not re-implement data-cleaning/repair and does not re-derive scientific estimates. R-independent cross-engine check is provided by the Stata result (results/stata.json).",
+  "no_auto_repair": true,
+  "adversarial_cases": {
+    "dup_key": "fixtures/dup_key.csv -> DV_KEY_UNIQUE fail",
+    "missing_var": "fixtures/missing_var.csv -> DV_VAR_PRESENT fail",
+    "extra_missing": "fixtures/extra_missing.csv -> DV_MISSINGNESS fail",
+    "wrong_n": "fixtures/wrong_n.csv -> DV_ROWCOUNT fail",
+    "wrong_type": "fixtures/wrong_type.csv -> DV_VAR_TYPE fail",
+    "merge_cardinality": "fixtures/merge_left.csv + merge_right.csv -> DV_MERGE_CARDINALITY fail (expected 1:1, observed m:m)"
+  },
+  "expected_clean_summary": { "pass": 6, "fail": 0, "not_applicable": 1 },
+  "no_op": "Does NOT promote any implementation to verified. tested scope is exactly the demonstrated structural checks on the frozen Grunfeld real dataset plus the synthetic/adversarial defect-detection evidence; NOT generic data-cleaning, NOT automatic sample exclusion, NOT automatic unit/range inference, NOT verified."
+}
