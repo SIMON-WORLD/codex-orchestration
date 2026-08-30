@@ -101,3 +101,5 @@ jobs:
         run: node tests/data_validation_pack.spec.mjs
       - name: Run Phase 1 E2E integration regression
         run: node tests/phase1_e2e.spec.mjs
+      - name: Run Phase 1 M2 integrated execution regression
+        run: node tests/phase1_m2_e2e.spec.mjs

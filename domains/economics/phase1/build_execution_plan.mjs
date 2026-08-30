@@ -81,11 +81,11 @@ export function buildPhase1Plan(studyPath, rolesPath, envPath, registryDir) {
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
-  const study = arg("--study", "domains/economics/study.phase1.grunfeld.json");
-  const roles = arg("--roles", "domains/economics/roles.json");
-  const env = arg("--env", "domains/economics/phase1/env.json");
-  const registry = arg("--registry", "domains/economics/capabilities");
-  const outPath = arg("--out", "domains/economics/phase1/execution_plan.json");
+  const study = arg("study", "domains/economics/study.phase1.grunfeld.json");
+  const roles = arg("roles", "domains/economics/roles.json");
+  const env = arg("env", "domains/economics/phase1/env.json");
+  const registry = arg("registry", "domains/economics/capabilities");
+  const outPath = arg("out", "domains/economics/phase1/execution_plan.json");
   const plan = buildPhase1Plan(study, roles, env, registry);
   const abs = isAbsolute(outPath) ? outPath : join(root, outPath);
   mkdirSync(dirname(abs), { recursive: true });

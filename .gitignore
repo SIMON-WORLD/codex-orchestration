@@ -28,3 +28,7 @@ domains/economics/benchmarks/panel_fe/synthetic/results/stata_raw.txt
 
 
 __pycache__/
+
+run_stata.log
+
+probe_stata.log

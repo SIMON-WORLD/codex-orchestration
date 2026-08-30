@@ -1,0 +1,31 @@
+{
+  "implementation_id": "panel.fe.stata.reghdfe",
+  "benchmark_id": "phase1_grunfeld_e2e_v1",
+  "dataset_checksum": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+  "n": 200,
+  "residual_df": 9,
+  "frames": {
+    "EST_GRUNFELD_VALUE": {
+      "estimate_id": "EST_GRUNFELD_VALUE",
+      "term": "value",
+      "estimate": 0.11771585508260658,
+      "std_error": 0.01082442947686367,
+      "ci_lower": 0.0932292944083154,
+      "ci_upper": 0.14220241575689777,
+      "p_value": 1.7726713730995308e-06,
+      "n": 200,
+      "multiple_testing_family_ids": ["FAM_GRUNFELD_MHT_HOLM", "FAM_GRUNFELD_MHT_BH"]
+    },
+    "EST_GRUNFELD_CAPITAL": {
+      "estimate_id": "EST_GRUNFELD_CAPITAL",
+      "term": "capital",
+      "estimate": 0.35791627307342766,
+      "std_error": 0.047848396592589097,
+      "ci_lower": 0.24967567999309301,
+      "ci_upper": 0.46615686615376228,
+      "p_value": 3.7702779481796647e-05,
+      "n": 200,
+      "multiple_testing_family_ids": ["FAM_GRUNFELD_MHT_HOLM", "FAM_GRUNFELD_MHT_BH"]
+    }
+  }
+}
