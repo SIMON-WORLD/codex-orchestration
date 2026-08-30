@@ -1,0 +1,210 @@
+{
+  "plan_id": "phase1_grunfeld_e2e_v1",
+  "study": "domains/economics/study.phase1.grunfeld.json",
+  "domain": "economics",
+  "mode": "test",
+  "active_roles": [
+    "data",
+    "empirical"
+  ],
+  "dependency": "data -> empirical",
+  "stages": [
+    {
+      "stage": 1,
+      "roles": [
+        "data"
+      ]
+    },
+    {
+      "stage": 2,
+      "roles": [
+        "empirical"
+      ]
+    }
+  ],
+  "roles": {
+    "data": {
+      "role": "data",
+      "name": "数据处理",
+      "stage": 1,
+      "target": "project",
+      "selected_capabilities": [
+        "economics.data.validation"
+      ],
+      "dispatch_allowed": true,
+      "resolution": "ready",
+      "depends_on": [],
+      "upstream": [],
+      "outputs": [
+        "data_manifest",
+        "variable_dictionary",
+        "sample_flow",
+        "descriptive_facts",
+        "decision_log",
+        "data_summary"
+      ],
+      "capability_evidence": {
+        "economics.data.validation": {
+          "resolution": "resolved",
+          "implementation": "data.val.stata",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "stata"
+        }
+      },
+      "director_decisions": {
+        "sample_exclusion": "none (frozen Grunfeld balanced panel, no exclusions)",
+        "variable_definition": "firm=integer, year=integer, invest/value/capital=float (explicit declarations)",
+        "clustering_level": "firm",
+        "control_set": "none (regressors value + capital only)",
+        "fixed_effects": "firm + year",
+        "family_definition": "value + capital coefficient significance tests (frozen Grunfeld panel-FE)",
+        "correction_method": "holm"
+      }
+    },
+    "empirical": {
+      "role": "empirical",
+      "name": "实证/显著性",
+      "stage": 2,
+      "target": "project",
+      "selected_capabilities": [
+        "economics.regression.panel_fe",
+        "economics.stat.testing.multcomp",
+        "economics.presentation.tables.estimates",
+        "economics.presentation.tables.descriptive",
+        "economics.presentation.tables.diagnostics",
+        "economics.presentation.tables.models"
+      ],
+      "dispatch_allowed": true,
+      "resolution": "ready",
+      "depends_on": [
+        "data"
+      ],
+      "upstream": [
+        {
+          "role": "data",
+          "outputs": [
+            "data_manifest",
+            "variable_dictionary",
+            "sample_flow",
+            "descriptive_facts",
+            "decision_log",
+            "data_summary"
+          ]
+        }
+      ],
+      "outputs": [
+        "model_registry",
+        "estimates",
+        "diagnostics",
+        "empirical_results",
+        "decision_log"
+      ],
+      "capability_evidence": {
+        "economics.regression.panel_fe": {
+          "resolution": "resolved",
+          "implementation": "panel.fe.stata.reghdfe",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "stata"
+        },
+        "economics.stat.testing.multcomp": {
+          "resolution": "resolved",
+          "implementation": "multcomp.r.base",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "r"
+        },
+        "economics.presentation.tables.estimates": {
+          "resolution": "resolved",
+          "implementation": "presentation.local.table_renderer",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "node"
+        },
+        "economics.presentation.tables.descriptive": {
+          "resolution": "resolved",
+          "implementation": "presentation.local.descriptive_table_renderer",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "node"
+        },
+        "economics.presentation.tables.diagnostics": {
+          "resolution": "resolved",
+          "implementation": "presentation.local.diagnostics_table_renderer",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "node"
+        },
+        "economics.presentation.tables.models": {
+          "resolution": "resolved",
+          "implementation": "presentation.local.model_table_renderer",
+          "verification_status": "tested",
+          "reason": "test_override_recorded",
+          "runtime": "node"
+        }
+      },
+      "director_decisions": {
+        "sample_exclusion": "none (frozen Grunfeld balanced panel, no exclusions)",
+        "variable_definition": "firm=integer, year=integer, invest/value/capital=float (explicit declarations)",
+        "clustering_level": "firm",
+        "control_set": "none (regressors value + capital only)",
+        "fixed_effects": "firm + year",
+        "family_definition": "value + capital coefficient significance tests (frozen Grunfeld panel-FE)",
+        "correction_method": "holm"
+      }
+    }
+  },
+  "director": {
+    "status": "ready",
+    "unresolved_decisions": []
+  },
+  "preflight": {
+    "overall": "ready",
+    "capabilities": {
+      "economics.data.validation": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "data.val.stata",
+        "verification_status": "tested"
+      },
+      "economics.regression.panel_fe": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "panel.fe.stata.reghdfe",
+        "verification_status": "tested"
+      },
+      "economics.stat.testing.multcomp": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "multcomp.r.base",
+        "verification_status": "tested"
+      },
+      "economics.presentation.tables.estimates": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "presentation.local.table_renderer",
+        "verification_status": "tested"
+      },
+      "economics.presentation.tables.descriptive": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "presentation.local.descriptive_table_renderer",
+        "verification_status": "tested"
+      },
+      "economics.presentation.tables.diagnostics": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "presentation.local.diagnostics_table_renderer",
+        "verification_status": "tested"
+      },
+      "economics.presentation.tables.models": {
+        "resolution": "resolved",
+        "reason": "test_override_recorded",
+        "implementation": "presentation.local.model_table_renderer",
+        "verification_status": "tested"
+      }
+    }
+  },
+  "deterministic": true
+}

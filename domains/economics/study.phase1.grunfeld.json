@@ -1,0 +1,35 @@
+{
+  "study_id": "phase1_grunfeld_e2e_v1",
+  "domain": "economics",
+  "execution_context": {
+    "mode": "test",
+    "allow_experimental": true,
+    "preferred_runtimes": ["stata", "r", "python"]
+  },
+  "selected_capabilities": {
+    "data": ["economics.data.validation"],
+    "empirical": [
+      "economics.regression.panel_fe",
+      "economics.stat.testing.multcomp",
+      "economics.presentation.tables.estimates",
+      "economics.presentation.tables.descriptive",
+      "economics.presentation.tables.diagnostics",
+      "economics.presentation.tables.models"
+    ]
+  },
+  "decisions": {
+    "sample_exclusion": "none (frozen Grunfeld balanced panel, no exclusions)",
+    "variable_definition": "firm=integer, year=integer, invest/value/capital=float (explicit declarations)",
+    "clustering_level": "firm",
+    "control_set": "none (regressors value + capital only)",
+    "fixed_effects": "firm + year",
+    "family_definition": "value + capital coefficient significance tests (frozen Grunfeld panel-FE)",
+    "correction_method": "holm"
+  },
+  "preconditions": {
+    "design.panel": "unit_time"
+  },
+  "manual_validations": {
+    "sample_flow_defined": true
+  }
+}
