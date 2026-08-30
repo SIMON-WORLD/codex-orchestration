@@ -103,3 +103,5 @@ jobs:
         run: node tests/phase1_e2e.spec.mjs
       - name: Run Phase 1 M2 integrated execution regression
         run: node tests/phase1_m2_e2e.spec.mjs
+      - name: Run Phase 1 closure + adversarial acceptance
+        run: node tests/phase1_closure.spec.mjs
