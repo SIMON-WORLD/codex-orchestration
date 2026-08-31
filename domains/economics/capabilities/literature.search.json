@@ -1,16 +1,24 @@
 {
   "id": "economics.literature.search",
   "domain": "economics",
-  "description": "Multi-source literature search, dedupe, screen, source verification",
+  "description": "Narrow, scientifically conservative bibliographic retrieval / normalization / deterministic dedupe / bibliographic verification. For v1: multi-source (Crossref, OpenAlex) discovery + identity verification. It does NOT rank papers by scientific importance, does NOT judge relevance/quality/gaps, and does NOT perform literature-review synthesis. Metadata verified != scientifically valid paper; DOI exists != source supports a research claim.",
   "risk_level": "low",
   "methodology": {
     "references": [
       {
         "name": "nature-literature-pipeline / academic-deep-research",
         "url": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills"
+      },
+      {
+        "name": "Crossref REST API (metadata from member/trusted deposits; field completeness varies; not an absolute field-truth oracle)",
+        "url": "https://api.crossref.org/"
+      },
+      {
+        "name": "OpenAlex API (public scholarly metadata)",
+        "url": "https://api.openalex.org/"
       }
     ],
-    "note": "retrieval rigor source"
+    "note": "retrieval rigor + bibliographic identity discipline. Evidence reconciliation, not a hardcoded source winner."
   },
   "implementations": [
     {
@@ -23,8 +31,22 @@
         "runtime": "any"
       },
       "verification": {
-        "evidence": null,
+        "evidence": "External reference workflow (brycewang-stanford/Auto-Empirical-Research-Skills). Not locally runnable here; not represented as locally available. No local benchmark evidence.",
         "benchmark_ref": null
+      }
+    },
+    {
+      "id": "litsearch.local.sources",
+      "kind": "script",
+      "name": "domains/economics/literature/run_literature_search.mjs",
+      "runtime": "node",
+      "verification_status": "experimental",
+      "environment_requirements": {
+        "runtime": "node"
+      },
+      "verification": {
+        "evidence": "M1 implementation: real Crossref + OpenAlex clients (Node built-in fetch; DI seam for tests); deterministic normalize/dedupe/bibliographic-verify mechanics adversarially tested (canonical DOI variants, same-title-different-work non-merge, DOI/title/author conflicts, missing DOI multi-source agreement, preprint-vs-published distinct, fuzzy-title merge rejected, source failure recorded, max-results, source-order determinism, no secret leakage). Status = experimental; NOT tested; NOT verified; real live-source evidence + any maturity promotion deferred to M2. No review synthesis, no fuzzy title/LLM judgment, no public artifact-schema change, no Core special case.",
+        "benchmark_ref": "domains/economics/benchmarks/literature/"
       }
     }
   ],

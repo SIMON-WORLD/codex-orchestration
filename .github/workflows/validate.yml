@@ -105,3 +105,5 @@ jobs:
         run: node tests/phase1_m2_e2e.spec.mjs
       - name: Run Phase 1 closure + adversarial acceptance
         run: node tests/phase1_closure.spec.mjs
+      - name: Run Literature Pack v1 implementation regression
+        run: node tests/literature_pack.spec.mjs

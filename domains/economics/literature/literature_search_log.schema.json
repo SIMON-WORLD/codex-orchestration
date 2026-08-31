@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "literature_search_log.schema.json",
+  "title": "economics literature_search_log v1 (Domain-local, NOT a Core public artifact type)",
+  "type": "object",
+  "required": ["schema_version", "request", "source_executions", "candidates", "normalized", "dedupe_groups", "verification"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "request": {
+      "type": "object",
+      "properties": {
+        "request_id": { "type": "string" },
+        "search_scope": { "type": "string" },
+        "query_strings": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "requested_sources": { "type": "array", "items": { "enum": ["crossref", "openalex"] }, "minItems": 1 },
+        "max_results": { "type": "integer", "minimum": 1 },
+        "pagination": { "type": ["object", "null"] }
+      },
+      "required": ["request_id", "search_scope", "query_strings", "requested_sources"]
+    },
+    "source_executions": { "type": "array", "items": { "type": "object", "properties": { "source": { "type": "string" }, "status": { "enum": ["success", "success_zero_records", "source_unavailable", "malformed_response", "unsupported_source"] }, "result_count": { "type": "integer" } }, "required": ["source", "status"] } },
+    "candidates": { "type": "array", "items": { "type": "object" } },
+    "normalized": { "type": "array", "items": { "type": "object" } },
+    "dedupe_groups": { "type": "array", "items": { "type": "object", "properties": { "group_id": { "type": "string" }, "record_ids": { "type": "array", "items": { "type": "string" } }, "decision": { "enum": ["dedupe_same", "distinct", "conflict"] } }, "required": ["group_id", "record_ids", "decision"] } },
+    "verification": { "type": "array", "items": { "type": "object", "properties": { "group_id": { "type": "string" }, "state": { "enum": ["verified", "partially_verified", "conflicting", "unresolved"] }, "reason_codes": { "type": "array", "items": { "type": "string" } } }, "required": ["group_id", "state", "reason_codes"] } }
+  }
+}
