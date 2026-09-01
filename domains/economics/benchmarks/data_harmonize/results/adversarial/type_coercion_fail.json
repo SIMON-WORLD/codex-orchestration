@@ -1,0 +1,48 @@
+{
+  "case": "type_coercion_fail",
+  "implementation_id": "data.harmonize.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "coerce_value",
+      "kind": "coerce",
+      "detail": {
+        "status": "fail",
+        "coercion_failures": 1,
+        "note": "cannot satisfy declared type numeric"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "renamed": 6
+      }
+    },
+    {
+      "op_id": "coerce_value",
+      "kind": "coerce",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "coercion_failures": 1,
+        "note": "cannot satisfy declared type numeric"
+      }
+    }
+  ],
+  "input_shas": {
+    "main": "485aefce30d19d60a495d6530e36221c4bf45ba2534d0d6da4091ca8d9806a58",
+    "lookup": "df9349318f18063f84d8892d4a4450d8d905edb4edddfdc3e3e77064d5b6535a"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

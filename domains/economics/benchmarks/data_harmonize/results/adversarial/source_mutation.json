@@ -1,0 +1,17 @@
+{
+  "case": "source_mutation",
+  "implementation_id": "data.harmonize.python.pandas",
+  "overall": "failed",
+  "errors": [
+    {
+      "status": "fail",
+      "error": "input sha mismatch (source changed)",
+      "actual_sha256": "75e3064b54c1b824a7a372ffc972c0799975cfd37744f1598e6c4e1227286948",
+      "declared_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true
+  }
+}

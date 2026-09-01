@@ -1,0 +1,88 @@
+{
+  "plan_id": "harm_synth_main_v1",
+  "implementation_id": "data.harmonize.python.pandas",
+  "input_shas": {
+    "main": "f6a666f3e5235cd502cf2a669142fe497a6b5cc9f1a8d945e600d11a90466e36",
+    "lookup": "2f7199d6f1e0dda36c89d6b7239a4a5e0f185e4d3ca07e019e6a57e9cbfed440"
+  },
+  "output_sha256": "a74b83549d4bff88c2c3af925883a865cdd760a22eb842c8022b853d1d1ed3b8",
+  "operations": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "renamed": 6
+      }
+    },
+    {
+      "op_id": "coerce_year",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "coerce_value",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "norm_key",
+      "kind": "normalize_key",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "map_cat",
+      "kind": "map_code",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "mapped": 3
+      }
+    },
+    {
+      "op_id": "norm_date",
+      "kind": "normalize_date",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "unit_eur",
+      "kind": "convert_unit",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "unit": "usd->eur"
+      }
+    },
+    {
+      "op_id": "merge_lookup",
+      "kind": "merge",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "rows_before": 4,
+        "rows_after": 4,
+        "matched": 4,
+        "unmatched": 0
+      }
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "overall": "completed",
+  "rows_after": 4,
+  "cols_after": 11,
+  "cols_before": 6
+}

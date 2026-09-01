@@ -1,0 +1,66 @@
+{
+  "case": "unknown_code",
+  "implementation_id": "data.harmonize.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "map_cat",
+      "kind": "map_code",
+      "detail": {
+        "status": "fail",
+        "unknown_codes": [
+          "Z"
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "renamed": 6
+      }
+    },
+    {
+      "op_id": "coerce_value",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "norm_key",
+      "kind": "normalize_key",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "map_cat",
+      "kind": "map_code",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "unknown_codes": [
+          "Z"
+        ]
+      }
+    }
+  ],
+  "input_shas": {
+    "main": "573e29a2ba6e5d7267bd97e458cfa96a8eaa2d78cfa62708f69b1516d6960552",
+    "lookup": "df9349318f18063f84d8892d4a4450d8d905edb4edddfdc3e3e77064d5b6535a"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "case": "missing_source_column",
+  "implementation_id": "data.harmonize.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "detail": {
+        "status": "fail",
+        "error": "missing source columns: NotAColumn"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "error": "missing source columns: NotAColumn"
+      }
+    }
+  ],
+  "input_shas": {
+    "main": "8a3f203ad1d9f1205dfd9ba5f2a154ae792bbdd710adde819d9facc9cd873d5a",
+    "lookup": "df9349318f18063f84d8892d4a4450d8d905edb4edddfdc3e3e77064d5b6535a"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SIMON-WORLD/codex-orchestration/blob/main/domains/economics/data/harmonize_plan.schema.json",
+  "title": "Economics harmonize plan contract v1",
+  "description": "Domain-level harmonize transformation plan. NOT a Core public artifact schema. Binds source identities, declared structural operations (rename/coerce/normalize_key/map_code/normalize_date/convert_unit/merge), output identity, and is canonically hashable. It never invents scientific cleaning rules; scientific decisions (sample exclusion / treatment definition) remain with the Director/study design.",
+  "type": "object",
+  "required": ["schema_version", "plan_id", "inputs", "output", "operations"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "plan_id": { "type": "string", "minLength": 1 },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["input_id", "dataset_id", "file"],
+        "properties": {
+          "input_id": { "type": "string", "minLength": 1 },
+          "dataset_id": { "type": "string", "minLength": 1 },
+          "file": { "type": "string", "minLength": 1 },
+          "format": { "type": "string", "default": "csv" },
+          "sha256": { "type": ["string", "null"], "description": "Declared input SHA256; null means 'not pinned, but still read-only'. A pinned sha that does not match on execution fails closed." }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["dataset_id", "file"],
+      "properties": { "dataset_id": { "type": "string", "minLength": 1 }, "file": { "type": "string", "minLength": 1 }, "sort_by": { "type": "array", "items": { "type": "string" } } }
+    },
+    "unit_of_analysis": { "type": ["string", "null"] },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/op" }
+    }
+  },
+  "$defs": {
+    "opBase": {
+      "type": "object",
+      "required": ["op_id", "kind"],
+      "properties": { "op_id": { "type": "string", "minLength": 1 }, "kind": { "type": "string" } }
+    },
+    "rename": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": { "kind": { "const": "rename" }, "mapping": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } } },
+      "required": ["mapping"]
+    },
+    "coerce": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": { "kind": { "const": "coerce" }, "column": { "type": "string" }, "to": { "type": "string", "enum": ["integer", "numeric", "string", "boolean", "category"] }, "on_failure": { "type": "string", "enum": ["fail"] } },
+      "required": ["column", "to"]
+    },
+    "normalize_key": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": { "kind": { "const": "normalize_key" }, "column": { "type": "string" }, "rules": { "type": "array", "items": { "type": "string", "enum": ["trim", "lower_case", "upper_case", "zero_pad"] } }, "width": { "type": "integer" } },
+      "required": ["column", "rules"]
+    },
+    "map_code": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": { "kind": { "const": "map_code" }, "column": { "type": "string" }, "mapping": { "type": "object" }, "unknown": { "type": "string", "enum": ["fail"] } },
+      "required": ["column", "mapping", "unknown"]
+    },
+    "normalize_date": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": { "kind": { "const": "normalize_date" }, "column": { "type": "string" }, "in_format": { "type": "string" }, "out": { "type": "string", "enum": ["year", "year_month", "iso_date"] } },
+      "required": ["column", "in_format"]
+    },
+    "convert_unit": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": { "kind": { "const": "convert_unit" }, "source_column": { "type": "string" }, "target_column": { "type": "string" }, "source_unit": { "type": "string" }, "target_unit": { "type": "string" }, "factor": { "type": "number" }, "factor_mode": { "type": "string", "enum": ["multiply", "divide"] } },
+      "required": ["source_column", "target_column", "source_unit", "target_unit", "factor", "factor_mode"]
+    },
+    "merge": {
+      "allOf": [{ "$ref": "#/$defs/opBase" }],
+      "properties": {
+        "kind": { "const": "merge" },
+        "right": { "type": "string" },
+        "left_keys": { "type": "array", "items": { "type": "string" } },
+        "right_keys": { "type": "array", "items": { "type": "string" } },
+        "how": { "type": "string", "enum": ["left", "inner"] },
+        "cardinality": { "type": "string", "enum": ["1:1", "1:m", "m:1"] },
+        "unmatched": { "type": "string", "enum": ["warn", "fail"] }
+      },
+      "required": ["right", "right_keys", "how", "cardinality", "unmatched"]
+    },
+    "op": {
+      "oneOf": [
+        { "$ref": "#/$defs/rename" },
+        { "$ref": "#/$defs/coerce" },
+        { "$ref": "#/$defs/normalize_key" },
+        { "$ref": "#/$defs/map_code" },
+        { "$ref": "#/$defs/normalize_date" },
+        { "$ref": "#/$defs/convert_unit" },
+        { "$ref": "#/$defs/merge" }
+      ]
+    }
+  }
+}

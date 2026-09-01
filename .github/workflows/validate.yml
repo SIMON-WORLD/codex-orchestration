@@ -120,3 +120,6 @@ jobs:
 
       - name: Run Literature M4 E2E / reproducibility closure
         run: node tests/literature_m4.spec.mjs
+
+      - name: Run Data Harmonize Pack v1 regression
+        run: node tests/data_harmonize_pack.spec.mjs

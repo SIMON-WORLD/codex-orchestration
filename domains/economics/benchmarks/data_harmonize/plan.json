@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "harm_synth_main_v1",
+  "inputs": [
+    { "input_id": "main", "dataset_id": "synth_main_panel", "file": "main.csv", "format": "csv", "sha256": "f6a666f3e5235cd502cf2a669142fe497a6b5cc9f1a8d945e600d11a90466e36" },
+    { "input_id": "lookup", "dataset_id": "synth_lookup", "file": "lookup.csv", "format": "csv", "sha256": "2f7199d6f1e0dda36c89d6b7239a4a5e0f185e4d3ca07e019e6a57e9cbfed440" }
+  ],
+  "output": { "dataset_id": "synth_main_harmonized", "file": "harmonized.csv", "sort_by": ["firm", "year"] },
+  "unit_of_analysis": "firm-year (explicit)",
+  "operations": [
+    { "op_id": "rename", "kind": "rename", "mapping": { "FirmID": "firm", "Year": "year", "ValueStr": "value", "CatCode": "cat", "DateStr": "obs_date", "AmountUSD": "amount_usd" } },
+    { "op_id": "coerce_year", "kind": "coerce", "column": "year", "to": "integer" },
+    { "op_id": "coerce_value", "kind": "coerce", "column": "value", "to": "numeric" },
+    { "op_id": "norm_key", "kind": "normalize_key", "column": "firm", "rules": ["trim", "lower_case"] },
+    { "op_id": "map_cat", "kind": "map_code", "column": "cat", "mapping": { "A": 1, "B": 2, "C": 3 }, "unknown": "fail" },
+    { "op_id": "norm_date", "kind": "normalize_date", "column": "obs_date", "in_format": "%Y-%m", "out": "year_month" },
+    { "op_id": "unit_eur", "kind": "convert_unit", "source_column": "amount_usd", "target_column": "amount_eur", "source_unit": "usd", "target_unit": "eur", "factor": 0.92, "factor_mode": "multiply" },
+    { "op_id": "merge_lookup", "kind": "merge", "right": "lookup", "left_keys": ["firm"], "right_keys": ["firm_key"], "how": "left", "cardinality": "1:1", "unmatched": "warn" }
+  ]
+}

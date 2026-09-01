@@ -1,0 +1,19 @@
+{
+  "benchmark_id": "harmonize_synthetic_v1",
+  "capability_id": "economics.data.harmonize",
+  "title": "Harmonize Pack M1 deterministic synthetic data-preparation benchmark",
+  "evidence_kind": "frozen_deterministic_synthetic",
+  "dataset": {
+    "main": { "dataset_id": "synth_main_panel", "file": "sources/main.csv", "sha256": "f6a666f3e5235cd502cf2a669142fe497a6b5cc9f1a8d945e600d11a90466e36" },
+    "lookup": { "dataset_id": "synth_lookup", "file": "sources/lookup.csv", "sha256": "2f7199d6f1e0dda36c89d6b7239a4a5e0f185e4d3ca07e019e6a57e9cbfed440" }
+  },
+  "plan": { "file": "plan.json", "plan_id": "harm_synth_main_v1", "plan_hash": "df1ec40a34370bf6f77d96cd3609a006958ef81eb2c9da947ef0f662c1f68eb1" },
+  "expected_output": { "file": "results/harmonized.csv", "sha256": "a74b83549d4bff88c2c3af925883a865cdd760a22eb842c8022b853d1d1ed3b8", "rows": 4, "columns": 11 },
+  "expected_facts": {
+    "renamed": 6, "coercions_ok": 2, "key_normalized": 4, "codes_mapped": 3, "dates_normalized": 4,
+    "unit_conversion": "usd->eur factor 0.92 multiply", "merge": { "cardinality": "1:1", "how": "left", "matched": 4, "unmatched": 0, "rows_before": 4, "rows_after": 4 },
+    "coercion_failures": 0, "code_failures": 0, "warnings": 0, "overall": "completed"
+  },
+  "operation_families_covered": ["rename", "coerce", "normalize_key", "map_code", "normalize_date", "convert_unit", "merge"],
+  "note": "Deterministic synthetic harmonization benchmark. Source files are frozen and byte-identical after execution (no in-place mutation). Output SHA256 is serialization-deterministic (sorted columns, sorted by firm+year, LF newlines). This is Domain-level benchmark evidence, NOT a Core artifact."
+}

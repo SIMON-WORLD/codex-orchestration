@@ -1,0 +1,78 @@
+{
+  "case": "unmatched_merge_warn",
+  "implementation_id": "data.harmonize.python.pandas",
+  "overall": "completed",
+  "warnings": [
+    {
+      "op": "merge_lookup",
+      "unmatched_records": 1
+    }
+  ],
+  "errors": [],
+  "operations": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "renamed": 6
+      }
+    },
+    {
+      "op_id": "coerce_value",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "norm_key",
+      "kind": "normalize_key",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "map_cat",
+      "kind": "map_code",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "mapped": 3
+      }
+    },
+    {
+      "op_id": "norm_date",
+      "kind": "normalize_date",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "merge_lookup",
+      "kind": "merge",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "rows_before": 3,
+        "rows_after": 3,
+        "matched": 2,
+        "unmatched": 1
+      }
+    }
+  ],
+  "input_shas": {
+    "main": "db2cfd982907f39670def36814c607c0b5faf575edad9d21d987550aa35a00e3",
+    "lookup": "df9349318f18063f84d8892d4a4450d8d905edb4edddfdc3e3e77064d5b6535a"
+  },
+  "output_sha256": "af8ba186b3ea28c09f8ec804dad3085dc4ed41fd06091f11edf1bf3802b6441e",
+  "runner_error": null,
+  "expected": {
+    "fail_closed": false,
+    "warning": true
+  }
+}

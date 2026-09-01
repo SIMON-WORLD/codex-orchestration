@@ -1,0 +1,5 @@
+amount_eur,amount_usd,cat,factor_eur,firm,firm_key,obs_date,region,sector,value,year
+920.0,1000,1,0.92,f001,f001,1995-01,N,mfg,100,1995
+1840.0,2000,2,0.92,f002,f002,1996-01,S,svc,200,1996
+1380.0,1500,1,0.93,f003,f003,1995-01,N,mfg,150,1995
+2300.0,2500,3,0.91,f004,f004,1996-01,S,svc,250,1996

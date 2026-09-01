@@ -4,6 +4,7 @@
   "capability_files": [
     "literature.search.json",
     "data.validation.json",
+    "data.harmonize.json",
     "regression.panel_fe.json",
     "causal.did.twfe.json",
     "causal.did.staggered.json",

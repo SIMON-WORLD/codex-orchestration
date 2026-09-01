@@ -1,0 +1,5 @@
+firm_key,region,sector,factor_eur
+f001,N,mfg,0.92
+f002,S,svc,0.92
+f003,N,mfg,0.93
+f004,S,svc,0.91
