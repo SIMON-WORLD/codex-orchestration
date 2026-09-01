@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "construct_synthetic_v1",
+  "capability_id": "economics.data.construct",
+  "title": "Construct Pack M2 deterministic synthetic data-preparation benchmark",
+  "evidence_kind": "frozen_deterministic_synthetic",
+  "input_hash_mode": "file_bytes_sha256_v1",
+  "output_hash_mode": "file_bytes_sha256_v1",
+  "dataset": { "panel": { "dataset_id": "synth_construct_panel", "file": "sources/panel.csv", "source_file_sha256": "8106c0ea0b12285a83592240650642d41f2550aea14577ef39d052202849aabf" } },
+  "plan": { "file": "plan.json", "plan_id": "construct_synth_v1", "plan_hash": "9a11779e32b3674be7ef6ac5cc143fed3ed4f8191a3685aa29cb158894846b62" },
+  "expected_output": { "file": "results/constructed.csv", "sha256": "8f2bc10b78b5f8d5eb4bdaf224b2a3626fbfc87110e0a19a472caa58a17ed517", "rows": 6, "columns": 14 },
+  "expected_facts": {
+    "operations": 9, "arithmetic": true, "log": true, "ratio": true, "difference": true, "growth_rate": true,
+    "interaction": true, "lag": true, "lead": true, "indicator": true,
+    "eligible_firms": [ "f001", "f003" ], "rows_per_firm": 2, "domain_violations": 0, "errors": 0, "warnings": 0, "overall": "completed"
+  },
+  "note": "Deterministic synthetic construct benchmark. Source identity = exact raw-byte SHA256 (CRLF<->LF byte change alters source_file_sha256 and fails closed). Safe declarative structured expressions ONLY (no arbitrary eval / arbitrary expression execution). Output SHA256 is the raw-byte hash of the deterministic serialized output (sorted columns, sorted by firm+year, LF newlines). This is Domain-level benchmark evidence, NOT a Core artifact."
+}

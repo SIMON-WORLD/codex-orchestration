@@ -1,0 +1,36 @@
+{
+  "case": "lag_dup_unit_time",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "detail": {
+        "status": "fail",
+        "duplicate_unit_time_key": 1
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "duplicate_unit_time_key": 1
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "96435dbade7f8a80b07a330d1a915bcb60ea16f5be7c8395909b03a865c04748"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

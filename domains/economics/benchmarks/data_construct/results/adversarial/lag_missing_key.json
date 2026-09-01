@@ -1,0 +1,36 @@
+{
+  "case": "lag_missing_key",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "detail": {
+        "status": "fail",
+        "note": "missing_key_column"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "note": "missing_key_column"
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "d93f4aaa45b1023ced69f0dfbbb3525e2c33aa2f472294e14fcbd544460cb3e8"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

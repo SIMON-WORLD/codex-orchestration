@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "construct_synth_v1",
+  "input": { "dataset_id": "synth_construct_panel", "file": "panel.csv", "sha256": "8106c0ea0b12285a83592240650642d41f2550aea14577ef39d052202849aabf" },
+  "output": { "dataset_id": "synth_construct_out", "file": "constructed.csv", "sort_by": ["firm", "year"] },
+  "unit_of_analysis": "firm-year (explicit)",
+  "panel_by": "firm",
+  "time_by": "year",
+  "operations": [
+    { "op_id": "arith", "kind": "arithmetic", "operator": "multiply", "left": "value", "right": 2, "target": "value2" },
+    { "op_id": "logv", "kind": "log", "source": "value", "target": "log_value", "base": "natural" },
+    { "op_id": "share", "kind": "ratio", "numerator": "value", "denominator": "total_value", "target": "share" },
+    { "op_id": "diff", "kind": "difference", "source": "value", "target": "d_value", "periods": 1 },
+    { "op_id": "growth", "kind": "growth_rate", "source": "value", "target": "g_value", "periods": 1 },
+    { "op_id": "interact", "kind": "interaction", "terms": ["value", "treated"], "target": "value_treated" },
+    { "op_id": "lagv", "kind": "lag", "source": "value", "target": "lag_value", "periods": 1 },
+    { "op_id": "leadv", "kind": "lead", "source": "value", "target": "lead_value", "periods": 1 },
+    { "op_id": "eligible", "kind": "indicator", "target": "eligible", "predicate": { "op": "and", "args": [ { "op": "gt", "left": "value", "right": 0 }, { "op": "eq", "left": "treated", "right": 1 } ] } }
+  ]
+}

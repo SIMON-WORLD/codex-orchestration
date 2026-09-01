@@ -1,0 +1,89 @@
+{
+  "plan_id": "construct_synth_v1",
+  "implementation_id": "data.construct.python.pandas",
+  "input_shas": {
+    "input": "8106c0ea0b12285a83592240650642d41f2550aea14577ef39d052202849aabf"
+  },
+  "output_sha256": "8f2bc10b78b5f8d5eb4bdaf224b2a3626fbfc87110e0a19a472caa58a17ed517",
+  "operations": [
+    {
+      "op_id": "arith",
+      "kind": "arithmetic",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "logv",
+      "kind": "log",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "share",
+      "kind": "ratio",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "diff",
+      "kind": "difference",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "growth",
+      "kind": "growth_rate",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "interact",
+      "kind": "interaction",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "leadv",
+      "kind": "lead",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "eligible",
+      "kind": "indicator",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "flag": "explicitly defined indicator/eligibility flag; NOT applied to final sample"
+      }
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "overall": "completed",
+  "rows_after": 6,
+  "cols_after": 14,
+  "cols_before": 5
+}

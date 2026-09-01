@@ -1,0 +1,36 @@
+{
+  "case": "output_collision",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "arith",
+      "kind": "arithmetic",
+      "detail": {
+        "status": "fail",
+        "output_column_collision": "value"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "arith",
+      "kind": "arithmetic",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "output_column_collision": "value"
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "ea2eb9d74d9653b76a19a46a4f73de353f3aa9aa135d5d651510fb857023764d"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

@@ -8,4 +8,9 @@ docs/03-tool-reference.md text eol=lf
 # Generated / authored data files (capture + emit write LF); keep LF so Windows regen stays clean
 data/*.json text eol=lf
 data/*.yaml text eol=lf
-
+# Frozen data-prep benchmark source/evidence files are byte-exact;
+# source identity = exact raw-byte SHA256, so CRLF<->LF byte changes MUST alter source_file_sha256.
+domains/economics/benchmarks/data_harmonize/sources/*.csv -text
+domains/economics/benchmarks/data_harmonize/results/** -text
+domains/economics/benchmarks/data_construct/sources/*.csv -text
+domains/economics/benchmarks/data_construct/results/** -text

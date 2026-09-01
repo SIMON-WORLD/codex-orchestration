@@ -13,7 +13,7 @@ const BENCH = join(HERE);
 const ROOT = join(BENCH, "..", "..", "..", "..");
 const TMP = join(ROOT, "role-team-out/harmonize_adv");
 const OUT = join(BENCH, "results", "adversarial");
-const shaText = (s) => createHash("sha256").update(s.replace(/\r\n/g, "\n").replace(/\r/g, "\n"), "utf8").digest("hex");
+const shaText = (s) => createHash("sha256").update(Buffer.from(s, "utf8")).digest("hex");
 
 function writeCase(name, mainCsv, lookupCsv, ops, opts = {}) {
   const dir = join(TMP, name); mkdirSync(dir, { recursive: true });

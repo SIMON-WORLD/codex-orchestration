@@ -123,3 +123,6 @@ jobs:
 
       - name: Run Data Harmonize Pack v1 regression
         run: node tests/data_harmonize_pack.spec.mjs
+
+      - name: Run Data Construct Pack v1 regression
+        run: node tests/data_construct_pack.spec.mjs

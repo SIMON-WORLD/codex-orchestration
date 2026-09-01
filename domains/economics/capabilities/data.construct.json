@@ -1,0 +1,30 @@
+{
+  "id": "economics.data.construct",
+  "domain": "economics",
+  "description": "Explicit, specification-driven variable construction from a validated/harmonized dataset. V1 supports ONLY safe declarative structured expressions (NO arbitrary eval / arbitrary expression execution): arithmetic (add/subtract/multiply/divide over columns or scalars), log (natural/base-10, domain-guarded), ratio/share (denominator non-zero), difference and growth_rate (panel+time ordered), interaction (product of >=2 declared terms), lag/lead (panel_by+time_by, duplicate unit-time key fails), and indicator/eligibility FLAG (structured predicate; computed only as a flag, NEVER applied to the final estimation sample). It NEVER autonomously decides sample exclusion / treatment / which observations enter the estimation sample; it never imputes, winsorizes, deletes outliers, or constructs treatment/exposure by itself. Sample exclusion and treatment definition remain Director/study-design decisions.",
+  "risk_level": "medium",
+  "methodology": {
+    "references": [
+      { "name": "DIME Data Handbook (World Bank) - data management / documentation / reproducibility", "url": "https://worldbank.github.io/dime-data-handbook/" },
+      { "name": "DIME Wiki - Data Management (deduplication, documentation, data cleaning discipline)", "url": "https://dimewiki.worldbank.org/Data_Management" }
+    ],
+    "note": "Declarative, deterministic, auditable variable construction. Consumes a frozen dataset + an explicit Domain construct plan (structured expression spec). No arbitrary expression execution; domain guards (log/ratio/growth) and panel-time ordering enforced; sample boundary preserved (flag only)."
+  },
+  "implementations": [
+    {
+      "id": "data.construct.python.pandas",
+      "kind": "tool",
+      "name": "pandas",
+      "runtime": "python",
+      "verification_status": "experimental",
+      "environment_requirements": { "runtime": "python", "packages": { "pandas": ">=2.0" } },
+      "verification": {
+        "evidence": "M2 implementation: Python/pandas safe declarative construction against a frozen synthetic panel; verifies declared input SHA256 (raw-byte; source mutation fails closed); applies only declared structured operations (arithmetic/log/ratio/difference/growth_rate/interaction/lag/lead/indicator) in deterministic order; writes a separate deterministic constructed output; emits machine-readable execution log. Frozen evidence: deterministic synthetic construct benchmark (all 9 op families) PASS; adversarial + provenance/tamper suite PASS (log domain/divide-by-zero/growth-denominator-zero/duplicate unit-time key/missing key column/output column collision/source mutation all fail closed). Does NOT impute/winsorize/delete-outliers/decide-sample-exclusion/define-treatment/apply eligibility flag; NO arbitrary eval. NOT tested; NOT verified; experimental.",
+        "benchmark_ref": "domains/economics/benchmarks/data_construct/"
+      }
+    }
+  ],
+  "scientific_preconditions": [],
+  "decision_requirements": ["variable_definition"],
+  "fallback_policy": "needs_decision"
+}

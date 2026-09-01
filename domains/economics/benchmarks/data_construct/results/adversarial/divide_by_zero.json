@@ -1,0 +1,36 @@
+{
+  "case": "divide_by_zero",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "share",
+      "kind": "ratio",
+      "detail": {
+        "status": "fail",
+        "divide_by_zero": 1
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "share",
+      "kind": "ratio",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "divide_by_zero": 1
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "920a9789bd3adec778e218d59bec1c22f6d058ed6cb05abac88dbf5e8646bb25"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

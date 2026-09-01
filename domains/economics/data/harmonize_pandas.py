@@ -13,11 +13,10 @@ except Exception as e:
     print(json.dumps({"error": "pandas/numpy unavailable: " + str(e)}))
     sys.exit(2)
 
-def sha_text(path):
-    with open(path, "r", encoding="utf-8") as f:
-        text = f.read()
-    text = text.replace("\r\n", "\n").replace("\r", "\n")
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+def sha_bytes(path):
+    # exact raw-byte SHA256: any byte change (including CRLF<->LF) alters the hash.
+    with open(path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
 
 def read_json(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -27,7 +26,7 @@ def load_input(in_dir, inp):
     path = os.path.join(in_dir, inp["file"])
     if not os.path.exists(path):
         return None, {"status": "fail", "error": "input file missing: " + inp["file"]}
-    actual = sha_text(path)
+    actual = sha_bytes(path)
     if inp.get("sha256") and inp["sha256"] != actual:
         return None, {"status": "fail", "error": "input sha mismatch (source changed)", "actual_sha256": actual, "declared_sha256": inp["sha256"]}
     df = pd.read_csv(path)
@@ -172,7 +171,7 @@ def run(plan_path, in_dir, out_path, log_path):
     out_cols = sorted(cur.columns.tolist()); cur = cur[out_cols]
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     cur.to_csv(out_path, index=False, lineterminator="\n")
-    log["output_sha256"] = sha_text(out_path)
+    log["output_sha256"] = sha_bytes(out_path)
     log["rows_after"] = int(len(cur)); log["cols_after"] = int(len(out_cols)); log["cols_before"] = cols_before
     log["overall"] = "completed" if not log["errors"] else "failed"
     _write_log(log, log_path)
@@ -180,7 +179,7 @@ def run(plan_path, in_dir, out_path, log_path):
 
 def _write_log(log, log_path):
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    with open(log_path, "w", encoding="utf-8") as f:
+    with open(log_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(log, f, indent=2, ensure_ascii=False); f.write("\n")
 
 def main():

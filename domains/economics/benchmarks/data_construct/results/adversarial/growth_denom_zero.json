@@ -1,0 +1,36 @@
+{
+  "case": "growth_denom_zero",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "growth",
+      "kind": "growth_rate",
+      "detail": {
+        "status": "fail",
+        "growth_denominator_zero": 1
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "growth",
+      "kind": "growth_rate",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "growth_denominator_zero": 1
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "2810f6c605aabd1b44a4f28be164a80820660592c06400d09e4a8e7f830ea91c"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

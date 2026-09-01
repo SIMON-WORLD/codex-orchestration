@@ -1,0 +1,17 @@
+{
+  "case": "source_mutation",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "errors": [
+    {
+      "status": "fail",
+      "error": "input sha mismatch (source changed)",
+      "actual_sha256": "ea2eb9d74d9653b76a19a46a4f73de353f3aa9aa135d5d651510fb857023764d",
+      "declared_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true
+  }
+}

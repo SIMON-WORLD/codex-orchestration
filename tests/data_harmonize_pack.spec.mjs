@@ -11,7 +11,8 @@ import { validateHarmonizePlan, canonicalHarmonizePlanHash } from "../domains/ec
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DB = join(root, "domains/economics/benchmarks/data_harmonize");
-const shaText = (s) => createHash("sha256").update(s.replace(/\r\n/g, "\n").replace(/\r/g, "\n"), "utf8").digest("hex");
+const shaBytes = (s) => createHash("sha256").update(Buffer.from(s, "utf8")).digest("hex");
+const shaText = shaBytes;
 const registry = loadRegistry(join(root, "domains/economics/capabilities"));
 const roles = JSON.parse(readFileSync(join(root, "domains/economics/roles.json"), "utf8")).roles;
 const capFile = JSON.parse(readFileSync(join(root, "domains/economics/capabilities/data.harmonize.json"), "utf8"));
@@ -60,6 +61,7 @@ console.log("Phase 3 M1 data.harmonize vault");
 {
   ok("IMMUT. committed source files byte-identical to declared shas", shaText(readFileSync(join(DB, bench.dataset.main.file), "utf8")) === bench.dataset.main.sha256 && shaText(readFileSync(join(DB, bench.dataset.lookup.file), "utf8")) === bench.dataset.lookup.sha256);
   ok("IMMUT. harmonized output is a separate file (source untouched)", bench.expected_output.file.startsWith("results/harmonized.csv"));
+  ok("IMMUT. CRLF<->LF byte change alters source_file_sha256 (raw-byte identity)", (() => { const m = bench.dataset.main.source_file_sha256 || bench.dataset.main.sha256; const lf = readFileSync(join(DB, bench.dataset.main.file), "utf8"); const lfHash = shaBytes(lf); const crlfHash = shaBytes(lf.split("\n").join("\r\n")); return lfHash === m && crlfHash !== lfHash; })());
 }
 
 // 4. Frozen adversarial runtime evidence (python-produced, committed)

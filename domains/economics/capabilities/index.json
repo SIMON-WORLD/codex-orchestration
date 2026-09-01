@@ -15,6 +15,7 @@
     "presentation.tables.descriptive.json",
     "presentation.tables.diagnostics.json",
     "presentation.tables.models.json",
-    "presentation.figures.json"
+    "presentation.figures.json",
+    "data.construct.json"
   ]
 }
