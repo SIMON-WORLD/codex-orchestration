@@ -153,6 +153,15 @@ export async function runLiteratureWorkflow(study, opts = {}) {
     role_closure: { active_roles: plan.active_roles, literature_search_dispatch_allowed: role?.dispatch_allowed === true, literature_review_active: plan.active_roles.includes("literature_review") },
   };
 
+  // fail-closed live/replay separation: replay cannot be marked live; live cannot be marked replay
+  const effReplay = base.replay_mode;
+  const kind = base.evidence_kind;
+  if ((effReplay && kind === "live_adapter_execution") || (!effReplay && kind === "ground_truth_derived_source_shaped_replay")) {
+    base.workflow_status = "invalid_request"; base.can_execute = false; base.domain_request_errors.push("live/replay evidence_kind mismatch (separation violation)");
+    writeFileSync(join(outDir, "execution_record.json"), JSON.stringify(base, null, 2) + "\n", "utf8");
+    return base;
+  }
+
   // fail closed: contract OR domain request invalid -> no execution
   if (contractErrors.length > 0 || domainReqErrors.length > 0) {
     base.workflow_status = "invalid_request"; base.can_execute = false; base.canonical_log = null;

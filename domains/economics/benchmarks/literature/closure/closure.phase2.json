@@ -1,0 +1,120 @@
+{
+  "pack": "Literature Search / Verify Pack v1",
+  "capability_id": "economics.literature.search",
+  "implementation_id": "litsearch.local.sources",
+  "verification_status": "experimental",
+  "source_set": [
+    "crossref",
+    "openalex"
+  ],
+  "created_at": "2026-09-01T15:09:39.763Z",
+  "live_transport_evidence": {
+    "crossref": "source_unavailable",
+    "openalex": "source_unavailable",
+    "note": "From recorded live/live_probe.json (network blocked in this environment)."
+  },
+  "benchmark_ground_truth": {
+    "author": "NBER / QJE(JSTOR) / NBER published-version listing",
+    "identities": [
+      {
+        "case": "CASE_A",
+        "doi": "10.3386/w4483",
+        "kind": "working_paper"
+      },
+      {
+        "case": "CASE_A_PUBLI",
+        "doi": null,
+        "kind": "book_chapter"
+      },
+      {
+        "case": "CASE_B1",
+        "doi": "10.3386/w3572",
+        "kind": "working_paper"
+      },
+      {
+        "case": "CASE_B2",
+        "doi": "10.2307/2937954",
+        "kind": "journal_article"
+      }
+    ]
+  },
+  "replay_evidence": {
+    "evidence_kind": "ground_truth_derived_source_shaped_replay",
+    "capture_hashes": {
+      "derived_crossref": "ab846963fbee23d79f5f4b34f57d726ead5491fcab946d78ec38d0c589dcdc76",
+      "derived_openalex": "fb5962cb8d9a0d76e64a34998cef783577e21233189e1fe2a0cb568d551c5e25"
+    }
+  },
+  "adversarial_suite": {
+    "result": "PASS",
+    "cases_passed": "18/18",
+    "degradation_matrix_passed": "6/6"
+  },
+  "deterministic_replay": {
+    "rerun_count": 2,
+    "identical": true,
+    "diffs": [],
+    "canonical_sha256": "9cf89d72b56bb71ecf008c5d4e849b089acec0a8557b45ca0ee522916f6d8ce5",
+    "record_ids": 4,
+    "groups": 2,
+    "verification_states": [
+      "verified",
+      "verified"
+    ]
+  },
+  "workflow_integration": {
+    "director": "ready",
+    "role_closure": {
+      "active_roles": [
+        "literature_search"
+      ],
+      "literature_review_active": false
+    },
+    "resolved_implementation": "litsearch.local.sources",
+    "replay_workflow_status": "completed",
+    "live_workflow_status": "source_unavailable"
+  },
+  "resolver_role": {
+    "risk_level": "low",
+    "search_scope_required": true,
+    "fallback_policy": "recorded",
+    "production_verified_only_unchanged": true,
+    "core_special_case": false
+  },
+  "provenance_integrity": {
+    "integrity_ok": true,
+    "artifact_manifest_applicable_for_domain_log": false,
+    "note": "artifact_manifest_not_applicable_for_domain_log; Domain-level provenance binding used"
+  },
+  "live_vs_replay_separation": {
+    "live_never_reads_captures": true,
+    "replay_never_marks_live": true,
+    "benchmark_evidence_ref_null_in_live": true,
+    "replay_always_carries_evidence_ref": true
+  },
+  "known_limitations": {
+    "demonstrated": [
+      "real Crossref/OpenAlex adapters implemented",
+      "live attempts executed and source failures recorded honestly",
+      "independent authoritative ground truth frozen",
+      "deterministic source-shaped replay",
+      "adversarial normalization/dedupe/verification",
+      "strict workflow integration",
+      "provenance/tamper resistance",
+      "role/resolver behavior"
+    ],
+    "not_demonstrated": [
+      "successful live Crossref retrieval",
+      "successful live OpenAlex retrieval",
+      "actual live multi-source reconciliation",
+      "tested maturity"
+    ],
+    "wording": "independently grounded multi-source-shaped replay benchmark passed; live transport evidence incomplete."
+  },
+  "maturity": {
+    "current": "experimental",
+    "rationale": "LIVE_EVIDENCE_INCOMPLETE: both Crossref and OpenAlex live adapters returned source_unavailable/transport in this environment. No promotion to tested/verified.",
+    "allow_tested_promotion": false
+  },
+  "evidence_scope": "bibliographic retrieval/identity infrastructure only. Does NOT judge scientific validity, relevance, importance, or research gaps."
+}

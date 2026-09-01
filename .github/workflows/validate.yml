@@ -117,3 +117,6 @@ jobs:
 
       - name: Run Literature M3 workflow / resolver / provenance integration
         run: node tests/literature_m3.spec.mjs
+
+      - name: Run Literature M4 E2E / reproducibility closure
+        run: node tests/literature_m4.spec.mjs
