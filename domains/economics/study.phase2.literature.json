@@ -1,0 +1,24 @@
+{
+  "study_id": "phase2_literature_e2e_v1",
+  "domain": "economics",
+  "execution_context": {
+    "mode": "test",
+    "allow_experimental": true,
+    "preferred_runtimes": ["node"]
+  },
+  "selected_capabilities": {
+    "literature_search": ["economics.literature.search"]
+  },
+  "decisions": {
+    "search_scope": "angrist_krueger_compulsory_schooling"
+  },
+  "preconditions": {},
+  "manual_validations": {},
+  "search_request": {
+    "query_id": "AK_compulsory_schooling",
+    "query_strings": ["Does Compulsory School Attendance Affect Schooling and Earnings?"],
+    "requested_sources": ["crossref", "openalex"],
+    "max_results": 5
+  },
+  "note": "Phase-2 dedicated Literature v1 study. Selects ONLY economics.literature.search. search_scope is a formal Director decision; search_request is the Domain-workflow explicit query configuration (validated fail-closed by the Domain runner). No literature_review / data / empirical / writing / review; no maturity inflation."
+}

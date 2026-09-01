@@ -2,6 +2,8 @@
   "benchmark_id": "lit_real_bibliographic_v1",
   "capability_id": "economics.literature.search",
   "evidence_class": "real_bibliographic + adversarial + live_transport",
+  "replay_evidence_kind": "ground_truth_derived_source_shaped_replay",
+  "replay_evidence_note": "captures/derived_*.json are ground-truth-derived source-shaped REPLAY records, NOT live captures, NOT real Crossref/OpenAlex API responses, NOT real live cross-source reconciliation, NOT live transport evidence. Used ONLY for deterministic replay/adversarial/regression evidence. Actual live transport evidence is recorded separately in live/live_probe.json (currently source_unavailable/transport for both sources).",
   "title": "Literature Pack M2 real multi-source bibliographic + adversarial benchmark",
   "ground_truth_authority": "Authoritative bibliographic identities sourced from OFFICIAL/primary pages (NBER working paper records, the NBER-listed 1995 Aspects of Labour Economics published-version entry, and the Quarterly Journal of Economics). Values are independent of Crossref/OpenAlex as either system-under-test source.",
   "live_transport_evidence": {

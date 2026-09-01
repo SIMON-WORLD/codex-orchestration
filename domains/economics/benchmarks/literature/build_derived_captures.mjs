@@ -19,10 +19,10 @@ const cr = ids.map((id) => ({ id, item: crItem(fields(id)) }));
 const oa = ids.map((id) => ({ id, item: oaItem(fields(id)) }));
 const capture = (items, source) => ({
   capture_meta: {
-    capture_kind: "derived_from_official_ground_truth",
+    capture_kind: "ground_truth_derived_source_shaped_replay",
     non_live: true,
     source_source: "official NBER/QJE/JSTOR ground truth",
-    note: "NOT live transport evidence; live probe recorded separately in live/live_probe.json",
+    note: "ground_truth_derived_source_shaped_replay - NOT a live capture, NOT a real Crossref/OpenAlex API response, NOT real live cross-source reconciliation, NOT live transport evidence. Used for deterministic replay/adversarial/regression evidence only. Live transport evidence recorded separately in live/live_probe.json.",
     source,
     built_from: "benchmark.literature.m2.json",
   },

@@ -114,3 +114,6 @@ jobs:
         run: node domains/economics/benchmarks/literature/comparator.mjs
       - name: Run Literature M2 frozen adversarial suite
         run: node domains/economics/benchmarks/literature/adversarial/run_adversarial.mjs
+
+      - name: Run Literature M3 workflow / resolver / provenance integration
+        run: node tests/literature_m3.spec.mjs

@@ -60,4 +60,10 @@ export async function runLiteratureSearch(request, opts = {}) {
   };
   return { canonical, execution_metadata };
 }
-export function canonicalLiteratureContentHash(log) { const { execution_metadata, ...canonical } = log; return sha(JSON.stringify(canonical)); }
+export function canonicalLiteratureContentHash(log) {
+  // Hash only canonical bibliographic content, excluding volatile execution_metadata.
+  // Accepts either the full { canonical, execution_metadata } log or a bare canonical object,
+  // so both callers produce the SAME hash for identical canonical content.
+  const canonical = (log && typeof log === "object" && "canonical" in log) ? log.canonical : log;
+  return sha(JSON.stringify(canonical));
+}
