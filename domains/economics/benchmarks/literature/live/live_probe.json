@@ -1,0 +1,46 @@
+{
+  "benchmark_id": "lit_real_bibliographic_v1",
+  "env": {
+    "node": "v24.14.0",
+    "run_at": "2026-09-01T15:09:39.763Z",
+    "note": "actual adapter runs via Node fetch; network-dependent"
+  },
+  "executions": [
+    {
+      "query": "Q_A",
+      "source": "crossref",
+      "status": "source_unavailable",
+      "error_category": "transport",
+      "result_count": 0,
+      "request_identity": "https://api.crossref.org/works?query=Using%20Geographic%20Variation%20in%20College%20Proximity%20to%20Estimate%20the%20Return%20to%20Schooling&rows=5&select=DOI,title,author,issued,container-title,type,URL",
+      "endpoint_evidence": null
+    },
+    {
+      "query": "Q_A",
+      "source": "openalex",
+      "status": "source_unavailable",
+      "error_category": "transport",
+      "result_count": 0,
+      "request_identity": "https://api.openalex.org/works?search=Using%20Geographic%20Variation%20in%20College%20Proximity%20to%20Estimate%20the%20Return%20to%20Schooling&per-page=5",
+      "endpoint_evidence": null
+    },
+    {
+      "query": "Q_B",
+      "source": "crossref",
+      "status": "source_unavailable",
+      "error_category": "transport",
+      "result_count": 0,
+      "request_identity": "https://api.crossref.org/works?query=Does%20Compulsory%20School%20Attendance%20Affect%20Schooling%20and%20Earnings%3F&rows=5&select=DOI,title,author,issued,container-title,type,URL",
+      "endpoint_evidence": null
+    },
+    {
+      "query": "Q_B",
+      "source": "openalex",
+      "status": "source_unavailable",
+      "error_category": "transport",
+      "result_count": 0,
+      "request_identity": "https://api.openalex.org/works?search=Does%20Compulsory%20School%20Attendance%20Affect%20Schooling%20and%20Earnings%3F&per-page=5",
+      "endpoint_evidence": null
+    }
+  ]
+}

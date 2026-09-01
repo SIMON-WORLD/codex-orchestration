@@ -1,0 +1,66 @@
+{
+  "benchmark_id": "lit_real_bibliographic_v1",
+  "capability_id": "economics.literature.search",
+  "evidence_class": "real_bibliographic + adversarial + live_transport",
+  "title": "Literature Pack M2 real multi-source bibliographic + adversarial benchmark",
+  "ground_truth_authority": "Authoritative bibliographic identities sourced from OFFICIAL/primary pages (NBER working paper records, the NBER-listed 1995 Aspects of Labour Economics published-version entry, and the Quarterly Journal of Economics). Values are independent of Crossref/OpenAlex as either system-under-test source.",
+  "live_transport_evidence": {
+    "recorded_at_env": "codex-orchestration local (trusted Node REPL; direct fetch)",
+    "crossref": { "status": "source_unavailable", "error_category": "transport" },
+    "openalex": { "status": "source_unavailable", "error_category": "transport" },
+    "note": "Real live adapter runs attempted; network to api.crossref.org / api.openalex.org blocked in this environment (TLS/connection reset). Live evidence INCOMPLETE. A separate explicit live-probe script (run via a network-enabled execution environment) is provided to obtain fresh live transport evidence; this manifest does NOT fabricate it.",
+    "retry_policy": "bounded polite retries only; no scraping/Google-Scholar fallback; no uncontrolled loop"
+  },
+  "cases": {
+    "CASE_A": {
+      "work_id": "card_nber_4483_wp",
+      "title": "Using Geographic Variation in College Proximity to Estimate the Return to Schooling",
+      "authors": [ { "given": "David", "family": "Card" } ],
+      "identity": { "kind": "working_paper", "publisher": "NBER", "series": "NBER Working Paper", "number": "4483", "issue_date": "1993-10", "doi": "10.3386/w4483" },
+      "official_evidence": { "authority": "NBER", "url": "https://www.nber.org/papers/w4483", "capture_date": "2026-09-01", "note": "NBER page lists a 1995 published version in 'Aspects of Labour Economics: Essays in Honour of John Vanderkamp'. Do NOT mislabel this as a journal publication; do NOT assume the published-version item has a DOI. Working paper and later publication remain distinct bibliographic identities." }
+    },
+    "CASE_A_PUBLI": {
+      "work_id": "card_aspects_1995_pub",
+      "title": "Using Geographic Variation in College Proximity to Estimate the Return to Schooling",
+      "authors": [ { "given": "David", "family": "Card" } ],
+      "identity": { "kind": "book_chapter", "container": "Aspects of Labour Economics: Essays in Honour of John Vanderkamp", "year": 1995, "doi": null, "doe_assumed": false },
+      "official_evidence": { "authority": "NBER published-version listing", "note": "No DOI assumed; distinct identity from CASE_A. Relation to CASE_A is plausible/explicit only if an authoritative page states it; do NOT infer from title similarity.", "capture_date": "2026-09-01" }
+    },
+    "CASE_B1": {
+      "work_id": "angrist_krueger_nber_3572_wp",
+      "title": "Does Compulsory School Attendance Affect Schooling and Earnings?",
+      "authors": [ { "given": "Joshua D.", "family": "Angrist" }, { "given": "Alan B.", "family": "Krueger" } ],
+      "identity": { "kind": "working_paper", "publisher": "NBER", "series": "NBER Working Paper", "number": "3572", "issue_date": "1990-12", "doi": "10.3386/w3572" },
+      "official_evidence": { "authority": "NBER", "url": "https://www.nber.org/papers/w3572", "capture_date": "2026-09-01", "note": "NBER record explicitly identifies the 1991 QJE article as a published version." }
+    },
+    "CASE_B2": {
+      "work_id": "angrist_krueger_qje_1991_article",
+      "title": "Does Compulsory School Attendance Affect Schooling and Earnings?",
+      "authors": [ { "given": "Joshua D.", "family": "Angrist" }, { "given": "Alan B.", "family": "Krueger" } ],
+      "identity": { "kind": "journal_article", "journal": "The Quarterly Journal of Economics", "volume": 106, "issue": 4, "year": 1991, "month": 11, "pages": "979-1014", "doi": "10.2307/2937954" },
+      "official_evidence": { "authority": "Quarterly Journal of Economics (JSTOR)", "url": "https://doi.org/10.2307/2937954", "capture_date": "2026-09-01" }
+    }
+  },
+  "relations": {
+    "B1_to_B2": { "from": "CASE_B1", "to": "CASE_B2", "kind": "published_version_of", "evidence": "explicit NBER record identifies the QJE article as the published version", "must_not_dedupe": true, "note": "B1 and B2 MUST NOT be deduped into one record solely because title/authors are the same; relation may be recorded only with explicit authoritative evidence." },
+    "A_to_A_PUBLI": { "from": "CASE_A", "to": "CASE_A_PUBLI", "kind": "distinct_identity", "evidence": "NBER lists 1995 published version", "must_not_dedupe": true, "note": "distinct identities; published-version item has no DOI assumed." }
+  },
+  "invariants": [
+    "B1 and B2 MUST NOT be deduped into one record",
+    "working paper and published version remain distinct bibliographic identities",
+    "no relation inferred from fuzzy title similarity",
+    "no fabricated metadata",
+    "source failure never yields a verified record"
+  ],
+  "adversarial_cases": {
+    "fuzzy_title_no_merge": "two records same/similar title but different DOI -> distinct",
+    "wp_vs_published_no_merge": "NBER WP + QJE article same title/authors different DOI -> distinct",
+    "doi_conflict": "same DOI but incompatible title/author -> conflicting",
+    "author_conflict": "same DOI + same title but different author family -> conflicting",
+    "missing_doi_multi_source": "no DOI but two independent agreeing records -> verified",
+    "missing_doi_single_source": "no DOI + one source -> partially_verified/unresolved",
+    "source_failure": "one source succeeds, one fails -> partial run, failed source not verified",
+    "malformed_doi": "malformed DOI -> rejected, not guessed"
+  },
+  "note": "This is bibliographic retrieval/identity infrastructure evidence ONLY. It does NOT judge scientific validity, relevance, importance, or research gaps."
+}

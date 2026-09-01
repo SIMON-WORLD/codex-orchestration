@@ -45,7 +45,7 @@
         "runtime": "node"
       },
       "verification": {
-        "evidence": "M1 implementation: real Crossref + OpenAlex clients (Node built-in fetch; DI seam for tests); deterministic normalize/dedupe/bibliographic-verify mechanics adversarially tested (canonical DOI variants, same-title-different-work non-merge, DOI/title/author conflicts, missing DOI multi-source agreement, preprint-vs-published distinct, fuzzy-title merge rejected, source failure recorded, max-results, source-order determinism, no secret leakage). Status = experimental; NOT tested; NOT verified; real live-source evidence + any maturity promotion deferred to M2. No review synthesis, no fuzzy title/LLM judgment, no public artifact-schema change, no Core special case.",
+        "evidence": "M1 implementation + M2 real-bibliographic benchmark + frozen adversarial suite. Real Crossref/OpenAlex clients (Node built-in fetch; DI seam for tests); deterministic normalize/dedupe/bibliographic-verify mechanics. M2 comparator confirms authoritative identity reconciliation + working-paper/published-version distinction on NBER/QJE/JSTOR ground truth; frozen adversarial vs degradation matrix all pass; deterministic replay + source-order invariance pass. LIVE transport evidence: BOTH Crossref and OpenAlex adapters returned source_unavailable/transport in this environment (recorded in live/live_probe.json), so M2 concludes LIVE_EVIDENCE_INCOMPLETE. Status = experimental (strict rule: not tested/verified without live crossref+openalex success). No review synthesis, no fuzzy title/LLM judgment, no public artifact-schema change, no Core special case.",
         "benchmark_ref": "domains/economics/benchmarks/literature/"
       }
     }

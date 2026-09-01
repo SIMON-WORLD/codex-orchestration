@@ -107,3 +107,10 @@ jobs:
         run: node tests/phase1_closure.spec.mjs
       - name: Run Literature Pack v1 implementation regression
         run: node tests/literature_pack.spec.mjs
+
+      - name: Run Literature M2 real-benchmark + adversarial evidence
+        run: node tests/literature_m2.spec.mjs
+      - name: Run Literature M2 real-benchmark comparator
+        run: node domains/economics/benchmarks/literature/comparator.mjs
+      - name: Run Literature M2 frozen adversarial suite
+        run: node domains/economics/benchmarks/literature/adversarial/run_adversarial.mjs

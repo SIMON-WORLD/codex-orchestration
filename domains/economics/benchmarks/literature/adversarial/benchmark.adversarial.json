@@ -1,0 +1,35 @@
+{
+  "benchmark_id": "lit_adversarial_v1",
+  "capability_id": "economics.literature.search",
+  "title": "Literature Pack M2 frozen deterministic adversarial + degradation benchmark",
+  "kind": "frozen_deterministic_adversarial",
+  "note": "Deterministic, CI-safe suite. Uses the existing DI seam to inject source-shaped responses; NEVER hits a live network endpoint. Catalogs the frozen hostile mechanics + source-service degradation matrix. The run_adversarial.mjs runner is the engine; this file is the labeled audit catalog.",
+  "cases": [
+    { "case_id": "ADV_DOI_VARIANTS", "parent": "A", "kind": "doi_variants", "expected": "canonical DOI variants dedupe_same + verified", "desc": "same canonical DOI (case/prefix variants) dedupe deterministically" },
+    { "case_id": "ADV_SAME_TITLE_DISTINCT", "parent": "B", "kind": "same_title_distinct", "expected": "NOT merged (distinct works)", "desc": "same normalized title + different DOI/year/author do NOT merge" },
+    { "case_id": "ADV_DOI_TITLE_CONFLICT", "parent": "C", "kind": "doi_title_conflict", "expected": "conflicting", "desc": "same DOI + incompatible title -> conflicting" },
+    { "case_id": "ADV_AUTHOR_CONFLICT", "parent": "D", "kind": "author_conflict", "expected": "conflicting", "desc": "same DOI + same title but different author family -> conflicting" },
+    { "case_id": "ADV_TYPED_DATE", "parent": "E", "kind": "typed_date", "expected": "typed date parsed to numeric year", "desc": "typed date parsed to a numeric year" },
+    { "case_id": "ADV_SOURCE_UNAVAILABLE", "parent": "F", "kind": "source_unavailable", "expected": "source_unavailable, no record, no verified", "desc": "source unavailable -> source_unavailable, no record, no verified" },
+    { "case_id": "ADV_MALFORMED_DOI", "parent": "G", "kind": "malformed_doi", "expected": "malformed DOI rejected, never guessed", "desc": "malformed DOI rejected, never guessed" },
+    { "case_id": "ADV_MISSING_DOI_MULTI", "parent": "H", "kind": "missing_doi_multi", "expected": "verified via multi-source agreement", "desc": "missing DOI + two independent agreeing records -> verified" },
+    { "case_id": "ADV_MISSING_DOI_SINGLE", "parent": "I", "kind": "missing_doi_single", "expected": "partially_verified", "desc": "missing DOI + one coherent record -> partially_verified" },
+    { "case_id": "ADV_MULTI_SOURCE_SAME", "parent": "J", "kind": "multi_source_same", "expected": "verified, sources preserved", "desc": "same work returned by multiple sources -> verified, sources preserved" },
+    { "case_id": "ADV_WP_VS_PUBLISHED", "parent": "K", "kind": "wp_vs_published", "expected": "distinct identities, not merged", "desc": "working-paper + published version same title/authors different DOI -> distinct" },
+    { "case_id": "ADV_INCOMPLETE", "parent": "L", "kind": "incomplete_metadata", "expected": "not incorrectly verified", "desc": "incomplete metadata -> not incorrectly verified" },
+    { "case_id": "ADV_ZERO_RESULTS", "parent": "M", "kind": "zero_results", "expected": "success_zero_records, 0 candidates", "desc": "zero results -> success_zero_records, 0 candidates" },
+    { "case_id": "ADV_ONE_SOURCE_FAIL", "parent": "N", "kind": "one_source_fail", "expected": "partial run, failed source recorded", "desc": "one source succeeds, one fails -> partial run recorded honestly" },
+    { "case_id": "ADV_FUZZY_MERGE_REJECTED", "parent": "O", "kind": "fuzzy_title_no_merge", "expected": "fuzzy-title merge rejected, distinct", "desc": "unsafe fuzzy-title merge rejected (different DOI -> distinct)" },
+    { "case_id": "ADV_ORDER_INVARIANT", "parent": "P", "kind": "order_invariant", "expected": "identical canonical hash", "desc": "source-order permutation -> identical canonical hash" },
+    { "case_id": "ADV_MAX_RESULTS", "parent": "Q", "kind": "max_results", "expected": "bounded max-results accepted", "desc": "bounded max-results accepted" },
+    { "case_id": "ADV_NO_SECRET_LEAK", "parent": "R", "kind": "no_secret_leak", "expected": "no credential/error leakage", "desc": "no credential/error leakage into canonical log" }
+  ],
+  "degradation_matrix": [
+    { "case_id": "DEG_BOTH_OK", "desc": "both sources succeed", "expected": "all success, successful evidence retained" },
+    { "case_id": "DEG_CROSSREF_FAIL", "desc": "Crossref succeeds / OpenAlex unavailable", "expected": "success retained, unavailable not evidence" },
+    { "case_id": "DEG_OPENALEX_FAIL", "desc": "OpenAlex succeeds / Crossref unavailable", "expected": "success retained, unavailable not evidence" },
+    { "case_id": "DEG_BOTH_FAIL", "desc": "both sources unavailable", "expected": "no verification evidence, run honest partial/degraded" },
+    { "case_id": "DEG_ONE_ZERO", "desc": "one source returns zero results", "expected": "zero recorded, no false upgrade" },
+    { "case_id": "DEG_ONE_MALFORMED", "desc": "one source returns malformed response", "expected": "malformed recorded, successful evidence retained" }
+  ]
+}

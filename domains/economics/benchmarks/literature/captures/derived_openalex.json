@@ -1,0 +1,117 @@
+{
+  "capture_meta": {
+    "capture_kind": "derived_from_official_ground_truth",
+    "non_live": true,
+    "source_source": "official NBER/QJE/JSTOR ground truth",
+    "note": "NOT live transport evidence; live probe recorded separately in live/live_probe.json",
+    "source": "openalex",
+    "built_from": "benchmark.literature.m2.json"
+  },
+  "source": "openalex",
+  "items": [
+    {
+      "id": "CASE_A",
+      "item": {
+        "id": "W_103386w4483",
+        "display_name": "Using Geographic Variation in College Proximity to Estimate the Return to Schooling",
+        "authorships": [
+          {
+            "author": {
+              "given_name": "David",
+              "display_name": "Card"
+            }
+          }
+        ],
+        "publication_year": 1993,
+        "primary_location": {
+          "source": {
+            "display_name": "NBER Working Paper"
+          }
+        },
+        "doi": "10.3386/w4483",
+        "type": "report"
+      }
+    },
+    {
+      "id": "CASE_A_PUBLI",
+      "item": {
+        "id": "W_UsingGeo",
+        "display_name": "Using Geographic Variation in College Proximity to Estimate the Return to Schooling",
+        "authorships": [
+          {
+            "author": {
+              "given_name": "David",
+              "display_name": "Card"
+            }
+          }
+        ],
+        "publication_year": 1995,
+        "primary_location": {
+          "source": {
+            "display_name": "Aspects of Labour Economics: Essays in Honour of John Vanderkamp"
+          }
+        },
+        "doi": null,
+        "type": "report"
+      }
+    },
+    {
+      "id": "CASE_B1",
+      "item": {
+        "id": "W_103386w3572",
+        "display_name": "Does Compulsory School Attendance Affect Schooling and Earnings?",
+        "authorships": [
+          {
+            "author": {
+              "given_name": "Joshua D.",
+              "display_name": "Angrist"
+            }
+          },
+          {
+            "author": {
+              "given_name": "Alan B.",
+              "display_name": "Krueger"
+            }
+          }
+        ],
+        "publication_year": 1990,
+        "primary_location": {
+          "source": {
+            "display_name": "NBER Working Paper"
+          }
+        },
+        "doi": "10.3386/w3572",
+        "type": "report"
+      }
+    },
+    {
+      "id": "CASE_B2",
+      "item": {
+        "id": "W_1023072937954",
+        "display_name": "Does Compulsory School Attendance Affect Schooling and Earnings?",
+        "authorships": [
+          {
+            "author": {
+              "given_name": "Joshua D.",
+              "display_name": "Angrist"
+            }
+          },
+          {
+            "author": {
+              "given_name": "Alan B.",
+              "display_name": "Krueger"
+            }
+          }
+        ],
+        "publication_year": 1991,
+        "primary_location": {
+          "source": {
+            "display_name": "The Quarterly Journal of Economics"
+          }
+        },
+        "doi": "10.2307/2937954",
+        "type": "article"
+      }
+    }
+  ]
+}

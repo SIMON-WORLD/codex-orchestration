@@ -1,0 +1,279 @@
+{
+  "benchmark_id": "lit_adversarial_v1",
+  "kind": "frozen_deterministic_adversarial",
+  "cases": [
+    {
+      "id": "ADV_DOI_VARIANTS",
+      "parent": "A",
+      "kind": "doi_variants",
+      "desc": "same canonical DOI (case/prefix variants) dedupe deterministically",
+      "pass": true,
+      "detail": {
+        "groups": [
+          {
+            "decision": "dedupe_same",
+            "members": 2,
+            "state": "verified"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ADV_SAME_TITLE_DISTINCT",
+      "parent": "B",
+      "kind": "same_title_distinct",
+      "desc": "same normalized title + different DOI/year/author do NOT merge",
+      "pass": true,
+      "detail": {
+        "merged": 0
+      }
+    },
+    {
+      "id": "ADV_DOI_TITLE_CONFLICT",
+      "parent": "C",
+      "kind": "doi_title_conflict",
+      "desc": "same DOI + incompatible title -> conflicting",
+      "pass": true,
+      "detail": {
+        "decision": "conflict",
+        "state": "conflicting"
+      }
+    },
+    {
+      "id": "ADV_AUTHOR_CONFLICT",
+      "parent": "D",
+      "kind": "author_conflict",
+      "desc": "same DOI + same title but different author family -> conflicting",
+      "pass": true,
+      "detail": {
+        "decision": "conflict",
+        "rule": "author_conflict"
+      }
+    },
+    {
+      "id": "ADV_TYPED_DATE",
+      "parent": "E",
+      "kind": "typed_date",
+      "desc": "typed date parsed to a numeric year",
+      "pass": true,
+      "detail": {
+        "year": 2019
+      }
+    },
+    {
+      "id": "ADV_SOURCE_UNAVAILABLE",
+      "parent": "F",
+      "kind": "source_unavailable",
+      "desc": "source unavailable -> source_unavailable, no record, no verified",
+      "pass": true,
+      "detail": {
+        "status": "source_unavailable",
+        "candidates": 0
+      }
+    },
+    {
+      "id": "ADV_MALFORMED_DOI",
+      "parent": "G",
+      "kind": "malformed_doi",
+      "desc": "malformed DOI rejected, never guessed",
+      "pass": true,
+      "detail": {
+        "canonical_doi": null,
+        "doi_valid": false
+      }
+    },
+    {
+      "id": "ADV_MISSING_DOI_MULTI",
+      "parent": "H",
+      "kind": "missing_doi_multi",
+      "desc": "missing DOI + two independent agreeing records -> verified",
+      "pass": true,
+      "detail": {
+        "state": "verified",
+        "rule": "source_id_or_normalized"
+      }
+    },
+    {
+      "id": "ADV_MISSING_DOI_SINGLE",
+      "parent": "I",
+      "kind": "missing_doi_single",
+      "desc": "missing DOI + one coherent record -> partially_verified",
+      "pass": true,
+      "detail": {
+        "state": "partially_verified"
+      }
+    },
+    {
+      "id": "ADV_MULTI_SOURCE_SAME",
+      "parent": "J",
+      "kind": "multi_source_same",
+      "desc": "same work returned by multiple sources -> verified, sources preserved",
+      "pass": true,
+      "detail": {
+        "state": "verified",
+        "sources": [
+          "crossref",
+          "openalex"
+        ]
+      }
+    },
+    {
+      "id": "ADV_WP_VS_PUBLISHED",
+      "parent": "K",
+      "kind": "wp_vs_published",
+      "desc": "working-paper + published version same title/authors different DOI -> distinct",
+      "pass": true,
+      "detail": {
+        "merged": 0
+      }
+    },
+    {
+      "id": "ADV_INCOMPLETE",
+      "parent": "L",
+      "kind": "incomplete_metadata",
+      "desc": "incomplete metadata -> not incorrectly verified",
+      "pass": true,
+      "detail": {
+        "state": "partially_verified"
+      }
+    },
+    {
+      "id": "ADV_ZERO_RESULTS",
+      "parent": "M",
+      "kind": "zero_results",
+      "desc": "zero results -> success_zero_records, 0 candidates",
+      "pass": true,
+      "detail": {
+        "status": "success_zero_records"
+      }
+    },
+    {
+      "id": "ADV_ONE_SOURCE_FAIL",
+      "parent": "N",
+      "kind": "one_source_fail",
+      "desc": "one source succeeds, one fails -> partial run recorded honestly",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "success",
+          "source_unavailable"
+        ]
+      }
+    },
+    {
+      "id": "ADV_FUZZY_MERGE_REJECTED",
+      "parent": "O",
+      "kind": "fuzzy_title_no_merge",
+      "desc": "unsafe fuzzy-title merge rejected (different DOI -> distinct)",
+      "pass": true,
+      "detail": {
+        "merged": 0
+      }
+    },
+    {
+      "id": "ADV_ORDER_INVARIANT",
+      "parent": "P",
+      "kind": "order_invariant",
+      "desc": "source-order permutation -> identical canonical hash",
+      "pass": true,
+      "detail": {
+        "hashA": "9a61e8abb1c4",
+        "hashB": "9a61e8abb1c4"
+      }
+    },
+    {
+      "id": "ADV_MAX_RESULTS",
+      "parent": "Q",
+      "kind": "max_results",
+      "desc": "bounded max-results accepted",
+      "pass": true,
+      "detail": {
+        "max_results": 3
+      }
+    },
+    {
+      "id": "ADV_NO_SECRET_LEAK",
+      "parent": "R",
+      "kind": "no_secret_leak",
+      "desc": "no credential/error leakage into canonical log",
+      "pass": true,
+      "detail": {}
+    }
+  ],
+  "degradation_matrix": [
+    {
+      "id": "DEG_BOTH_OK",
+      "desc": "both sources succeed",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "success",
+          "success"
+        ],
+        "candidates": 2
+      }
+    },
+    {
+      "id": "DEG_CROSSREF_FAIL",
+      "desc": "Crossref succeeds / OpenAlex unavailable",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "crossref:success",
+          "openalex:source_unavailable"
+        ],
+        "candidates": 1
+      }
+    },
+    {
+      "id": "DEG_OPENALEX_FAIL",
+      "desc": "OpenAlex succeeds / Crossref unavailable",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "crossref:source_unavailable",
+          "openalex:success"
+        ],
+        "candidates": 1
+      }
+    },
+    {
+      "id": "DEG_BOTH_FAIL",
+      "desc": "both sources unavailable",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "source_unavailable",
+          "source_unavailable"
+        ],
+        "candidates": 0
+      }
+    },
+    {
+      "id": "DEG_ONE_ZERO",
+      "desc": "one source returns zero results",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "crossref:success_zero_records",
+          "openalex:success"
+        ],
+        "candidates": 1
+      }
+    },
+    {
+      "id": "DEG_ONE_MALFORMED",
+      "desc": "one source returns malformed response",
+      "pass": true,
+      "detail": {
+        "statuses": [
+          "crossref:success",
+          "openalex:malformed_response"
+        ],
+        "candidates": 1
+      }
+    }
+  ],
+  "verdict": "PASS",
+  "hash": "b8e6a2c4fb1d73c4a2bac69d8c14976e852f7b1c1fe84763cfe4f66f36353240"
+}
