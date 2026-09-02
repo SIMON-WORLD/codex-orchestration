@@ -41,7 +41,8 @@ const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv
 if (isMain) {
   const planPath = arg("plan", "domains/economics/benchmarks/data_construct/plan.json");
   const outDir = arg("out-dir", join(ROOT, "role-team-out/phase3_construct_run"));
-  const out = runConstruct(planPath, { outDir });
+  const inDir = arg("in-dir", null);
+  const out = runConstruct(planPath, { outDir, ...(inDir ? { inDir: resolvePath(inDir) } : {}) });
   console.log(JSON.stringify(out, null, 2));
   process.exit(out.ok ? 0 : 1);
 }

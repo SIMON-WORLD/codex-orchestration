@@ -5,8 +5,14 @@
   "risk_level": "medium",
   "methodology": {
     "references": [
-      { "name": "DIME Data Handbook (World Bank) - data management / documentation / reproducibility", "url": "https://worldbank.github.io/dime-data-handbook/" },
-      { "name": "DIME Wiki - Data Management (deduplication, documentation, data cleaning discipline)", "url": "https://dimewiki.worldbank.org/Data_Management" }
+      {
+        "name": "DIME Data Handbook (World Bank) - data management / documentation / reproducibility",
+        "url": "https://worldbank.github.io/dime-data-handbook/"
+      },
+      {
+        "name": "DIME Wiki - Data Management (deduplication, documentation, data cleaning discipline)",
+        "url": "https://dimewiki.worldbank.org/Data_Management"
+      }
     ],
     "note": "Structural, declared, auditable transformation. Consumes a frozen source + an explicit Domain harmonize plan; fails closed on ambiguity / scientifically material sample-affecting operations. No automatic cleaning/reparation; no invented rules."
   },
@@ -16,15 +22,22 @@
       "kind": "tool",
       "name": "pandas",
       "runtime": "python",
-      "verification_status": "experimental",
-      "environment_requirements": { "runtime": "python", "packages": { "pandas": ">=2.0" } },
+      "verification_status": "tested",
+      "environment_requirements": {
+        "runtime": "python",
+        "packages": {
+          "pandas": ">=2.0"
+        }
+      },
       "verification": {
-        "evidence": "M1 implementation: Python/pandas read-only harmonization of a frozen synthetic source against an explicit Domain harmonize plan; verifies declared input SHA256 (source mutation fails closed), applies only declared operations in deterministic order, writes a separate deterministic harmonized output, and emits a machine-readable execution log (per-op status, row/col counts, coercion/code failures, merge matched/unmatched, warnings). Frozen evidence: deterministic synthetic harmonize benchmark (rename/type/key/code/date/unit/merge 1:1) PASS; adversarial + provenance/tamper suite PASS. Does NOT impute/winsorize/delete-outliers/decide-sample-exclusion/define-treatment. NOT tested; NOT verified; experimental.",
+        "evidence": "Tested (Phase-3 M3): real frozen Grunfeld companion + real-data-derived schema variant. Runtime-generated: harmonize of the derived variant (real_dataset_derived_schema_variant) into canonical-comparable firm-year panel (200 rows; firm 1..10; year 1935..1954; invest/value/capital values match canonical; deterministic output hash; canonical source unchanged). Independent expected-fact check vs canonical real dataset + deterministic synthetic Harmonize benchmark (rename/numeric/key/date/unit/merge) + adversarial (duplicate key, m:m, unmatched warn/fail, coercion failure, invalid date, unknown code, missing column, output collision, source-byte mutation, normalization-induced duplicate, row-count effect, plan/order mutation) + provenance/tamper + two-run prep chain determinism. M1 normalize_key collision guard fixed (pre-existing panel-id duplicates not misreported). Does NOT impute/winsorize/else; NOT verified; risk stays medium; fallback needs_decision. Owned by data role.",
         "benchmark_ref": "domains/economics/benchmarks/data_harmonize/"
       }
     }
   ],
   "scientific_preconditions": [],
-  "decision_requirements": ["variable_definition"],
+  "decision_requirements": [
+    "variable_definition"
+  ],
   "fallback_policy": "needs_decision"
 }

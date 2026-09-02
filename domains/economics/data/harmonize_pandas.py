@@ -80,9 +80,13 @@ def apply_op(cur, frames, op, log):
                 elif rl == "lower_case": s = s.str.lower()
                 elif rl == "upper_case": s = s.str.upper()
                 elif rl == "zero_pad": s = s.str.zfill(int(op.get("width", 0)))
+            # collision = normalization MERGES distinct original values into the same normalized value.
+            # Pre-existing panel-id repetitions (same original value) are NOT a collision.
+            grp = pd.DataFrame({"orig": cur[col].astype(str), "norm": s})
+            distinct_per_norm = grp.groupby("norm")["orig"].nunique()
+            collision = int((distinct_per_norm > 1).sum())
             cur[col] = s
-            dup = int(s.duplicated(keep=False).sum())
-            st = op_result("fail", duplicate_key_after_normalization=int(dup)) if dup > 0 else op_result("ok")
+            st = op_result("fail", duplicate_key_after_normalization=int(collision)) if collision > 0 else op_result("ok")
     elif kind == "map_code":
         col = op["column"]
         if col not in cur.columns: st = op_result("fail", "error", "column missing: " + col)

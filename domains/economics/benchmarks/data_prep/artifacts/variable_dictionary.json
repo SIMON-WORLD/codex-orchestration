@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "artifact_id": "vd_grunfeld_construct",
+  "artifact_type": "variable_dictionary",
+  "producer_role": "data",
+  "producer_task_id": "phase3_m3_real_construct",
+  "variables": [
+    { "name": "log_value", "definition": "natural log of value", "type": "numeric", "unit": "log", "source": "value", "construction_ref": "construct plan eff1d692... op logv" },
+    { "name": "invest_value", "definition": "invest / value ratio", "type": "numeric", "unit": "ratio", "source": "invest,value", "construction_ref": "construct plan eff1d692... op ratio" },
+    { "name": "lag_value", "definition": "one-period lag of value within firm", "type": "numeric", "unit": "level", "source": "value", "construction_ref": "construct plan eff1d692... op lagv (panel firm/year)" },
+    { "name": "d_value", "definition": "value - lag(value)", "type": "numeric", "unit": "level", "source": "value", "construction_ref": "construct plan eff1d692... op diff" },
+    { "name": "g_value", "definition": "(value - lag(value)) / lag(value)", "type": "numeric", "unit": "rate", "source": "value", "construction_ref": "construct plan eff1d692... op growth (denominator guarded)" },
+    { "name": "value_x_cap", "definition": "value * capital interaction", "type": "numeric", "unit": "level", "source": "value,capital", "construction_ref": "construct plan eff1d692... op interact" },
+    { "name": "high_value", "definition": "indicator value > 3000 (benchmark-only flag; NOT a scientific treatment/exposure claim)", "type": "integer", "unit": "0/1", "source": "value", "construction_ref": "construct plan eff1d692... op indicator" }
+  ]
+}

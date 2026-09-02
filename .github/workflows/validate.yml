@@ -126,3 +126,6 @@ jobs:
 
       - name: Run Data Construct Pack v1 regression
         run: node tests/data_construct_pack.spec.mjs
+
+      - name: Run Phase-3 Data Prep Pack closure
+        run: node tests/data_prep_pack_closure.spec.mjs

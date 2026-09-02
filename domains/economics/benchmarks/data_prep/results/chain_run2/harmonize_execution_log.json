@@ -1,0 +1,65 @@
+{
+  "plan_id": "harm_grunfeld_variant_v1",
+  "implementation_id": "data.harmonize.python.pandas",
+  "input_shas": {
+    "main": "7603249a87754ee2e6862c826197ef0dc063309d39fef6355dd605d8ff548394"
+  },
+  "output_sha256": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+  "operations": [
+    {
+      "op_id": "rename",
+      "kind": "rename",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "renamed": 5
+      }
+    },
+    {
+      "op_id": "norm_firm",
+      "kind": "normalize_key",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "coerce_invest",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "coerce_value",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "coerce_cap",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "coerce_year",
+      "kind": "coerce",
+      "status": "ok",
+      "detail": {
+        "status": "ok"
+      }
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "overall": "completed",
+  "rows_after": 200,
+  "cols_after": 5,
+  "cols_before": 5
+}

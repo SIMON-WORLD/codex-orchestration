@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "harm_grunfeld_variant_v1",
+  "inputs": [
+    { "input_id": "main", "dataset_id": "grunfeld_schema_variant", "file": "grunfeld_variant.csv", "format": "csv", "sha256": "7603249a87754ee2e6862c826197ef0dc063309d39fef6355dd605d8ff548394", "columns": ["FIRM", "YEAR", "INVEST", "VAL", "CAP"] }
+  ],
+  "output": { "dataset_id": "grunfeld_harmonized", "file": "harmonized.csv", "sort_by": ["firm", "year"] },
+  "unit_of_analysis": "firm-year (explicit)",
+  "operations": [
+    { "op_id": "rename", "kind": "rename", "mapping": { "FIRM": "firm", "YEAR": "year", "INVEST": "invest", "VAL": "value", "CAP": "capital" } },
+    { "op_id": "norm_firm", "kind": "normalize_key", "column": "firm", "rules": ["trim"] },
+    { "op_id": "coerce_invest", "kind": "coerce", "column": "invest", "to": "numeric" },
+    { "op_id": "coerce_value", "kind": "coerce", "column": "value", "to": "numeric" },
+    { "op_id": "coerce_cap", "kind": "coerce", "column": "capital", "to": "numeric" },
+    { "op_id": "coerce_year", "kind": "coerce", "column": "year", "to": "integer" }
+  ]
+}

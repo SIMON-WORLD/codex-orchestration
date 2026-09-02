@@ -14,3 +14,5 @@ domains/economics/benchmarks/data_harmonize/sources/*.csv -text
 domains/economics/benchmarks/data_harmonize/results/** -text
 domains/economics/benchmarks/data_construct/sources/*.csv -text
 domains/economics/benchmarks/data_construct/results/** -text
+domains/economics/benchmarks/data_prep/sources/*.csv -text
+domains/economics/benchmarks/data_prep/results/** -text

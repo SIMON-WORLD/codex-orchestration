@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "artifact_id": "sf_grunfeld_prep",
+  "artifact_type": "sample_flow",
+  "producer_role": "data",
+  "producer_task_id": "phase3_m3_real_prep",
+  "steps": [
+    { "step_id": "harmonize_variant", "n_before": 200, "n_after": 200, "n_removed": 0, "reason": "exact rename/coerce/key normalization; no row removal" },
+    { "step_id": "construct_vars", "n_before": 200, "n_after": 200, "n_removed": 0, "reason": "constructed derived variables + eligibility FLAG; flag does NOT alter n (no sample exclusion)" }
+  ],
+  "note": "Ordinary variable construction does not create fake sample-flow removal; eligibility flag does not alter n; no legitimate merge row change in this clean panel (rename/key only)."
+}

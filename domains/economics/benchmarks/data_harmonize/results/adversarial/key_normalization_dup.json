@@ -9,7 +9,7 @@
       "kind": "normalize_key",
       "detail": {
         "status": "fail",
-        "duplicate_key_after_normalization": 2
+        "duplicate_key_after_normalization": 1
       }
     }
   ],
@@ -37,7 +37,7 @@
       "status": "fail",
       "detail": {
         "status": "fail",
-        "duplicate_key_after_normalization": 2
+        "duplicate_key_after_normalization": 1
       }
     }
   ],

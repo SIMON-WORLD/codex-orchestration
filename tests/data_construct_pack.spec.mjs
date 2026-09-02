@@ -28,7 +28,7 @@ console.log("Phase 3 M2 data.construct closure");
 // 1. Capability contract
 {
   const impl = capFile.implementations.find((i) => i.id === "data.construct.python.pandas");
-  ok("CAP. id/risk/fallback/impl experimental", capFile.id === "economics.data.construct" && capFile.risk_level === "medium" && capFile.fallback_policy === "needs_decision" && impl?.verification_status === "experimental");
+  ok("CAP. id/risk/fallback/impl experimental", capFile.id === "economics.data.construct" && capFile.risk_level === "medium" && capFile.fallback_policy === "needs_decision" && impl?.verification_status === "tested");
   ok("CAP. data role admits; registered", roles.find((r) => r.id === "data").capability_scope.some((p) => p === "economics.data.*") && JSON.parse(readFileSync(join(root, "domains/economics/capabilities/index.json"), "utf8")).capability_files.includes("data.construct.json"));
 }
 
@@ -157,8 +157,8 @@ console.log("Phase 3 M2 data.construct closure");
 // 10. Resolver / role / maturity
 {
   const res = resolveAll(mkStudy(), registry, envPy, { mode: "test", allow_experimental: true, preferred_runtimes: ["python"], approved_overrides: [] }).capabilities["economics.data.construct"];
-  ok("RES. test mode resolves to experimental; no Core special-case", res.resolution === "resolved" && res.verification_status === "experimental" && readdirSync(join(root, "core")).filter((f) => f.endsWith(".mjs")).filter((f) => /data\.construct/.test(readFileSync(join(root, "core", f), "utf8"))).length === 0);
-  ok("MATURITY. experimental (not tested/verified)", capFile.implementations.every((i) => i.verification_status === "experimental"));
+  ok("RES. test mode resolves to tested; no Core special-case", res.resolution === "resolved" && res.verification_status === "tested" && readdirSync(join(root, "core")).filter((f) => f.endsWith(".mjs")).filter((f) => /data\.construct/.test(readFileSync(join(root, "core", f), "utf8"))).length === 0);
+  ok("MATURITY. tested (not verified)", capFile.implementations.some((i) => i.verification_status === "tested") && capFile.implementations.every((i) => i.verification_status !== "verified"));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

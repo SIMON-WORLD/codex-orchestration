@@ -37,7 +37,7 @@ console.log("Phase 3 M1 data.harmonize vault");
 {
   ok("CAP. id/risk/fallback correct", capFile.id === "economics.data.harmonize" && capFile.risk_level === "medium" && capFile.fallback_policy === "needs_decision");
   const impl = capFile.implementations.find((i) => i.id === "data.harmonize.python.pandas");
-  ok("CAP. implementation python/pandas experimental + benchmark_ref", impl?.runtime === "python" && impl.verification_status === "experimental" && impl.verification?.benchmark_ref === "domains/economics/benchmarks/data_harmonize/");
+  ok("CAP. implementation python/pandas experimental + benchmark_ref", impl?.runtime === "python" && impl.verification_status === "tested" && impl.verification?.benchmark_ref === "domains/economics/benchmarks/data_harmonize/");
   ok("CAP. registered in capability index", JSON.parse(readFileSync(join(root, "domains/economics/capabilities/index.json"), "utf8")).capability_files.includes("data.harmonize.json"));
   const dataRole = roles.find((r) => r.id === "data");
   ok("CAP. data role admits economics.data.* (harmonize in scope)", dataRole.capability_scope.some((p) => p === "economics.data.*"));
@@ -110,15 +110,15 @@ console.log("Phase 3 M1 data.harmonize vault");
 {
   const ctx = { mode: "production", allow_experimental: false, preferred_runtimes: ["python"], approved_overrides: [] };
   const rProd = resolveAll(mkStudy(["economics.data.harmonize"]), registry, envPy, ctx).capabilities["economics.data.harmonize"];
-  ok("RES. production + python+pandas + experimental -> needs_decision (medium approval), not resolved", rProd.resolution === "needs_decision" && rProd.reason === "medium_approval_required", `got=${rProd.resolution}/${rProd.reason}`);
+  ok("RES. production + python+pandas + tested -> resolved (medium risk, tested admissible)", rProd.resolution === "resolved" && rProd.verification_status === "tested", `got=${rProd.resolution}/${rProd.verification_status}`);
   const rTest = resolveAll(mkStudy(["economics.data.harmonize"]), registry, envPy, { mode: "test", allow_experimental: true, preferred_runtimes: ["python"], approved_overrides: [] }).capabilities["economics.data.harmonize"];
-  ok("RES. controlled test mode resolves to experimental", rTest.resolution === "resolved" && rTest.verification_status === "experimental", `got=${rTest.resolution}/${rTest.verification_status}`);
+  ok("RES. controlled test mode resolves to tested", rTest.resolution === "resolved" && rTest.verification_status === "tested", `got=${rTest.resolution}/${rTest.verification_status}`);
   const rNoPy = resolveAll(mkStudy(["economics.data.harmonize"]), registry, envNoPy, ctx).capabilities["economics.data.harmonize"];
   ok("RES. no python runtime -> medium needs_decision (no impl approval required)", rNoPy.resolution === "needs_decision", `got=${rNoPy.resolution}/${rNoPy.reason}`);
   const stripComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
   const coreHits = readdirSync(join(root, "core")).filter((f) => f.endsWith(".mjs")).filter((f) => /data\.harmonize|economics\.data\.harmonize|harmonize/.test(stripComments(readFileSync(join(root, "core", f), "utf8"))));
   ok("RES. no Core special-case for harmonize", coreHits.length === 0, `hits=${coreHits.join(",")}`);
-  ok("MATURITY. data.harmonize implementation experimental (not tested/verified)", capFile.implementations.every((i) => i.verification_status === "experimental" && i.verification_status !== "tested" && i.verification_status !== "verified"));
+  ok("MATURITY. data.harmonize implementation tested (not verified)", capFile.implementations.some((i) => i.verification_status === "tested") && capFile.implementations.every((i) => i.verification_status !== "verified"));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "artifact_id": "dm_grunfeld_harmonized",
+  "artifact_type": "data_manifest",
+  "producer_role": "data",
+  "producer_task_id": "phase3_m3_real_harmonize",
+  "dataset_id": "grunfeld_harmonized",
+  "observation_count": 200,
+  "variable_count": 5,
+  "data_path": "results/chain_run1/harmonized.csv",
+  "dataset_hash_mode": "file_bytes_sha256_v1",
+  "dataset_sha256": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+  "source_refs": [ "domains/economics/benchmarks/data_prep/sources/grunfeld_variant.csv" ],
+  "parent_dataset_refs": [ "domains/economics/benchmarks/panel_fe/grunfeld.csv" ],
+  "provenance": "source schema-variant (grunfeld_schema_variant_v1) -> harmonize plan 8fa0660f... -> harmonized dataset (byte-identical semantics to canonical firm-year panel)"
+}

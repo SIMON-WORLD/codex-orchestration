@@ -1,0 +1,40 @@
+{
+  "oracle_kind": "independent_stdlib_math_csv_calculator",
+  "canonical_source": "domains/economics/benchmarks/panel_fe/grunfeld.csv",
+  "constructed_source": "domains/economics/benchmarks/data_prep/results/constructed.csv",
+  "facts_checked": 200,
+  "all_ok": true,
+  "border_cases": [],
+  "sample_facts": [
+    {
+      "firm": 1,
+      "year": 1935,
+      "log_value": 8.032197744351265,
+      "invest_value": 0.10316712684749067,
+      "value_x_cap": 8619.8,
+      "high_value": 1
+    },
+    {
+      "firm": 1,
+      "year": 1936,
+      "log_value": 8.447135467460798,
+      "invest_value": 0.08404659244481627,
+      "value_x_cap": 245205.41999999998,
+      "high_value": 1,
+      "lag_value": 3078.5,
+      "d_value": 1583.1999999999998,
+      "g_value": 0.5142764333279194
+    },
+    {
+      "firm": 1,
+      "year": 1937,
+      "log_value": 8.591762485715963,
+      "invest_value": 0.07621911603645747,
+      "value_x_cap": 845235.9900000001,
+      "high_value": 1,
+      "lag_value": 4661.7,
+      "d_value": 725.4000000000005,
+      "g_value": 0.15560846901345016
+    }
+  ]
+}

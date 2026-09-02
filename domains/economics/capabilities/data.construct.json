@@ -22,7 +22,7 @@
       "kind": "tool",
       "name": "pandas",
       "runtime": "python",
-      "verification_status": "experimental",
+      "verification_status": "tested",
       "environment_requirements": {
         "runtime": "python",
         "packages": {
@@ -30,7 +30,7 @@
         }
       },
       "verification": {
-        "evidence": "M2 implementation + closure + final semantic closure: Python/pandas safe declarative construction against a frozen synthetic panel; verifies declared input SHA256 (raw-byte; source mutation fails closed); applies only declared structured operations (arithmetic/log/ratio/difference/growth_rate/interaction/lag/lead/indicator) in authoritative order; deterministic output + machine-readable execution log (plan_sha256, input/output raw-byte SHA256, rows before/after, per-op input/output/status/domain-divide-zero evidence). Closure semantics: log missingness propagates deterministically (non-missing x<=0 fails log_domain_violation); ordered dependency graph validated (no future-output reference, no cycle, unique op_id/target, target not colliding with input column, periods must be positive integer, predicate AND/OR strictly binary); scientific_variable binding requires role match + approved scientific_decision + restricted v1 roles (treatment/exposure/instrument/material_variable_definition; unknown/typo role rejected). Final closure: structural_missing_count (panel boundary / periods) is separated from input_missing_propagated_count (ordinary source/input missingness); neither type is imputed/repaired; no impute/winsorize/delete-outliers/decide-sample-exclusion/define-treatment/apply eligibility flag; NO arbitrary eval. NOT tested; NOT verified; experimental.",
+        "evidence": "Tested (Phase-3 M3): real frozen Grunfeld companion (harmonized output -> constructed). Runtime-generated: harmless derived variables (log(value), invest/value ratio, lag, difference, growth, value x capital interaction, high_value indicator) on the real Grunfeld harmonized panel (200 rows; interpretable expected values verified for selected firm-year). Independent stdlib math/csv oracle (NO pandas/numpy) confirms 200 facts (log/ratio/lag/diff/growth/interaction/indicator + row identities) all_ok. Deterministic synthetic Construct benchmark + full adversarial A-T + provenance/tamper + two-run prep chain determinism + structural-vs-propagated missingness separation. Does NOT impute/winsorize/delete-outliers/decide-sample-exclusion/define-treatment/apply eligibility flag; NO arbitrary eval; NOT verified; risk stays medium; fallback needs_decision. Owned by data role.",
         "benchmark_ref": "domains/economics/benchmarks/data_construct/"
       }
     }

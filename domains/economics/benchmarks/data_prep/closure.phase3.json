@@ -1,0 +1,79 @@
+{
+  "pack": "Data Harmonize / Construct Pack v1 (Phase 3)",
+  "evidence_scope": "data-preparation benchmark/provenance evidence only. Not a full research-workflow proof; that is M4.",
+  "capabilities": [
+    "economics.data.harmonize",
+    "economics.data.construct"
+  ],
+  "implementations": {
+    "harmonize": "data.harmonize.python.pandas",
+    "construct": "data.construct.python.pandas"
+  },
+  "maturity": {
+    "harmonize": {
+      "status": "tested",
+      "note": "runtime-generated real-data evidence + real frozen Grunfeld companion + interpretable facts + adversarial + provenance/tamper + determinism + independent canonical comparison"
+    },
+    "construct": {
+      "status": "tested",
+      "note": "runtime-generated real-data evidence + independent stdlib math/csv oracle (200 facts all_ok) + real frozen Grunfeld companion + interpretable facts + adversarial A-T + provenance/tamper + determinism"
+    },
+    "max_in_phase3": "tested",
+    "never": "verified"
+  },
+  "real_dataset": {
+    "dataset": "grunfeld_canonical",
+    "lf_sha": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "working_raw_sha": "469a4ebca447f456c23c28c825d53503e14f2f448c66d62b2b8bc8238866fce3"
+  },
+  "derived_schema_variant": {
+    "file": "sources/grunfeld_variant.csv",
+    "variant_generation_id": "grunfeld_schema_variant_v1",
+    "variant_generation_hash": "2319b13058db8811fb096c539222e34598a53829b605556928d3051d5286fd44",
+    "raw_sha256": "7603249a87754ee2e6862c826197ef0dc063309d39fef6355dd605d8ff548394",
+    "note": "real_dataset_derived_schema_variant (NOT original/raw external Grunfeld source)"
+  },
+  "harmonize": {
+    "plan_hash": "8fa0660fe3a5e9198d0fb411d97fed130d7ae193bba4e0c84b1e3b29b02b65b3",
+    "harmonized_output_sha256": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+    "execution_log_file": "results/chain_run1/harmonize_execution_log.json",
+    "execution_log_hash": "f35865c2f17859a111778033aa7e32185cc95dbcb11b265eba48105a3775ab63"
+  },
+  "construct": {
+    "plan_hash": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce",
+    "constructed_output_sha256": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
+    "execution_log_file": "results/chain_run1/construct_execution_log.json",
+    "execution_log_hash": "7ed6ebc83014642cf1414fc164fe647ea3954bdf9e30e5631925a3e44f4e83c8"
+  },
+  "determinism": {
+    "harmonize_plan_hash": "8fa0660fe3a5e9198d0fb411d97fed130d7ae193bba4e0c84b1e3b29b02b65b3",
+    "construct_plan_hash": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce",
+    "harmonized_sha_identical": true,
+    "constructed_sha_identical": true,
+    "op_semantics_identical": true,
+    "harmonized_sha": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+    "constructed_sha": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d"
+  },
+  "oracle": {
+    "file": "oracle/parity.json",
+    "kind": "independent_stdlib_math_csv_calculator",
+    "facts_checked": 200,
+    "all_ok": true,
+    "hash": "2c656774fbcf6d4b1b95dafe349382d8b1f8416ff3747f16a46a6ac251e59cff"
+  },
+  "synthetic_benchmarks": {
+    "harmonize": "domains/economics/benchmarks/data_harmonize/benchmark.harmonize.json",
+    "construct": "domains/economics/benchmarks/data_construct/benchmark.construct.json"
+  },
+  "adversarial": {
+    "harmonize": "domains/economics/benchmarks/data_harmonize/results/adversarial/",
+    "construct": "domains/economics/benchmarks/data_construct/results/adversarial/",
+    "missingness_crossop": "domains/economics/benchmarks/data_prep/results/adversarial/missingness_crossop.json"
+  },
+  "known_limitations": [
+    "Harmonize normalize_key collision guard fixed (pre-existing panel-id duplicates no longer misreported as collisions); real Grunfeld is a clean balanced panel so no accidental m:m / duplicate-unit-time case arises natively",
+    "Independent oracle is a stdlib math/csv calculator; Stata is available but not used as the comparator for the frozen M3 evidence",
+    "No reshape / imputation / winsorization / outlier deletion / arbitrary eval / automatic sample exclusion; both capabilities remain owned by data role",
+    "Harmonize independent check is a comparison against the canonical real dataset (not a separate Stata calc path); Construct independent check uses a stdlib math/csv oracle. Neither is the full research workflow; that is M4."
+  ]
+}

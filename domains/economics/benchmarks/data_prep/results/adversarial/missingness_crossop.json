@@ -1,0 +1,37 @@
+{
+  "case": "missingness_crossop",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "completed",
+  "operations": [
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "status": "ok",
+      "structural_missing_count": 1,
+      "input_missing_propagated_count": 1
+    },
+    {
+      "op_id": "leadv",
+      "kind": "lead",
+      "status": "ok",
+      "structural_missing_count": 1,
+      "input_missing_propagated_count": 1
+    },
+    {
+      "op_id": "diff",
+      "kind": "difference",
+      "status": "ok",
+      "structural_missing_count": 1,
+      "input_missing_propagated_count": 2
+    },
+    {
+      "op_id": "growth",
+      "kind": "growth_rate",
+      "status": "ok",
+      "structural_missing_count": 1,
+      "input_missing_propagated_count": 2
+    }
+  ],
+  "output_sha256": "1406faf304e252f62113c3edc403f70f25910cee614e4784fbf32bc648fafe67",
+  "note": "panel with both structural boundary missingness and ordinary source missingness; each of lag/lead/difference/growth_rate shows structural_missing_count > 0 and input_missing_propagated_count > 0 as semantically distinct counters"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "construct_grunfeld_harmonized_v1",
+  "input": { "dataset_id": "grunfeld_harmonized", "file": "harmonized.csv", "sha256": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a", "columns": ["capital", "firm", "invest", "value", "year"] },
+  "output": { "dataset_id": "grunfeld_constructed", "file": "constructed.csv", "sort_by": ["firm", "year"] },
+  "unit_of_analysis": "firm-year (explicit)",
+  "panel_by": "firm",
+  "time_by": "year",
+  "operations": [
+    { "op_id": "logv", "kind": "log", "source": "value", "target": "log_value" },
+    { "op_id": "ratio", "kind": "ratio", "numerator": "invest", "denominator": "value", "target": "invest_value" },
+    { "op_id": "lagv", "kind": "lag", "source": "value", "target": "lag_value" },
+    { "op_id": "diff", "kind": "difference", "source": "value", "target": "d_value" },
+    { "op_id": "growth", "kind": "growth_rate", "source": "value", "target": "g_value" },
+    { "op_id": "interact", "kind": "interaction", "terms": ["value", "capital"], "target": "value_x_cap" },
+    { "op_id": "flag", "kind": "indicator", "target": "high_value", "predicate": { "op": "gt", "left": "value", "right": 3000 } }
+  ]
+}
