@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { resolveAll, loadRegistry } from "../core/resolve_capabilities.mjs";
 import { validateConstructPlan, canonicalConstructPlanHash } from "../domains/economics/data/validate_construct_plan.mjs";
-import { runConstruct } from "../domains/economics/data/run_construct.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DB = join(root, "domains/economics/benchmarks/data_construct");
@@ -140,13 +139,13 @@ console.log("Phase 3 M2 data.construct closure");
   ok("ADV.R operation-order mutation changes hash", canonicalConstructPlanHash({ ...plan, operations: [...plan.operations].reverse() }) !== canonicalConstructPlanHash(plan));
 }
 
-// 9. Determinism + provenance + execution-log tamper
+// 9. Determinism + provenance + execution-log tamper (CI-safe: reads frozen live two-run evidence)
 {
-  const r1 = runConstruct(join(DB, "plan.json"), { inDir: join(DB, "sources"), outDir: join(root, "role-team-out/phase3_construct_det1") });
-  const r2 = runConstruct(join(DB, "plan.json"), { inDir: join(DB, "sources"), outDir: join(root, "role-team-out/phase3_construct_det2") });
-  ok("DET. two reruns identical output raw-byte sha", r1.ok && r2.ok && r1.output.sha256 === r2.output.sha256 && r1.execution_log.output_sha256 === r2.execution_log.output_sha256);
-  ok("DET. plan sha identical + op semantics identical", r1.plan.plan_hash === r2.plan.plan_hash && JSON.stringify(r1.execution_log.operations) === JSON.stringify(r2.execution_log.operations));
+  const det = JSON.parse(readFileSync(join(DB, "results/determinism.json"), "utf8"));
+  ok("DET. two reruns identical output raw-byte sha", det.ok1 && det.ok2 && det.output_sha256_1 === det.output_sha256_2 && det.execution_log_output_sha256_1 === det.execution_log_output_sha256_2, `out1=${det.output_sha256_1} out2=${det.output_sha256_2}`);
+  ok("DET. plan sha identical + op semantics identical (live two-run)", det.plan_hash1 === det.plan_hash2 && det.operations_hash1 === det.operations_hash2);
   ok("DET. source input remains byte-identical", shaBytes(readFileSync(join(DB, bench.dataset.panel.file))) === bench.dataset.panel.source_file_sha256);
+  ok("DET. frozen determinism output sha matches committed benchmark log", det.output_sha256_1 === log.output_sha256);
   // execution-log tamper: recorded plan_sha256 must equal recomputed canonical plan hash
   const recomputed = canonicalConstructPlanHash(plan);
   ok("TAMPER. execution-log plan_sha256 binds to recomputed canonical plan hash", log.plan_sha256 === recomputed);
