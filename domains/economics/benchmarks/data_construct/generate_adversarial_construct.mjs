@@ -20,9 +20,11 @@ function writeCase(name, panelCsv, planBase, ops, opts = {}) {
   const dir = join(TMP, name); mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "panel.csv"), panelCsv, "utf8");
   const sha = shaBytes(Buffer.from(panelCsv, "utf8"));
-  const plan = { schema_version: "1.0", plan_id: "adv_construct_" + name, input: { dataset_id: "adv_panel", file: "panel.csv", sha256: sha }, output: { dataset_id: "adv_out", file: "out.csv", sort_by: ["firm", "year"] }, panel_by: "firm", time_by: "year", ...planBase, operations: ops };
+  const cols = panelCsv.trim().split("\n")[0].split(",");
+  const plan = { schema_version: "1.0", plan_id: "adv_construct_" + name, input: { dataset_id: "adv_panel", file: "panel.csv", sha256: sha, columns: cols }, output: { dataset_id: "adv_out", file: "out.csv", sort_by: ["firm", "year"] }, panel_by: "firm", time_by: "year", ...planBase, operations: ops };
   const planPath = join(dir, "plan.json"); writeFileSync(planPath, JSON.stringify(plan, null, 2) + "\n", "utf8");
-  const res = runConstruct(planPath, { inDir: dir, outDir: dir });
+  let res;
+  try { res = runConstruct(planPath, { inDir: dir, outDir: dir }); } catch (e) { res = { ok: false, error: e.message, execution_log: null }; }
   const log = res.execution_log || { overall: res.error ? "failed" : "unknown", runner_error: res.error };
   mkdirSync(OUT, { recursive: true });
   writeFileSync(join(OUT, name + ".json"), JSON.stringify({ case: name, implementation_id: "data.construct.python.pandas", overall: log.overall, warnings: log.warnings || [], errors: log.errors || [], operations: (log.operations || []).map((o) => ({ op_id: o.op_id, kind: o.kind, status: o.status, detail: o.detail })), input_shas: log.input_shas || {}, output_sha256: log.output_sha256 || null, runner_error: res.error || null, expected: { fail_closed: opts.expect === "fail", warning: opts.expect === "warning" } }, null, 2) + "\n", "utf8");
@@ -43,7 +45,7 @@ writeCase("lag_missing_key", "firm,value\nf001,100\n", { }, [{ op_id: "lagv", ki
 {
   const dir = join(TMP, "source_mutation"); mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "panel.csv"), "firm,year,value\nf001,1995,100\n", "utf8");
-  const plan = { schema_version: "1.0", plan_id: "adv_source_mutation", input: { dataset_id: "x", file: "panel.csv", sha256: "0".repeat(64) }, output: { dataset_id: "o", file: "out.csv" }, operations: [{ op_id: "arith", kind: "arithmetic", operator: "multiply", left: "value", right: 1, target: "v2" }] };
+  const plan = { schema_version: "1.0", plan_id: "adv_source_mutation", input: { dataset_id: "x", file: "panel.csv", sha256: "0".repeat(64), columns: ["firm", "year", "value"] }, output: { dataset_id: "o", file: "out.csv" }, operations: [{ op_id: "arith", kind: "arithmetic", operator: "multiply", left: "value", right: 1, target: "v2" }] };
   const planPath = join(dir, "plan.json"); writeFileSync(planPath, JSON.stringify(plan), "utf8");
   const res = runConstruct(planPath, { inDir: dir, outDir: dir });
   mkdirSync(OUT, { recursive: true });
@@ -52,5 +54,8 @@ writeCase("lag_missing_key", "firm,value\nf001,100\n", { }, [{ op_id: "lagv", ki
 }
 // H. output column collision
 writeCase("output_collision", "firm,year,value\nf001,1995,100\n", { }, [{ op_id: "arith", kind: "arithmetic", operator: "multiply", left: "value", right: 1, target: "value" }], { expect: "fail" });
+// 1. log missingness: positive + missing -> completed (missing propagates); negative -> fail
+writeCase("log_missing_propagate", "firm,year,value\nf001,1995,100\nf001,1996,\n", { }, [{ op_id: "logv", kind: "log", source: "value", target: "log_value" }], { expect: "warning" });
+writeCase("log_negative", "firm,year,value\nf001,1995,-5\n", { }, [{ op_id: "logv", kind: "log", source: "value", target: "log_value" }], { expect: "fail" });
 rmSync(TMP, { recursive: true, force: true });
 console.log("done");

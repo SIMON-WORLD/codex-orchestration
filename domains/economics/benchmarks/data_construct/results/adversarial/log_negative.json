@@ -1,0 +1,36 @@
+{
+  "case": "log_negative",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "failed",
+  "warnings": [],
+  "errors": [
+    {
+      "op_id": "logv",
+      "kind": "log",
+      "detail": {
+        "status": "fail",
+        "log_domain_violation": 1
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "logv",
+      "kind": "log",
+      "status": "fail",
+      "detail": {
+        "status": "fail",
+        "log_domain_violation": 1
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "3d70081eb41a67fd9b4439ee29a14f87971438b19aca6a451e1cfdf4cff3664d"
+  },
+  "output_sha256": null,
+  "runner_error": "{\"overall\": \"failed\", \"output_sha256\": null, \"errors\": 1, \"warnings\": 0}\r\n",
+  "expected": {
+    "fail_closed": true,
+    "warning": false
+  }
+}

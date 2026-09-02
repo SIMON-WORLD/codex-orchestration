@@ -9,7 +9,12 @@
     {
       "op_id": "arith",
       "kind": "arithmetic",
+      "input": [
+        "value"
+      ],
+      "output": "value2",
       "status": "ok",
+      "structural_missing_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -17,15 +22,27 @@
     {
       "op_id": "logv",
       "kind": "log",
+      "input": [
+        "value"
+      ],
+      "output": "log_value",
       "status": "ok",
+      "structural_missing_count": 0,
       "detail": {
-        "status": "ok"
+        "status": "ok",
+        "missing_propagated": 0
       }
     },
     {
       "op_id": "share",
       "kind": "ratio",
+      "input": [
+        "total_value",
+        "value"
+      ],
+      "output": "share",
       "status": "ok",
+      "structural_missing_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -33,7 +50,12 @@
     {
       "op_id": "diff",
       "kind": "difference",
+      "input": [
+        "value"
+      ],
+      "output": "d_value",
       "status": "ok",
+      "structural_missing_count": 3,
       "detail": {
         "status": "ok"
       }
@@ -41,7 +63,12 @@
     {
       "op_id": "growth",
       "kind": "growth_rate",
+      "input": [
+        "value"
+      ],
+      "output": "g_value",
       "status": "ok",
+      "structural_missing_count": 3,
       "detail": {
         "status": "ok"
       }
@@ -49,7 +76,13 @@
     {
       "op_id": "interact",
       "kind": "interaction",
+      "input": [
+        "treated",
+        "value"
+      ],
+      "output": "value_treated",
       "status": "ok",
+      "structural_missing_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -57,7 +90,12 @@
     {
       "op_id": "lagv",
       "kind": "lag",
+      "input": [
+        "value"
+      ],
+      "output": "lag_value",
       "status": "ok",
+      "structural_missing_count": 3,
       "detail": {
         "status": "ok"
       }
@@ -65,7 +103,12 @@
     {
       "op_id": "leadv",
       "kind": "lead",
+      "input": [
+        "value"
+      ],
+      "output": "lead_value",
       "status": "ok",
+      "structural_missing_count": 3,
       "detail": {
         "status": "ok"
       }
@@ -73,7 +116,13 @@
     {
       "op_id": "eligible",
       "kind": "indicator",
+      "input": [
+        "treated",
+        "value"
+      ],
+      "output": "eligible",
       "status": "ok",
+      "structural_missing_count": 0,
       "detail": {
         "status": "ok",
         "flag": "explicitly defined indicator/eligibility flag; NOT applied to final sample"
@@ -84,6 +133,8 @@
   "errors": [],
   "overall": "completed",
   "rows_after": 6,
+  "rows_before": 6,
   "cols_after": 14,
-  "cols_before": 5
+  "cols_before": 5,
+  "plan_sha256": "e006494b11bf0ffaa9ecd73d36b122d522e96ad2f339458afdef1b184ff8d9aa"
 }

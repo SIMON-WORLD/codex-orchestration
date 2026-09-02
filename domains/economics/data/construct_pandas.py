@@ -33,6 +33,27 @@ def col_or_scalar(series_map, operand):
     if isinstance(operand, str): return series_map[operand]
     return pd.Series(operand, index=series_map[next(iter(series_map))].index)
 
+def op_ins(op):
+    out = []
+    k = op["kind"]
+    if k == "arithmetic":
+        if isinstance(op.get("left"), str): out.append(op["left"])
+        if isinstance(op.get("right"), str): out.append(op["right"])
+    elif k in ("log", "ratio", "difference", "growth_rate", "lag", "lead"):
+        col = op.get("source")
+        if k == "ratio": out.extend([op["numerator"], op["denominator"]])
+        elif col: out.append(col)
+    elif k == "interaction": out.extend(op.get("terms", []))
+    elif k == "indicator":
+        def rec(idx):
+            if idx and isinstance(idx, dict):
+                if idx.get("op") in ("and", "or"): [rec(a) for a in idx.get("args", [])]
+                else:
+                    if isinstance(idx.get("left"), str): out.append(idx["left"])
+                    if isinstance(idx.get("right"), str): out.append(idx["right"])
+        rec(op.get("predicate"))
+    return sorted(set(out))
+
 def eval_predicate(series_map, pred):
     op = pred["op"]
     if op == "and":
@@ -49,7 +70,7 @@ def eval_predicate(series_map, pred):
     raise ValueError("bad predicate op " + op)
 
 def apply_op(cur, op, plan, log):
-    kind = op["kind"]; st = None
+    kind = op["kind"]; st = None; smc = 0
     try:
         if "target" in op and op["target"] in cur.columns and kind in ("arithmetic","log","ratio","difference","growth_rate","interaction","lag","lead","indicator"):
             st = op_result("fail", "output_column_collision", op["target"])
@@ -64,9 +85,13 @@ def apply_op(cur, op, plan, log):
             if st is None: cur[op["target"]] = v; st = op_result("ok")
         elif kind == "log":
             src = cur[op["source"]]
-            if (src <= 0).any() or src.isna().any(): st = op_result("fail", "log_domain_violation", int(((src <= 0) | src.isna()).sum()))
+            nonmissing = src.notna()
+            invalid = ((src <= 0) & nonmissing)
+            if invalid.any(): st = op_result("fail", "log_domain_violation", int(invalid.sum()))
             else:
-                cur[op["target"]] = np.log(src) if op.get("base", "natural") == "natural" else np.log10(src); st = op_result("ok")
+                # ordinary missing propagates deterministically; non-missing x<=0 already failed
+                cur[op["target"]] = (np.log(src.where(nonmissing)) if op.get("base", "natural") == "natural" else np.log10(src.where(nonmissing)))
+                st = op_result("ok", "missing_propagated", int(src.isna().sum()))
         elif kind == "ratio":
             num = cur[op["numerator"]]; den = cur[op["denominator"]]
             if (den == 0).any(): st = op_result("fail", "divide_by_zero", int((den == 0).sum()))
@@ -87,7 +112,7 @@ def apply_op(cur, op, plan, log):
                 else:
                     if (base == 0).any() and not (base.isna().all()): st = op_result("fail", "growth_denominator_zero", int((base == 0).sum()))
                     else: v = (tmp[op["source"]] - base) / base
-                if st is None: cur[op["target"]] = v; st = op_result("ok")
+                if st is None: cur[op["target"]] = v; smc = int(cur[op["target"]].isna().sum()); st = op_result("ok")
         elif kind in ("lag", "lead"):
             pb = op.get("panel_by", plan.get("panel_by")); tb = op.get("time_by", plan.get("time_by"))
             if not pb or not tb: st = op_result("fail", "missing_panel_time")
@@ -96,14 +121,14 @@ def apply_op(cur, op, plan, log):
             else:
                 tmp = cur.sort_values([pb, tb]); periods = int(op.get("periods", 1)); g = tmp.groupby(pb, sort=True)[op["source"]]
                 shifted = g.shift(periods) if kind == "lag" else g.shift(-periods)
-                cur[op["target"]] = shifted; st = op_result("ok")
+                cur[op["target"]] = shifted; smc = int(shifted.isna().sum()); st = op_result("ok")
         elif kind == "indicator":
             cur[op["target"]] = eval_predicate(cur, op["predicate"]).astype(int); st = op_result("ok", "flag", "explicitly defined indicator/eligibility flag; NOT applied to final sample")
         else:
             st = op_result("fail", "unsupported_op", kind)
     except Exception as e:
         st = op_result("fail", "exception", str(e))
-    log["operations"].append({"op_id": op["op_id"], "kind": kind, "status": st["status"], "detail": st})
+    log["operations"].append({"op_id": op["op_id"], "kind": kind, "input": op_ins(op), "output": op.get("target") or None, "status": st["status"], "structural_missing_count": smc, "detail": st})
     if st["status"] == "fail":
         log["errors"].append({"op_id": op["op_id"], "kind": kind, "detail": st}); log["overall"] = "failed"
     return cur, st
@@ -118,7 +143,7 @@ def run(plan_path, in_dir, out_path, log_path):
         log["errors"].append({"status": "fail", "error": "input sha mismatch (source changed)", "actual_sha256": actual, "declared_sha256": inp["sha256"]}); log["overall"] = "failed"; _write_log(log, log_path); return log
     log["input_shas"]["input"] = actual
     cur = pd.read_csv(path)
-    cols_before = int(len(cur.columns))
+    rows_before = int(len(cur)); cols_before = int(len(cur.columns))
     for op in plan["operations"]:
         if log["overall"] == "failed": break
         cur, st = apply_op(cur, op, plan, log)
@@ -131,7 +156,7 @@ def run(plan_path, in_dir, out_path, log_path):
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     cur.to_csv(out_path, index=False, lineterminator="\n")
     log["output_sha256"] = sha_bytes(out_path)
-    log["rows_after"] = int(len(cur)); log["cols_after"] = int(len(out_cols)); log["cols_before"] = cols_before
+    log["rows_after"] = int(len(cur)); log["rows_before"] = rows_before; log["cols_after"] = int(len(out_cols)); log["cols_before"] = cols_before
     log["overall"] = "completed" if not log["errors"] else "failed"
     _write_log(log, log_path)
     return log

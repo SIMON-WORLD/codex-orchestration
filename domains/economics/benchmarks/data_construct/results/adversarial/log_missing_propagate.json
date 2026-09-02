@@ -1,0 +1,27 @@
+{
+  "case": "log_missing_propagate",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "completed",
+  "warnings": [],
+  "errors": [],
+  "operations": [
+    {
+      "op_id": "logv",
+      "kind": "log",
+      "status": "ok",
+      "detail": {
+        "status": "ok",
+        "missing_propagated": 1
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "2618dd4bb5ee86d65b8200dbadbe2da13e0151ff399270e2c496e547ec99cdd7"
+  },
+  "output_sha256": "f36af65350ddc7f062afabdce015bf42126d85251003c093a82c160120d91517",
+  "runner_error": null,
+  "expected": {
+    "fail_closed": false,
+    "warning": true
+  }
+}

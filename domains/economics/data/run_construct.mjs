@@ -32,6 +32,7 @@ export function runConstruct(planPath, opts = {}) {
   const py = opts.python || (existsSync(PY) ? PY : (existsSync("python") ? "python" : "python3"));
   const res = spawnSync(py, [CONSTRUCT_PY, resolvePath(planPath), inDir, outPath, logPath], { encoding: "utf8", timeout: 120000, windowsHide: true });
   let log = null; try { log = readJson(logPath); } catch {}
+  if (log) { log.plan_sha256 = planHash; try { writeFileSync(logPath, JSON.stringify(log, null, 2) + "\n", "utf8"); } catch {} }
   if (res.status !== 0) return { ok: false, error: (res.stderr || res.stdout || "python failed").slice(0, 500), plan: { plan_id: plan.plan_id, plan_hash: planHash }, execution_log: log };
   return { ok: log.overall === "completed", plan: { plan_id: plan.plan_id, plan_hash: planHash }, execution_log: log, output: { path: outPath, sha256: log.output_sha256 } };
 }

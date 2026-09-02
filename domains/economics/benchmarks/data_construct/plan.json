@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "plan_id": "construct_synth_v1",
-  "input": { "dataset_id": "synth_construct_panel", "file": "panel.csv", "sha256": "8106c0ea0b12285a83592240650642d41f2550aea14577ef39d052202849aabf" },
+  "input": { "dataset_id": "synth_construct_panel", "file": "panel.csv", "sha256": "8106c0ea0b12285a83592240650642d41f2550aea14577ef39d052202849aabf", "columns": ["firm", "year", "value", "treated", "total_value"] },
   "output": { "dataset_id": "synth_construct_out", "file": "constructed.csv", "sort_by": ["firm", "year"] },
   "unit_of_analysis": "firm-year (explicit)",
   "panel_by": "firm",

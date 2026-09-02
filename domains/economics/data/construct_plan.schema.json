@@ -8,15 +8,15 @@
   "properties": {
     "schema_version": { "type": "string", "const": "1.0" },
     "plan_id": { "type": "string", "minLength": 1 },
-    "input": { "type": "object", "required": ["dataset_id", "file"], "properties": { "dataset_id": { "type": "string" }, "file": { "type": "string" }, "sha256": { "type": ["string", "null"] } } },
+    "input": { "type": "object", "required": ["dataset_id", "file", "columns"], "properties": { "dataset_id": { "type": "string" }, "file": { "type": "string" }, "sha256": { "type": ["string", "null"] }, "columns": { "type": "array", "minItems": 1, "items": { "type": "string" } } } },
     "output": { "type": "object", "required": ["dataset_id", "file"], "properties": { "dataset_id": { "type": "string" }, "file": { "type": "string" }, "sort_by": { "type": "array", "items": { "type": "string" } } } },
-    "unit_of_analysis": { "type": ["string", "null"] },
+    "unit_of_analysis": { "type": ["string", "null"] }, "scientific_bindings": { "type": "object", "description": "Optional approved scientific-decision bindings keyed by constructed target. Any op declaring scientific_role requires a matching binding with approved=true and a decision_ref.", "additionalProperties": { "type": "object", "required": ["role", "decision_ref", "approved"], "properties": { "role": { "type": "string" }, "decision_ref": { "type": "string" }, "approved": { "type": "boolean" } } } },
     "panel_by": { "type": ["string", "null"], "description": "Panel id column used by lag/lead/difference/growth when needed." },
     "time_by": { "type": ["string", "null"], "description": "Time column used by lag/lead/difference/growth when needed." },
     "operations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/op" } }
   },
   "$defs": {
-    "opBase": { "type": "object", "required": ["op_id", "kind"], "properties": { "op_id": { "type": "string", "minLength": 1 }, "kind": { "type": "string" } } },
+    "opBase": { "type": "object", "required": ["op_id", "kind"], "properties": { "op_id": { "type": "string", "minLength": 1 }, "kind": { "type": "string" }, "scientific_role": { "type": "string" } } },
     "arithmetic": {
       "allOf": [{ "$ref": "#/$defs/opBase" }],
       "properties": { "kind": { "const": "arithmetic" }, "operator": { "type": "string", "enum": ["add", "subtract", "multiply", "divide"] }, "left": { "type": ["string", "number"] }, "right": { "type": ["string", "number"] }, "target": { "type": "string" } },
@@ -69,7 +69,7 @@
         "op": { "type": "string", "enum": ["gt", "gte", "lt", "lte", "eq", "neq", "and", "or"] },
         "left": { "anyOf": [{ "type": "string" }, { "type": "number" }, { "$ref": "#/$defs/predicate" }] },
         "right": { "anyOf": [{ "type": "string" }, { "type": "number" }, { "$ref": "#/$defs/predicate" }] },
-        "args": { "type": "array", "items": { "$ref": "#/$defs/predicate" } }
+        "args": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/$defs/predicate" } }
       }
     },
     "op": {
