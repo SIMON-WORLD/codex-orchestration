@@ -1,0 +1,43 @@
+{
+  "study_id": "phase3_grunfeld_e2e_v1",
+  "run_tag": "blocked_missing_decision",
+  "mode": "test",
+  "role_chain": {
+    "data": [
+      "harmonize",
+      "construct",
+      "validation"
+    ],
+    "empirical": [
+      "panel_fe"
+    ]
+  },
+  "director": "needs_decision",
+  "contract_valid": true,
+  "preflight": {
+    "overall": "needs_decision",
+    "data_resolutions": {
+      "economics.data.harmonize": "needs_decision",
+      "economics.data.construct": "needs_decision",
+      "economics.data.validation": "resolved"
+    },
+    "empirical_resolutions": {
+      "economics.regression.panel_fe": "needs_decision"
+    }
+  },
+  "admission": {
+    "capability_id": "economics.regression.panel_fe",
+    "admitted_implementation_id": null,
+    "verification_status": null,
+    "runtime": null
+  },
+  "executed_implementation_id": null,
+  "empirical_gate": false,
+  "binding_errors": [],
+  "empirical": null,
+  "blockers": [
+    "director_needs_decision"
+  ],
+  "overall": "blocked_preflight",
+  "out_dir": "E:\\BaiduSyncdisk\\Work\\Agent_automation\\Codex\\Project Test\\codex-orchestration\\domains\\economics\\benchmarks\\data_prep\\results\\e2e_blocked_missing_decision"
+}

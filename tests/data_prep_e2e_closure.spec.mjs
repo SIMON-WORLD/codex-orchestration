@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Phase-3 M4 - data-prep E2E closure test. Validates the committed E2E evidence + acceptance
 // bindings, tamper matrix, gate semantics, reproducibility, and maturity. CI-safe (reads frozen evidence).
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { resolveAll, loadRegistry } from "../core/resolve_capabilities.mjs";
 import { evaluateStudyDesign } from "../domains/economics/evaluate_study_design.mjs";
 import { validateStudyDesign } from "../domains/economics/validate_study_design.mjs";
-import { verifyAcceptance } from "../domains/economics/phase3/run_phase3.mjs";
+import { verifyAcceptance, gateReasons, runPhase3 } from "../domains/economics/phase3/run_phase3.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PREP = join(root, "domains/economics/benchmarks/data_prep");
 const R1 = join(PREP, "results/e2e_run1");
@@ -60,6 +60,29 @@ console.log("Phase-3 M4 data-prep E2E closure");
   ok("GATE. empirical_gate true + empirical completed", rec1.empirical_gate === true && rec1.empirical.matches_frozen_within_tol === true);
   ok("GATE. coefficients match frozen canonical (value 0.1177, capital 0.3579)", Math.abs(rec1.empirical.coefficients.value - 0.11771585508) < 1e-4 && Math.abs(rec1.empirical.coefficients.capital - 0.35791627307) < 1e-4);
   ok("GATE. role chain data owns harmonize->construct->validation; empirical after acceptance", JSON.stringify(man.active_role_capability_chain.data) === JSON.stringify(["economics.data.harmonize", "economics.data.construct", "economics.data.validation"]) && man.active_role_capability_chain.empirical[0] === "economics.regression.panel_fe");
+}// 3.1 Admission == execution binding
+{
+  ok("ADMISSION. executed == admitted (panel.fe.stata.reghdfe tested/stata)", rec1.admission.admitted_implementation_id === rec1.executed_implementation_id && rec1.executed_implementation_id === "panel.fe.stata.reghdfe" && rec1.admission.verification_status === "tested" && rec1.admission.runtime === "stata" && rec1.admission.capability_id === "economics.regression.panel_fe");
+  ok("ADMISSION. empirical result reports admitted + matching executed impl", rec1.empirical.implementation_id === rec1.admission.admitted_implementation_id && rec1.empirical.admitted_implementation_id === rec1.admission.admitted_implementation_id);
+}
+// 3.2 Gate failure semantics (pure) + actual-workflow block on missing decision
+{
+  const resolvedStata = { resolution: "resolved", selected_implementation: { id: "panel.fe.stata.reghdfe" } };
+  ok("GATE. resolved + executed==admitted -> no blockers (gate passes)", gateReasons({ admission: resolvedStata, executedImplId: "panel.fe.stata.reghdfe" }).length === 0);
+  ok("GATE. unresolved empirical (needs_decision) -> cannot execute", gateReasons({ admission: { resolution: "needs_decision" }, executedImplId: null }).includes("empirical_not_admissible"));
+  ok("GATE. admitted A cannot silently execute B (implementation_mismatch)", gateReasons({ admission: resolvedStata, executedImplId: "panel.fe.python.linearmodels" }).includes("implementation_mismatch"));
+  ok("GATE. missing required scientific decision -> director_needs_decision", gateReasons({ directorReady: false, admission: resolvedStata, executedImplId: null }).includes("director_needs_decision"));
+  ok("GATE. invalid Data Acceptance -> data_acceptance_invalid", gateReasons({ admission: resolvedStata, accValid: false, executedImplId: "panel.fe.stata.reghdfe" }).includes("data_acceptance_invalid"));
+  ok("GATE. invalid study contract -> study_contract_invalid", gateReasons({ contractValid: false, admission: resolvedStata, executedImplId: "panel.fe.stata.reghdfe" }).includes("study_contract_invalid"));
+  // actual workflow block (CI-safe: short-circuits before data prep, no python/stata needed)
+  const sMissing = JSON.parse(JSON.stringify(study)); delete sMissing.decisions.clustering_level;
+  const tmpStudy = join(root, "role-team-out/tmp/study_missing_decision.json");
+  mkdirSync(join(root, "role-team-out/tmp"), { recursive: true });
+  writeFileSync(tmpStudy, JSON.stringify(sMissing, null, 2) + "\n", "utf8");
+  const blockedRun = runPhase3(tmpStudy, { env: { runtimes: {} }, tag: "blocked_m4_decision" });
+  ok("WORKFLOW. missing required scientific decision blocks actual workflow (blocked_preflight, empirical null)", blockedRun.overall === "blocked_preflight" && blockedRun.empirical_gate === false && blockedRun.executed_implementation_id === null && blockedRun.empirical === null && blockedRun.blockers.includes("director_needs_decision"), `overall=${blockedRun.overall}`);
+  rmSync(join(PREP, "results/e2e_blocked_m4_decision"), { recursive: true, force: true });
+  rmSync(tmpStudy, { force: true });
 }
 // 4. Tamper matrix (each upstream material change -> verifyAcceptance mismatch / gate blocked)
 {

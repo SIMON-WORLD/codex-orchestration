@@ -15,16 +15,43 @@
   "director": "ready",
   "contract_valid": true,
   "preflight": {
-    "overall": "needs_decision",
+    "overall": "ready",
     "data_resolutions": {
-      "economics.data.harmonize": "needs_decision",
-      "economics.data.construct": "needs_decision",
+      "economics.data.harmonize": "resolved",
+      "economics.data.construct": "resolved",
       "economics.data.validation": "resolved"
     },
     "empirical_resolutions": {
       "economics.regression.panel_fe": "resolved"
     }
   },
+  "admission": {
+    "capability_id": "economics.regression.panel_fe",
+    "admitted_implementation_id": "panel.fe.stata.reghdfe",
+    "verification_status": "tested",
+    "runtime": "stata"
+  },
+  "executed_implementation_id": "panel.fe.stata.reghdfe",
+  "empirical_gate": true,
+  "binding_errors": [],
+  "empirical": {
+    "implementation_id": "panel.fe.stata.reghdfe",
+    "admitted_implementation_id": "panel.fe.stata.reghdfe",
+    "n": 200,
+    "coefficients": {
+      "value": 0.11771585508260658,
+      "capital": 0.35791627307342766
+    },
+    "matches_frozen_within_tol": true,
+    "canonical_coefficients": {
+      "value": 0.11771585508260658,
+      "capital": 0.35791627307342766
+    },
+    "frozen_impl": "panel.fe.stata.reghdfe"
+  },
+  "blockers": [],
+  "overall": "completed",
+  "out_dir": "E:\\BaiduSyncdisk\\Work\\Agent_automation\\Codex\\Project Test\\codex-orchestration\\domains\\economics\\benchmarks\\data_prep\\results\\e2e_run1",
   "data_acceptance": {
     "study_id": "phase3_grunfeld_e2e_v1",
     "run_id": "7ed6ebc83014642c",
@@ -53,29 +80,11 @@
     "accepted": true,
     "timestamp": null
   },
-  "empirical_gate": true,
-  "binding_errors": [],
-  "empirical": {
-    "implementation_id": "panel.fe.python.linearmodels",
-    "n": 200,
-    "coefficients": {
-      "value": 0.11771585508260647,
-      "capital": 0.3579162730734277
-    },
-    "matches_frozen_within_tol": true,
-    "canonical_coefficients": {
-      "value": 0.11771585508260647,
-      "capital": 0.3579162730734277
-    },
-    "frozen_impl": "panel.fe.python.linearmodels"
-  },
   "hashes": {
     "harmonize_plan": "8fa0660fe3a5e9198d0fb411d97fed130d7ae193bba4e0c84b1e3b29b02b65b3",
     "construct_plan": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce",
     "harmonized": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
     "constructed": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
     "validation": "25afe1d7f42db32efcb6a24f0db4d6e7976990c2d89511a024eb1bfcce875c56"
-  },
-  "overall": "completed",
-  "out_dir": "E:\\BaiduSyncdisk\\Work\\Agent_automation\\Codex\\Project Test\\codex-orchestration\\domains\\economics\\benchmarks\\data_prep\\results\\e2e_run1"
+  }
 }

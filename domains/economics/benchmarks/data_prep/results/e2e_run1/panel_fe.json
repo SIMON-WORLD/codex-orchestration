@@ -1,88 +1,48 @@
 {
-  "implementation_id": "panel.fe.python.linearmodels",
-  "runtime_version": "3.14.3",
-  "package_version": "7.0",
+  "implementation_id": "panel.fe.stata.reghdfe",
+  "runtime_version": "19.5",
+  "package_version": "unknown",
+  "package_version_evidence": "Stata e(version)='.' ; reghdfe does not expose a reliable version via e() (ado file present)",
   "benchmark_id": "phase3_e2e_panel_fe",
   "dataset_checksum": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
   "n": 200,
   "cluster_count": 10,
   "coefficients": {
-    "value": 0.11771585508260647,
-    "capital": 0.3579162730734277
+    "value": 0.11771585508260658,
+    "capital": 0.35791627307342766
   },
   "std_errors": {
-    "value": 0.010565288935392969,
-    "capital": 0.04670288962356007
+    "value": 0.01082442947686367,
+    "capital": 0.0478483965925891
   },
   "inference_configuration": {
     "clustering": "one-way cluster=firm",
-    "estimator": "PanelOLS within (entity+time effects absorbed)",
-    "finite_sample_correction": "linearmodels clustered default",
-    "absorbed_fe_dof": "entity_effects + time_effects absorbed",
-    "covariance_definition": "cluster-robust (cov_type=clustered, cluster_entity=True)",
-    "covariance_family": "linearmodels_clustered",
-    "is_canonical_definition": false,
-    "df_adjustment": {
-      "num_effects": 2,
-      "_determine_df_adjustment": "returns True (debias) for two-way FE; auto_df counts ALL FE (entity+time) in extra_df",
-      "diag_matrix": {
-        "A_default": {
-          "config": {},
-          "value_se": 0.010565288935392969,
-          "capital_se": 0.04670288962356007
-        },
-        "B_auto_df_false_count_effects_true": {
-          "config": {
-            "auto_df": false,
-            "count_effects": true
-          },
-          "value_se": 0.010565288935392969,
-          "capital_se": 0.04670288962356007
-        },
-        "C_auto_df_false_count_effects_false": {
-          "config": {
-            "auto_df": false,
-            "count_effects": false
-          },
-          "value_se": 0.009760951067962407,
-          "capital_se": 0.04314738793568672
-        },
-        "D_debiased_false": {
-          "config": {
-            "debiased": false
-          },
-          "value_se": 0.010503321896893385,
-          "capital_se": 0.0464289700197478
-        },
-        "E_default_group_debias_true": {
-          "config": {
-            "group_debias": true
-          },
-          "value_se": 0.01110891552047251,
-          "capital_se": 0.0491059410265701
-        },
-        "F_auto_df_false_count_effects_false_group_debias_true": {
-          "config": {
-            "auto_df": false,
-            "count_effects": false,
-            "group_debias": true
-          },
-          "value_se": 0.010263191236561026,
-          "capital_se": 0.0453674944847848
-        }
-      },
-      "note": "linearmodels two-way FE auto_df counts all absorbed FE into extra_df, which raises the covariance scale; reghdfe/fixest do NOT double-count nested-in-cluster firm FE and also apply a cluster small-sample correction. The ~2.4% SE gap is the net of these corrections. No public PanelOLS config reproduces the reghdfe/fixest canonical SE -> DEFINITION_DIFFERENCE."
-    }
+    "estimator": "reghdfe (absorbed firm+year FE)",
+    "finite_sample_correction": "AER/Stata vce(cluster) cluster-robust",
+    "absorbed_fe_dof": "firm + year absorbed; firm FE nested within cluster(firm) treated as redundant",
+    "covariance_definition": "reghdfe vce(cluster firm)",
+    "covariance_family": "aes_cluster",
+    "is_canonical_definition": true,
+    "stata_dof_evidence": {
+      "df_m": "2",
+      "df_r": "9",
+      "df_a": "19",
+      "df_a_nested": "10",
+      "dofmethod": "pairwise clusters continuous",
+      "vce": "cluster",
+      "clustvar": "firm"
+    },
+    "note": "firm FE nested in cluster(firm) redundant for DoF; cluster small-sample correction applied"
   },
   "native_default": {
-    "cov_type": "unadjusted",
+    "cov_type": "reghdfe_default",
     "coefficients": {
-      "value": 0.11771585508260647,
-      "capital": 0.3579162730734277
+      "value": 0.11771585508260658,
+      "capital": 0.35791627307342766
     },
     "std_errors": {
-      "value": 0.013751283003648227,
-      "capital": 0.022719010882572513
+      "value": 0.013751283003648225,
+      "capital": 0.022719010882572516
     },
     "n": 200
   }

@@ -14,7 +14,7 @@
     "harmonize": "data.harmonize.python.pandas",
     "construct": "data.construct.python.pandas",
     "validation": "data.val.python.pandas",
-    "empirical": "panel.fe.python.linearmodels"
+    "empirical": "panel.fe.stata.reghdfe"
   },
   "maturity": {
     "harmonize": "tested",
@@ -38,21 +38,25 @@
     "rules_sha256": "bc7c814898cc78074d2169bbbeeed7c61742bd1a02a4af486e71778ef4b8dbff",
     "hashes": {
       "data_acceptance_run1": "80a95c1a986870e74ae483c94c19b717c7cc8cedfbc67330b9e7be6f456e5cae",
-      "execution_record_run1": "4623bb8eb7f7323dc86a8c4c7f4ae6cf0fa89dc0380bcd2697c143bc3f15e950",
-      "execution_record_run2": "3ba826539672a4a6477bc55902faad6e85b0bea26bc1fc4cc5853cc99919ecfb"
+      "execution_record_run1": "6b6e55a3056649bf20dcba1a2d1c194d7364cacc0feb6a18ebd19e808eecc34f",
+      "execution_record_run2": "8b099034e7f5e43c1feeeb2faf021a25be10c2a315dbc1e37da15355c4b5d10a"
     }
   },
   "e2e_result": {
     "overall": "completed",
     "empirical_gate": true,
     "empirical": {
-      "implementation_id": "panel.fe.python.linearmodels",
+      "implementation_id": "panel.fe.stata.reghdfe",
       "coefficients": {
-        "value": 0.11771585508260647,
-        "capital": 0.3579162730734277
+        "value": 0.11771585508260658,
+        "capital": 0.35791627307342766
       },
       "matches_frozen_within_tol": true,
-      "tolerance": 0.0001
+      "tolerance": 0.0001,
+      "admitted_implementation_id": "panel.fe.stata.reghdfe",
+      "verification_status": "tested",
+      "runtime": "stata",
+      "execution_matches_admission": true
     }
   },
   "tamper_matrix": {
@@ -78,10 +82,24 @@
     "validation_sha_identical": true
   },
   "known_limitations": [
-    "empirical capability admission in the study env resolves to a tested implementation (panel.fe.stata.reghdfe), while the E2E execution proof runs the existing panel_fe linearmodels Python runner (experimental); admission and execution are separate and both evidenced",
-    "empirical gate uses the existing panel_fe linearmodels runner (point estimates match frozen canonical within 1e-4; clustered SE covariance definition difference is the known P7 DEFINITION_DIFFERENCE)",
+    "empirical execution runs the Resolver-admitted implementation (panel.fe.stata.reghdfe, tested); executed == admitted; no silent substitution",
+    "panel_fe point estimates match the frozen canonical within 1e-4; clustered-SE covariance definition difference between reghdfe/fixest and linearmodels is the known P7 DEFINITION_DIFFERENCE and is not exercised here (execution is reghdfe)",
     "workflow integration evidence only; not a new estimator benchmark",
     "maturity at most tested; not verified"
   ],
-  "evidence_scope": "Phase-3 E2E data-prep workflow closure. Source variant -> Harmonize -> Construct -> Validation -> Data Acceptance -> Empirical gate. Domain evidence, NOT a Core artifact."
+  "evidence_scope": "Phase-3 E2E data-prep workflow closure. Source variant -> Harmonize -> Construct -> Validation -> Data Acceptance -> Empirical gate. Domain evidence, NOT a Core artifact.",
+  "gate": {
+    "conditions": [
+      "study_contract_valid",
+      "director_ready",
+      "empirical_capability_resolved",
+      "data_acceptance_valid",
+      "executed_implementation_equals_admitted"
+    ],
+    "empirical_admission_vs_execution": {
+      "admitted_implementation_id": "panel.fe.stata.reghdfe",
+      "executed_implementation_id": "panel.fe.stata.reghdfe",
+      "equal": true
+    }
+  }
 }
