@@ -1,0 +1,120 @@
+{
+  "plan_id": "construct_grunfeld_harmonized_v1",
+  "implementation_id": "data.construct.python.pandas",
+  "input_shas": {
+    "input": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a"
+  },
+  "output_sha256": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
+  "operations": [
+    {
+      "op_id": "logv",
+      "kind": "log",
+      "input": [
+        "value"
+      ],
+      "output": "log_value",
+      "status": "ok",
+      "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok",
+        "missing_propagated": 0
+      }
+    },
+    {
+      "op_id": "ratio",
+      "kind": "ratio",
+      "input": [
+        "invest",
+        "value"
+      ],
+      "output": "invest_value",
+      "status": "ok",
+      "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "input": [
+        "value"
+      ],
+      "output": "lag_value",
+      "status": "ok",
+      "structural_missing_count": 10,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "diff",
+      "kind": "difference",
+      "input": [
+        "value"
+      ],
+      "output": "d_value",
+      "status": "ok",
+      "structural_missing_count": 10,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "growth",
+      "kind": "growth_rate",
+      "input": [
+        "value"
+      ],
+      "output": "g_value",
+      "status": "ok",
+      "structural_missing_count": 10,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "interact",
+      "kind": "interaction",
+      "input": [
+        "capital",
+        "value"
+      ],
+      "output": "value_x_cap",
+      "status": "ok",
+      "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok"
+      }
+    },
+    {
+      "op_id": "flag",
+      "kind": "indicator",
+      "input": [
+        "value"
+      ],
+      "output": "high_value",
+      "status": "ok",
+      "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
+      "detail": {
+        "status": "ok",
+        "flag": "explicitly defined indicator/eligibility flag; NOT applied to final sample"
+      }
+    }
+  ],
+  "warnings": [],
+  "errors": [],
+  "overall": "completed",
+  "rows_after": 200,
+  "rows_before": 200,
+  "cols_after": 12,
+  "cols_before": 5,
+  "plan_sha256": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce"
+}

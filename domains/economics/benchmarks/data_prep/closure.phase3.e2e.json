@@ -1,0 +1,87 @@
+{
+  "pack": "Phase-3 Data Prep E2E closure",
+  "active_role_capability_chain": {
+    "data": [
+      "economics.data.harmonize",
+      "economics.data.construct",
+      "economics.data.validation"
+    ],
+    "empirical": [
+      "economics.regression.panel_fe"
+    ]
+  },
+  "implementations": {
+    "harmonize": "data.harmonize.python.pandas",
+    "construct": "data.construct.python.pandas",
+    "validation": "data.val.python.pandas",
+    "empirical": "panel.fe.python.linearmodels"
+  },
+  "maturity": {
+    "harmonize": "tested",
+    "construct": "tested",
+    "max_in_phase3": "tested",
+    "never": "verified"
+  },
+  "data_acceptance": {
+    "run_id": "7ed6ebc83014642c",
+    "accepted": true,
+    "source_variant_sha256": "7603249a87754ee2e6862c826197ef0dc063309d39fef6355dd605d8ff548394",
+    "canonical_grunfeld_lf_sha256": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "harmonize_plan_hash": "8fa0660fe3a5e9198d0fb411d97fed130d7ae193bba4e0c84b1e3b29b02b65b3",
+    "harmonized_sha256": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+    "harmonize_evidence_sha256": "f35865c2f17859a111778033aa7e32185cc95dbcb11b265eba48105a3775ab63",
+    "construct_plan_hash": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce",
+    "constructed_sha256": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
+    "construct_evidence_sha256": "7ed6ebc83014642cf1414fc164fe647ea3954bdf9e30e5631925a3e44f4e83c8",
+    "validation_result_sha256": "25afe1d7f42db32efcb6a24f0db4d6e7976990c2d89511a024eb1bfcce875c56",
+    "rules_id": "gcdv_grunfeld_rules_v1",
+    "rules_sha256": "bc7c814898cc78074d2169bbbeeed7c61742bd1a02a4af486e71778ef4b8dbff",
+    "hashes": {
+      "data_acceptance_run1": "80a95c1a986870e74ae483c94c19b717c7cc8cedfbc67330b9e7be6f456e5cae",
+      "execution_record_run1": "4623bb8eb7f7323dc86a8c4c7f4ae6cf0fa89dc0380bcd2697c143bc3f15e950",
+      "execution_record_run2": "3ba826539672a4a6477bc55902faad6e85b0bea26bc1fc4cc5853cc99919ecfb"
+    }
+  },
+  "e2e_result": {
+    "overall": "completed",
+    "empirical_gate": true,
+    "empirical": {
+      "implementation_id": "panel.fe.python.linearmodels",
+      "coefficients": {
+        "value": 0.11771585508260647,
+        "capital": 0.3579162730734277
+      },
+      "matches_frozen_within_tol": true,
+      "tolerance": 0.0001
+    }
+  },
+  "tamper_matrix": {
+    "bindings_verified_against_files": [
+      "source_variant_sha256",
+      "harmonize_plan_hash",
+      "harmonized_sha256",
+      "harmonize_execution_log_sha256",
+      "construct_plan_hash",
+      "constructed_sha256",
+      "construct_execution_log_sha256",
+      "validation_result_sha256",
+      "rules_sha256"
+    ],
+    "gate_blocks_on_material_upstream_change": true
+  },
+  "reproducibility": {
+    "runs": 2,
+    "acceptance_identical": true,
+    "empirical_coefficients_identical": true,
+    "harmonized_sha_identical": true,
+    "constructed_sha_identical": true,
+    "validation_sha_identical": true
+  },
+  "known_limitations": [
+    "empirical capability admission in the study env resolves to a tested implementation (panel.fe.stata.reghdfe), while the E2E execution proof runs the existing panel_fe linearmodels Python runner (experimental); admission and execution are separate and both evidenced",
+    "empirical gate uses the existing panel_fe linearmodels runner (point estimates match frozen canonical within 1e-4; clustered SE covariance definition difference is the known P7 DEFINITION_DIFFERENCE)",
+    "workflow integration evidence only; not a new estimator benchmark",
+    "maturity at most tested; not verified"
+  ],
+  "evidence_scope": "Phase-3 E2E data-prep workflow closure. Source variant -> Harmonize -> Construct -> Validation -> Data Acceptance -> Empirical gate. Domain evidence, NOT a Core artifact."
+}

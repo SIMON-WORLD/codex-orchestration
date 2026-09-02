@@ -1,0 +1,28 @@
+{
+  "study_id": "phase3_grunfeld_e2e_v1",
+  "domain": "economics",
+  "execution_context": { "mode": "test", "allow_experimental": true, "preferred_runtimes": ["python", "stata"] },
+  "selected_capabilities": {
+    "data": ["economics.data.harmonize", "economics.data.construct", "economics.data.validation"],
+    "empirical": ["economics.regression.panel_fe"]
+  },
+  "decisions": {
+    "variable_definition": "firm/year/invest/value/capital + harmless derived log/lag/ratio/growth/interaction (frozen real Grunfeld prep benchmark)",
+    "unit_of_analysis": "firm-year",
+    "clustering_level": "firm",
+    "control_set": "none (regressors value + capital only)",
+    "fixed_effects": "firm + year",
+    "sample_exclusion": "none (frozen balanced Grunfeld panel; no exclusions)"
+  },
+  "preconditions": { "design.panel": "unit_time" },
+  "manual_validations": { "sample_flow_defined": true },
+  "prep": {
+    "source_variant": "domains/economics/benchmarks/data_prep/sources/grunfeld_variant.csv",
+    "harmonize_plan": "domains/economics/benchmarks/data_prep/real_harmonize.plan.json",
+    "construct_plan": "domains/economics/benchmarks/data_prep/real_construct.plan.json",
+    "validation_rules": "domains/economics/benchmarks/data_validation/rules.json",
+    "canonical_reference": "domains/economics/benchmarks/panel_fe/grunfeld.csv",
+    "frozen_empirical_reference": "domains/economics/benchmarks/panel_fe/results/python.json"
+  },
+  "note": "Phase-3 E2E: Source variant -> Harmonize -> Construct -> Validation -> Data Acceptance -> Empirical gate (panel_fe). Maturity at most tested; workflow integration evidence only."
+}

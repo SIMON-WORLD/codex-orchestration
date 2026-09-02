@@ -1,0 +1,81 @@
+{
+  "study_id": "phase3_grunfeld_e2e_v1",
+  "run_tag": "run1",
+  "mode": "test",
+  "role_chain": {
+    "data": [
+      "harmonize",
+      "construct",
+      "validation"
+    ],
+    "empirical": [
+      "panel_fe"
+    ]
+  },
+  "director": "ready",
+  "contract_valid": true,
+  "preflight": {
+    "overall": "needs_decision",
+    "data_resolutions": {
+      "economics.data.harmonize": "needs_decision",
+      "economics.data.construct": "needs_decision",
+      "economics.data.validation": "resolved"
+    },
+    "empirical_resolutions": {
+      "economics.regression.panel_fe": "resolved"
+    }
+  },
+  "data_acceptance": {
+    "study_id": "phase3_grunfeld_e2e_v1",
+    "run_id": "7ed6ebc83014642c",
+    "source_variant_sha256": "7603249a87754ee2e6862c826197ef0dc063309d39fef6355dd605d8ff548394",
+    "canonical_grunfeld_sha256_lf": "d49d8a9e1721bd70fa2d74ff7a0955654b5704b89bc03e95f4aec3d686084adb",
+    "harmonize": {
+      "plan_hash": "8fa0660fe3a5e9198d0fb411d97fed130d7ae193bba4e0c84b1e3b29b02b65b3",
+      "harmonized_sha256": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+      "execution_log_sha256": "f35865c2f17859a111778033aa7e32185cc95dbcb11b265eba48105a3775ab63"
+    },
+    "construct": {
+      "plan_hash": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce",
+      "constructed_sha256": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
+      "execution_log_sha256": "7ed6ebc83014642cf1414fc164fe647ea3954bdf9e30e5631925a3e44f4e83c8"
+    },
+    "validation": {
+      "result_sha256": "25afe1d7f42db32efcb6a24f0db4d6e7976990c2d89511a024eb1bfcce875c56",
+      "rules_id": "gcdv_grunfeld_rules_v1",
+      "rules_sha256": "bc7c814898cc78074d2169bbbeeed7c61742bd1a02a4af486e71778ef4b8dbff",
+      "summary": {
+        "pass": 6,
+        "fail": 0,
+        "not_applicable": 1
+      }
+    },
+    "accepted": true,
+    "timestamp": null
+  },
+  "empirical_gate": true,
+  "binding_errors": [],
+  "empirical": {
+    "implementation_id": "panel.fe.python.linearmodels",
+    "n": 200,
+    "coefficients": {
+      "value": 0.11771585508260647,
+      "capital": 0.3579162730734277
+    },
+    "matches_frozen_within_tol": true,
+    "canonical_coefficients": {
+      "value": 0.11771585508260647,
+      "capital": 0.3579162730734277
+    },
+    "frozen_impl": "panel.fe.python.linearmodels"
+  },
+  "hashes": {
+    "harmonize_plan": "8fa0660fe3a5e9198d0fb411d97fed130d7ae193bba4e0c84b1e3b29b02b65b3",
+    "construct_plan": "eff1d692da112860022c2574e78c977ccedaf4741481dd0515fdcc124cf753ce",
+    "harmonized": "cebf235f7ff0d8e1be253e9411563334a802c63f8549f1a2d246931034ba779a",
+    "constructed": "9d9e0c82627595a3d3332c07b6949a8248ea9ffbd9d25a61ce9580e8bcb8272d",
+    "validation": "25afe1d7f42db32efcb6a24f0db4d6e7976990c2d89511a024eb1bfcce875c56"
+  },
+  "overall": "completed",
+  "out_dir": "E:\\BaiduSyncdisk\\Work\\Agent_automation\\Codex\\Project Test\\codex-orchestration\\domains\\economics\\benchmarks\\data_prep\\results\\e2e_run1"
+}
