@@ -1,0 +1,28 @@
+{
+  "case": "structural_vs_propagated",
+  "implementation_id": "data.construct.python.pandas",
+  "overall": "completed",
+  "warnings": [],
+  "errors": [],
+  "operations": [
+    {
+      "op_id": "lagv",
+      "kind": "lag",
+      "status": "ok",
+      "structural_missing_count": 1,
+      "input_missing_propagated_count": 1,
+      "detail": {
+        "status": "ok"
+      }
+    }
+  ],
+  "input_shas": {
+    "input": "f7e9550f5639a153364c45fd8ff6939133b8475d92e2a2baa92bc5ba6e73be6a"
+  },
+  "output_sha256": "459a3b8ae6b94c4084e1d513d4ff2ffdb239f50c2808fc0cd8a8f04793100af9",
+  "runner_error": null,
+  "expected": {
+    "fail_closed": false,
+    "warning": true
+  }
+}

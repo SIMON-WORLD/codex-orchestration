@@ -108,11 +108,18 @@ def apply_op(cur, op, plan, log):
             else:
                 tmp = cur.sort_values([pb, tb]); g = tmp.groupby(pb, sort=True)[op["source"]]
                 periods = int(op.get("periods", 1)); base = g.shift(periods)
+                pos = tmp.groupby(pb).cumcount(); size = tmp.groupby(pb)[pb].transform("size")
+                structural_boundary = int((pos < periods).sum())  # panel boundary / periods unavailable
                 if kind == "difference": v = tmp[op["source"]] - base
                 else:
                     if (base == 0).any() and not (base.isna().all()): st = op_result("fail", "growth_denominator_zero", int((base == 0).sum()))
                     else: v = (tmp[op["source"]] - base) / base
-                if st is None: cur[op["target"]] = v; smc = int(cur[op["target"]].isna().sum()); st = op_result("ok")
+                if st is None:
+                    cur[op["target"]] = v
+                    total_nan = int(cur[op["target"]].isna().sum())
+                    smc = structural_boundary
+                    prop = max(total_nan - smc, 0)
+                    st = op_result("ok")
         elif kind in ("lag", "lead"):
             pb = op.get("panel_by", plan.get("panel_by")); tb = op.get("time_by", plan.get("time_by"))
             if not pb or not tb: st = op_result("fail", "missing_panel_time")
@@ -120,15 +127,21 @@ def apply_op(cur, op, plan, log):
             elif cur.duplicated(subset=[pb, tb]).any(): st = op_result("fail", "duplicate_unit_time_key", int(cur.duplicated(subset=[pb, tb]).sum()))
             else:
                 tmp = cur.sort_values([pb, tb]); periods = int(op.get("periods", 1)); g = tmp.groupby(pb, sort=True)[op["source"]]
+                pos = tmp.groupby(pb).cumcount(); size = tmp.groupby(pb)[pb].transform("size")
                 shifted = g.shift(periods) if kind == "lag" else g.shift(-periods)
-                cur[op["target"]] = shifted; smc = int(shifted.isna().sum()); st = op_result("ok")
+                cur[op["target"]] = shifted
+                structural_boundary = int((pos < periods).sum()) if kind == "lag" else int((pos >= size - periods).sum())
+                total_nan = int(shifted.isna().sum())
+                smc = structural_boundary
+                prop = max(total_nan - smc, 0)
+                st = op_result("ok")
         elif kind == "indicator":
             cur[op["target"]] = eval_predicate(cur, op["predicate"]).astype(int); st = op_result("ok", "flag", "explicitly defined indicator/eligibility flag; NOT applied to final sample")
         else:
             st = op_result("fail", "unsupported_op", kind)
     except Exception as e:
         st = op_result("fail", "exception", str(e))
-    log["operations"].append({"op_id": op["op_id"], "kind": kind, "input": op_ins(op), "output": op.get("target") or None, "status": st["status"], "structural_missing_count": smc, "detail": st})
+    log["operations"].append({"op_id": op["op_id"], "kind": kind, "input": op_ins(op), "output": op.get("target") or None, "status": st["status"], "structural_missing_count": smc, "input_missing_propagated_count": (prop if kind in ("difference", "growth_rate", "lag", "lead") else 0), "detail": st})
     if st["status"] == "fail":
         log["errors"].append({"op_id": op["op_id"], "kind": kind, "detail": st}); log["overall"] = "failed"
     return cur, st

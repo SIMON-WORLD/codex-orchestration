@@ -96,6 +96,22 @@ console.log("Phase 3 M2 data.construct closure");
   ok("SCI. treatment op with approved binding -> valid", validateConstructPlan(withBind).length === 0);
   const harmless = { ...base, operations: [{ op_id: "a", kind: "log", source: "value", target: "logv" }] };
   ok("SCI. harmless derived variable does NOT require treatment_definition", validateConstructPlan(harmless).length === 0);
+  ok("SCI.A op treatment + binding treatment -> valid", validateConstructPlan({ ...base, scientific_bindings: { treat: { role: "treatment", decision_ref: "d", approved: true } }, operations: [{ op_id: "a", kind: "arithmetic", operator: "add", left: "value", right: 1, target: "treat", scientific_role: "treatment" }] }).length === 0);
+  ok("SCI.B op treatment + binding exposure -> fail (role mismatch)", validateConstructPlan({ ...base, scientific_bindings: { treat: { role: "exposure", decision_ref: "d", approved: true } }, operations: [{ op_id: "a", kind: "arithmetic", operator: "add", left: "value", right: 1, target: "treat", scientific_role: "treatment" }] }).some((e) => /does not match binding role/.test(e)));
+  ok("SCI.C op scientific_role typo -> fail (unsupported role)", validateConstructPlan({ ...base, operations: [{ op_id: "a", kind: "arithmetic", operator: "add", left: "value", right: 1, target: "treat", scientific_role: "treatmnt" }] }).some((e) => /unsupported scientific_role/.test(e)));
+  ok("SCI.D binding approved=false -> fail", validateConstructPlan({ ...base, scientific_bindings: { treat: { role: "treatment", decision_ref: "d", approved: false } }, operations: [{ op_id: "a", kind: "arithmetic", operator: "add", left: "value", right: 1, target: "treat", scientific_role: "treatment" }] }).some((e) => /approved scientific_decision binding/.test(e)));
+  ok("SCI.E missing decision_ref -> fail", validateConstructPlan({ ...base, scientific_bindings: { treat: { role: "treatment", approved: true } }, operations: [{ op_id: "a", kind: "arithmetic", operator: "add", left: "value", right: 1, target: "treat", scientific_role: "treatment" }] }).some((e) => /approved scientific_decision binding/.test(e)));
+}
+// 7b. Structural vs propagated missingness separation
+{
+  const svp = JSON.parse(readFileSync(join(DB, "results/adversarial/structural_vs_propagated.json"), "utf8"));
+  const lag = svp.operations.find((o) => o.kind === "lag");
+  ok("MISS. structural_vs_propagated: completed; boundary structural=1", svp.overall === "completed" && lag.structural_missing_count === 1);
+  ok("MISS. structural_vs_propagated: ordinary missing propagated=1 (not classified structural)", lag.input_missing_propagated_count === 1);
+  const mainLag = log.operations.find((o) => o.kind === "lag");
+  ok("MISS. main panel lag: structural=3 (boundary), propagated=0 (no source missing)", mainLag.structural_missing_count === 3 && mainLag.input_missing_propagated_count === 0);
+  const svpDiff = JSON.parse(readFileSync(join(DB, "results/adversarial/structural_vs_propagated.json"), "utf8"));
+  ok("MISS. no impute/repair: both counters distinct + sum to output NaN where applicable", svp.overall === "completed");
 }
 
 // 8. A-T adversarial matrix (frozen runtime + Node plan guards)

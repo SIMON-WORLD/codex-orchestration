@@ -25,6 +25,7 @@ const OP_REQUIRED = {
 };
 const PERIOD_KINDS = new Set(["lag", "lead", "difference", "growth_rate"]);
 const PRED_OPS = new Set(["gt", "gte", "lt", "lte", "eq", "neq", "and", "or"]);
+const SCI_ROLES = new Set(["treatment", "exposure", "instrument", "material_variable_definition"]);
 
 function collectPredicateCols(pred, out) {
   if (!pred || typeof pred !== "object") return;
@@ -104,10 +105,14 @@ export function validateConstructPlan(plan) {
         if ((plan.input?.columns || []).includes(op.target)) errs.push(`op ${op.op_id} output target '${op.target}' collides with an original input column`);
         targets.add(op.target);
       }
-      // scientific decision binding
+      // scientific decision binding (role must match + be a supported v1 role)
       if (op.scientific_role) {
+        const role = op.scientific_role;
+        if (!SCI_ROLES.has(role)) errs.push(`op ${op.op_id} unsupported scientific_role '${role}' (v1 supports treatment/exposure/instrument/material_variable_definition)`);
         const b = plan.scientific_bindings?.[op.target];
-        if (!b || b.approved !== true || !b.decision_ref) errs.push(`op ${op.op_id} declares scientific_role '${op.scientific_role}' but lacks an approved scientific_decision binding`);
+        if (!b || b.approved !== true || !b.decision_ref) errs.push(`op ${op.op_id} declares scientific_role '${role}' but lacks an approved scientific_decision binding`);
+        else if (!SCI_ROLES.has(b.role)) errs.push(`op ${op.op_id} unsupported binding role '${b.role}'`);
+        else if (b.role !== role) errs.push(`op ${op.op_id} scientific_role '${role}' does not match binding role '${b.role}'`);
       }
       if (kind === "indicator") validatePredicate(op.predicate, errs, `op ${op.op_id} predicate`);
       // after dependency check, target becomes defined for subsequent ops

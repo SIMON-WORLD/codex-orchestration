@@ -15,6 +15,7 @@
       "output": "value2",
       "status": "ok",
       "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -28,6 +29,7 @@
       "output": "log_value",
       "status": "ok",
       "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok",
         "missing_propagated": 0
@@ -43,6 +45,7 @@
       "output": "share",
       "status": "ok",
       "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -56,6 +59,7 @@
       "output": "d_value",
       "status": "ok",
       "structural_missing_count": 3,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -69,6 +73,7 @@
       "output": "g_value",
       "status": "ok",
       "structural_missing_count": 3,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -83,6 +88,7 @@
       "output": "value_treated",
       "status": "ok",
       "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -96,6 +102,7 @@
       "output": "lag_value",
       "status": "ok",
       "structural_missing_count": 3,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -109,6 +116,7 @@
       "output": "lead_value",
       "status": "ok",
       "structural_missing_count": 3,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok"
       }
@@ -123,6 +131,7 @@
       "output": "eligible",
       "status": "ok",
       "structural_missing_count": 0,
+      "input_missing_propagated_count": 0,
       "detail": {
         "status": "ok",
         "flag": "explicitly defined indicator/eligibility flag; NOT applied to final sample"

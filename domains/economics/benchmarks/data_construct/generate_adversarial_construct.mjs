@@ -57,5 +57,7 @@ writeCase("output_collision", "firm,year,value\nf001,1995,100\n", { }, [{ op_id:
 // 1. log missingness: positive + missing -> completed (missing propagates); negative -> fail
 writeCase("log_missing_propagate", "firm,year,value\nf001,1995,100\nf001,1996,\n", { }, [{ op_id: "logv", kind: "log", source: "value", target: "log_value" }], { expect: "warning" });
 writeCase("log_negative", "firm,year,value\nf001,1995,-5\n", { }, [{ op_id: "logv", kind: "log", source: "value", target: "log_value" }], { expect: "fail" });
+// 2. structural vs propagated missingness (lag)
+writeCase("structural_vs_propagated", "firm,year,value\nf001,1995,100\nf001,1996,\nf001,1997,130\n", { }, [{ op_id: "lagv", kind: "lag", source: "value", target: "lag_value" }], { expect: "warning" });
 rmSync(TMP, { recursive: true, force: true });
 console.log("done");
